@@ -6,5 +6,6 @@ class UserInfo(BaseModel):
     name: str
     role: str
     class_id: int | None = None
+    is_reviewer: bool = False
 
     model_config = ConfigDict(from_attributes=True)

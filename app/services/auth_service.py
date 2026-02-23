@@ -39,7 +39,7 @@ def register_user(
 	name: str,
 	role: str,
 	class_id: int | None,
-	is_auth: bool,
+	is_reviewer: bool | None,
 	email: str | None,
 	phone: str | None,
 ) -> User:
@@ -56,9 +56,9 @@ def register_user(
 		name=name,
 		role=role,
 		class_id=class_id,
+		is_reviewer=is_reviewer,
 		email=email,
 		phone=phone,
-		is_auth=is_auth,
 	)
 	db.add(user)
 	db.commit()

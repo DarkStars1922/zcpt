@@ -196,6 +196,7 @@ platform/
 	"name": "张三",
 	"role": "student",
 	"class_id": 1,
+	"is_reviewer": false,
 	"email": "zhangsan@example.com",
 	"phone": "13800000000"
 }

@@ -11,7 +11,7 @@ class User(SQLModel, table=True):
     password_hash: str = Field(sa_column=Column(String(255), nullable=False))
     name: str = Field(sa_column=Column(String(64), nullable=False))
     role: str = Field(default="student", sa_column=Column(String(20), nullable=False, default="student"))
-    is_auth: bool = Field(default=False, sa_column=Column(Integer, nullable=False, default=0))
+    is_reviewer: bool | None = Field(default=False, sa_column=Column(Integer, nullable=False, default=0))
     class_id: int | None = Field(default=None, sa_column=Column(Integer, nullable=True))
     email: str | None = Field(default=None, sa_column=Column(String(128), nullable=True))
     phone: str | None = Field(default=None, sa_column=Column(String(20), nullable=True))
