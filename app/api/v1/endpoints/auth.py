@@ -28,6 +28,7 @@ def register(request: Request, payload: RegisterRequest, db: Session = Depends(g
             name=payload.name,
             role=payload.role,
             class_id=payload.class_id,
+            is_reviewer=payload.is_reviewer,
             email=payload.email,
             phone=payload.phone,
         )
@@ -42,7 +43,7 @@ def register(request: Request, payload: RegisterRequest, db: Session = Depends(g
                 "id": user.id,
                 "name": user.name,
                 "role": user.role,
-                "class_id": user.class_id,
+                "class_id": user.class_id
             }
         },
     )

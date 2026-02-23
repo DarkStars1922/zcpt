@@ -123,9 +123,12 @@ python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```text
 platform/
 ├── app/
+│   ├── __init__.py
 │   ├── api/v1/endpoints/
 │   │   ├── auth.py
-│   │   └── applications.py
+│   │   ├── applications.py
+│   │   └── files.py
+│   ├── api/v1/router.py
 │   ├── core/
 │   │   ├── config.py
 │   │   ├── database.py
@@ -139,15 +142,57 @@ platform/
 │   │   └── application.py
 │   ├── schemas/
 │   │   ├── auth.py
-│   │   └── application.py
+│   │   ├── application.py
+│   │   ├── user.py
+│   │   └── common.py
 │   ├── services/
 │   │   ├── auth_service.py
-│   │   └── application_service.py
+│   │   ├── application_service.py
+│   │   └── file_service.py
 │   └── main.py
 ├── doc/
 ├── requirements.txt
 └── README.md
 ```
+
+### 6.1 各部分功能与作用
+
+- `app/main.py`
+	- 应用入口：创建 FastAPI 实例、注册路由、挂载中间件与全局异常处理。
+	- 在生命周期阶段初始化数据库表。
+
+- `app/api/v1/`
+	- 对外 API 层（接口层）。
+	- `router.py` 负责聚合 v1 所有业务路由。
+	- `endpoints/` 负责 HTTP 协议细节：接收请求、参数校验、鉴权依赖注入、统一响应返回。
+
+- `app/services/`
+	- 业务层：封装核心业务规则与流程，不关心 HTTP 细节。
+	- `auth_service.py` 负责登录、令牌刷新、当前用户解析等认证逻辑。
+	- `application_service.py` 负责申报的创建、查询、编辑、撤回、软删除等规则。
+	- `file_service.py` 负责文件上传校验（类型/大小）、落盘与读取定位。
+
+- `app/models/`
+	- 数据模型层（SQLModel/ORM）：定义数据库表结构与字段约束。
+	- 如 `user.py`、`refresh_token.py`、`application.py` 分别对应用户、刷新令牌、申报记录。
+
+- `app/schemas/`
+	- 数据契约层（Pydantic）：定义请求/响应的数据结构与校验规则。
+	- 例如登录请求、申报创建请求、附件字段校验等。
+
+- `app/dependencies/`
+	- 依赖注入层：沉淀可复用的 FastAPI 依赖。
+	- 当前主要是认证依赖（从 token 解析当前用户）。
+
+- `app/core/`
+	- 基础设施层：全局配置、数据库连接、响应封装、安全工具。
+	- 为上层提供统一且稳定的底层能力。
+
+- `doc/`
+	- 项目文档目录：存放接口说明与架构说明，用于开发联调与交付。
+
+- `requirements.txt`
+	- Python 依赖清单，保证开发与部署环境一致。
 
 ---
 

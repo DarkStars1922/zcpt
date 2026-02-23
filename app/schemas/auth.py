@@ -8,7 +8,7 @@ class RegisterRequest(BaseModel):
     password: str = Field(min_length=6, max_length=64)
     name: str = Field(min_length=1, max_length=64)
     role: str = Field(default="student")
-    is_auth: bool = Field(default=False)
+    is_reviewer: bool | None = Field(default=False)
     class_id: int | None = None
     email: EmailStr | None = None
     phone: str | None = None
