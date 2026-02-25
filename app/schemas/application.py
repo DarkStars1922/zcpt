@@ -15,23 +15,21 @@ class AttachmentPayload(BaseModel):
 
 
 class ApplicationCreateRequest(BaseModel):
-    award_type: str = Field(min_length=1, max_length=64)
-    award_level: str = Field(min_length=1, max_length=64)
+    award_uid: int = Field(ge=1)
     title: str = Field(min_length=1, max_length=255)
     description: str = Field(min_length=1, max_length=2000)
     occurred_at: date
     attachments: list[AttachmentPayload] = Field(default_factory=list)
-    category: str = Field(default="intellectual", max_length=32)
-    sub_type: str = Field(default="discipline_competition", max_length=64)
+    category: str = Field(min_length=1, max_length=32)
+    sub_type: str = Field(min_length=1, max_length=64)
 
 
 class ApplicationUpdateRequest(BaseModel):
-    award_type: str = Field(min_length=1, max_length=64)
-    award_level: str = Field(min_length=1, max_length=64)
+    award_uid: int = Field(ge=1)
     title: str = Field(min_length=1, max_length=255)
     description: str = Field(min_length=1, max_length=2000)
     occurred_at: date
     attachments: list[AttachmentPayload] = Field(default_factory=list)
-    category: str = Field(default="intellectual", max_length=32)
-    sub_type: str = Field(default="discipline_competition", max_length=64)
+    category: str = Field(min_length=1, max_length=32)
+    sub_type: str = Field(min_length=1, max_length=64)
     version: int = Field(ge=1)

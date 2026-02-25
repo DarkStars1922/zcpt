@@ -78,7 +78,6 @@ python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 | 接口 | 状态 | 说明 |
 |---|---|---|
 | `POST /api/v1/applications` | ✅ 已实现 | 创建申报 |
-| `GET /api/v1/applications/my` | ✅ 已实现 | 我的申报列表 |
 | `GET /api/v1/applications/my/category-summary` | ✅ 已实现 | 分类汇总 |
 | `GET /api/v1/applications/my/by-category` | ✅ 已实现 | 分类明细 |
 | `GET /api/v1/applications/{application_id}` | ✅ 已实现 | 详情 |
@@ -401,18 +400,17 @@ platform/
 
 ```json
 {
-	"award_type": "竞赛",
-	"award_level": "国家级一等奖",
-	"title": "全国大学生数学建模竞赛",
-	"description": "团队获奖",
+	"award_uid": 111,
+	"title": "让用户输入申报标题",
+	"description": "让用户输入细节描述，对已选的award做一些补充说明",
 	"occurred_at": "2026-01-15",
 	"attachments": [
 		{
 			"file_id": "file_abc123"
 		}
 	],
-	"category": "intellectual",
-	"sub_type": "discipline_competition"
+	"category": "physical_mental",
+	"sub_type": "basic"
 }
 ```
 
@@ -426,7 +424,6 @@ platform/
 		"id": 10,
 		"status": "pending_ai",
 		"item_score": null,
-		"total_score": null,
 		"score_rule_version": null,
 		"created_at": "2026-02-21T10:00:00+00:00"
 	},
@@ -434,42 +431,7 @@ platform/
 }
 ```
 
-#### 2) 我的申报列表
-
-- 接口：`GET /api/v1/applications/my`
-- 权限：仅学生（已登录，`role=student`）
-- Query：`status`、`award_type`、`category`、`keyword`、`page`、`size`
-
-返回 JSON（成功）：
-
-```json
-{
-	"code": 0,
-	"message": "获取成功",
-	"data": {
-		"page": 1,
-		"size": 10,
-		"total": 1,
-		"list": [
-			{
-				"id": 10,
-				"category": "intellectual",
-				"sub_type": "discipline_competition",
-				"award_type": "竞赛",
-				"award_level": "国家级一等奖",
-				"title": "全国大学生数学建模竞赛",
-				"status": "pending_ai",
-				"item_score": null,
-				"total_score": null,
-				"created_at": "2026-02-21T10:00:00+00:00"
-			}
-		]
-	},
-	"request_id": "uuid"
-}
-```
-
-#### 3) 分类汇总
+#### 2) 分类汇总
 
 - 接口：`GET /api/v1/applications/my/category-summary`
 - 权限：仅学生（已登录，`role=student`）
@@ -485,8 +447,8 @@ platform/
 		"term": "2025-2026-1",
 		"categories": [
 			{
-				"category": "intellectual",
-				"category_name": "学业科研",
+				"category": "physical_mental",
+				"sub_type": "basic",
 				"count": 3,
 				"approved": 1,
 				"pending": 2,
@@ -500,7 +462,7 @@ platform/
 }
 ```
 
-#### 4) 分类明细
+#### 3) 分类明细
 
 - 接口：`GET /api/v1/applications/my/by-category`
 - 权限：仅学生（已登录，`role=student`）
@@ -513,15 +475,15 @@ platform/
 	"code": 0,
 	"message": "获取成功",
 	"data": {
-		"category": "intellectual",
+		"category": "physical_mental",
 		"term": "2025-2026-1",
 		"list": [
 			{
+				"award_uid": 123,
 				"application_id": 10,
 				"title": "全国大学生数学建模竞赛",
 				"status": "pending_ai",
-				"item_score": null,
-				"total_score": null
+				"item_score": null
 			}
 		]
 	},
@@ -529,10 +491,10 @@ platform/
 }
 ```
 
-#### 5) 申报详情
+#### 4) 申报详情
 
 - 接口：`GET /api/v1/applications/{application_id}`
-- 权限：已登录且角色属于 `student/teacher`
+- 权限：已登录且角色属于 `student/teacher/admin/reviewer`
 - 额外限制：学生仅可查看本人申报
 
 返回 JSON（成功）：
@@ -543,10 +505,9 @@ platform/
 	"message": "获取成功",
 	"data": {
 		"id": 10,
-		"category": "intellectual",
-		"sub_type": "discipline_competition",
-		"award_type": "竞赛",
-		"award_level": "国家级一等奖",
+		"category": "physical_mental",
+		"sub_type": "basic",
+		"award_uid": 111,
 		"title": "全国大学生数学建模竞赛",
 		"description": "团队获奖",
 		"occurred_at": "2026-01-15",
@@ -557,7 +518,7 @@ platform/
 		],
 		"status": "pending_ai",
 		"item_score": null,
-		"total_score": null,
+		"comment": "审核人/教师 的评论（可为空）",
 		"version": 1,
 		"created_at": "2026-02-21T10:00:00+00:00"
 	},
@@ -565,7 +526,7 @@ platform/
 }
 ```
 
-#### 6) 更新申报
+#### 5) 更新申报
 
 - 接口：`PUT /api/v1/applications/{application_id}`
 - 权限：仅学生（已登录，`role=student`）且仅本人数据
@@ -576,8 +537,7 @@ platform/
 
 ```json
 {
-	"award_type": "竞赛",
-	"award_level": "国家级二等奖",
+	"award_uid": 123,
 	"title": "全国大学生数学建模竞赛（修订）",
 	"description": "补充说明",
 	"occurred_at": "2026-01-15",
@@ -586,8 +546,8 @@ platform/
 			"file_id": "file_abc123"
 		}
 	],
-	"category": "intellectual",
-	"sub_type": "discipline_competition",
+	"category": "physical_mental",
+	"sub_type": "basic",
 	"version": 1
 }
 ```
@@ -608,7 +568,7 @@ platform/
 }
 ```
 
-#### 7) 撤回申报
+#### 6) 撤回申报
 
 - 接口：`POST /api/v1/applications/{application_id}/withdraw`
 - 权限：仅学生（已登录，`role=student`）且仅本人数据
@@ -629,7 +589,7 @@ platform/
 }
 ```
 
-#### 8) 删除申报（软删）
+#### 7) 删除申报（软删）
 
 - 接口：`DELETE /api/v1/applications/{application_id}`
 - 权限：

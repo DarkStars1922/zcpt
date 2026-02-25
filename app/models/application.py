@@ -13,15 +13,14 @@ class Application(SQLModel, table=True):
     )
 
     category: str = Field(
-        default="intellectual",
-        sa_column=Column(String(32), nullable=False, default="intellectual"),
+        default="physical_mental",
+        sa_column=Column(String(32), nullable=False, default="physical_mental"),
     )
     sub_type: str = Field(
-        default="discipline_competition",
-        sa_column=Column(String(64), nullable=False, default="discipline_competition"),
+        default="basic",
+        sa_column=Column(String(64), nullable=False, default="basic"),
     )
-    award_type: str = Field(sa_column=Column(String(64), nullable=False))
-    award_level: str = Field(sa_column=Column(String(64), nullable=False))
+    award_uid: int = Field(sa_column=Column(Integer, nullable=False, index=True))
     title: str = Field(sa_column=Column(String(255), nullable=False))
     description: str = Field(sa_column=Column(Text, nullable=False))
     occurred_at: date = Field(sa_column=Column(Date, nullable=False))
@@ -30,7 +29,7 @@ class Application(SQLModel, table=True):
 
     status: str = Field(default="pending_ai", sa_column=Column(String(32), nullable=False, default="pending_ai", index=True))
     item_score: float | None = Field(default=None, sa_column=Column(Float, nullable=True))
-    total_score: float | None = Field(default=None, sa_column=Column(Float, nullable=True))
+    comment: str | None = Field(default=None, sa_column=Column(Text, nullable=True))
     score_rule_version: str | None = Field(default=None, sa_column=Column(String(32), nullable=True))
 
     version: int = Field(default=1, sa_column=Column(Integer, nullable=False, default=1))
