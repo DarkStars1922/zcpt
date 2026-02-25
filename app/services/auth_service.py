@@ -13,6 +13,7 @@ from app.core.security import (
 	verify_password,
 )
 from app.models.refresh_token import RefreshToken
+from app.models.reviewer_token import ReviewerToken
 from app.models.user import User
 
 VALID_ROLES = {"student", "teacher", "admin"}
@@ -131,6 +132,22 @@ def get_current_user_by_access_token(db: Session, access_token: str) -> User:
 	user = db.get(User, int(payload["sub"]))
 	if not user:
 		raise AuthError("用户不存在", 1002)
+
+	if user.reviewer_token_id is not None:
+		bound_token = db.get(ReviewerToken, user.reviewer_token_id)
+		now = datetime.now(timezone.utc)
+		should_clear = (
+			bound_token is None
+			or bound_token.is_revoked
+			or _ensure_utc_aware(bound_token.expired_at) < now
+		)
+
+		if should_clear:
+			user.is_reviewer = False
+			user.reviewer_token_id = None
+			db.add(user)
+			db.commit()
+			db.refresh(user)
 	return user
 
 

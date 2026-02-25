@@ -1,9 +1,11 @@
 # 综测平台后端（接口文档对齐版）
 
-本仓库当前实现了两个业务模块：
+本仓库当前实现了四个业务模块：
 
 - 认证与权限（Auth）
 - 学生申报（Applications）
+- 文件上传与下载（Files）
+- 评审令牌管理（Tokens）
 
 技术栈：FastAPI + SQLModel + JWT + bcrypt + SQLite（可切换 MySQL）
 
@@ -84,6 +86,22 @@ python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 | `POST /api/v1/applications/{application_id}/withdraw` | ✅ 已实现 | 撤回 |
 | `DELETE /api/v1/applications/{application_id}` | ✅ 已实现 | 软删 |
 
+### 3.3 文件模块
+
+| 接口 | 状态 | 说明 |
+|---|---|---|
+| `POST /api/v1/files/upload` | ✅ 已实现 | 上传文件，返回 `file_id` 和访问 URL |
+| `GET /api/v1/files/{file_id}` | ✅ 已实现 | 下载/预览文件（`FileResponse`） |
+
+### 3.4 评审令牌模块
+
+| 接口 | 状态 | 说明 |
+|---|---|---|
+| `POST /api/v1/tokens/reviewer` | ✅ 已实现 | 教师/管理员创建评审令牌 |
+| `POST /api/v1/tokens/reviewer/activate` | ✅ 已实现 | 学生激活评审身份 |
+| `GET /api/v1/tokens` | ✅ 已实现 | 教师/管理员分页查看令牌 |
+| `POST /api/v1/tokens/{token_id}/revoke` | ✅ 已实现 | 教师/管理员令牌失效 |
+
 ---
 
 ## 4. 当前业务规则
@@ -115,6 +133,7 @@ python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 - `user_info`：用户基础信息
 - `refresh_token_record`：refresh token 记录与状态
 - `comprehensive_apply`：申报信息（含 `version`、`is_deleted`、`attachments_json`）
+- `reviewer_token_record`：评审令牌记录（含状态、激活信息、失效信息）
 
 ---
 
@@ -127,7 +146,8 @@ platform/
 │   ├── api/v1/endpoints/
 │   │   ├── auth.py
 │   │   ├── applications.py
-│   │   └── files.py
+│   │   ├── files.py
+│   │   └── tokens.py
 │   ├── api/v1/router.py
 │   ├── core/
 │   │   ├── config.py
@@ -139,16 +159,19 @@ platform/
 │   ├── models/
 │   │   ├── user.py
 │   │   ├── refresh_token.py
-│   │   └── application.py
+│   │   ├── application.py
+│   │   └── reviewer_token.py
 │   ├── schemas/
 │   │   ├── auth.py
 │   │   ├── application.py
+│   │   ├── token.py
 │   │   ├── user.py
 │   │   └── common.py
 │   ├── services/
 │   │   ├── auth_service.py
 │   │   ├── application_service.py
-│   │   └── file_service.py
+│   │   ├── file_service.py
+│   │   └── token_service.py
 │   └── main.py
 ├── doc/
 ├── requirements.txt
@@ -171,6 +194,7 @@ platform/
 	- `auth_service.py` 负责登录、令牌刷新、当前用户解析等认证逻辑。
 	- `application_service.py` 负责申报的创建、查询、编辑、撤回、软删除等规则。
 	- `file_service.py` 负责文件上传校验（类型/大小）、落盘与读取定位。
+	- `token_service.py` 负责评审令牌创建、激活、查询、失效与过期绑定清理。
 
 - `app/models/`
 	- 数据模型层（SQLModel/ORM）：定义数据库表结构与字段约束。
@@ -220,6 +244,19 @@ platform/
 	"code": 1003,
 	"message": "无权限",
 	"request_id": "uuid"
+}
+```
+
+失败（带 error 详情）：
+
+```json
+{
+	"code": 1001,
+	"message": "参数校验失败",
+	"request_id": "uuid",
+	"error": {
+		"reason": "attachments[].file_id 或 attachments[].file_url 至少提供一个"
+	}
 }
 ```
 
@@ -495,7 +532,7 @@ platform/
 #### 5) 申报详情
 
 - 接口：`GET /api/v1/applications/{application_id}`
-- 权限：已登录且角色属于 `student/teacher/admin/reviewer`
+- 权限：已登录且角色属于 `student/teacher`
 - 额外限制：学生仅可查看本人申报
 
 返回 JSON（成功）：
@@ -605,6 +642,156 @@ platform/
 {
 	"code": 0,
 	"message": "删除成功",
+	"data": {},
+	"request_id": "uuid"
+}
+```
+
+---
+
+### 7.4 文件模块（Files）
+
+#### 1) 上传文件
+
+- 接口：`POST /api/v1/files/upload`
+- 权限：已登录用户（`Authorization: Bearer <access_token>`）
+- Content-Type：`multipart/form-data`
+- 表单字段：`file`
+
+返回 JSON（成功）：
+
+```json
+{
+	"code": 0,
+	"message": "上传成功",
+	"data": {
+		"file_id": "f_3b6e4b08fd5c4e6f9d",
+		"filename": "award.pdf",
+		"content_type": "application/pdf",
+		"size": 245761,
+		"url": "http://127.0.0.1:8000/api/v1/files/f_3b6e4b08fd5c4e6f9d"
+	},
+	"request_id": "uuid"
+}
+```
+
+#### 2) 获取文件
+
+- 接口：`GET /api/v1/files/{file_id}`
+- 权限：当前实现无需登录
+- 返回：文件流（`FileResponse`），非统一 JSON 结构
+
+---
+
+### 7.5 评审令牌（Tokens）
+
+#### 1) 创建评审令牌
+
+- 接口：`POST /api/v1/tokens/reviewer`
+- 权限：教师或管理员（`role in {teacher, admin}`）
+
+请求 JSON：
+
+```json
+{
+	"class_ids": [1, 2, 3],
+	"expired_at": "2026-03-01T23:59:59Z"
+}
+```
+
+返回 JSON（成功）：
+
+```json
+{
+	"code": 0,
+	"message": "创建成功",
+	"data": {
+		"token_id": 1,
+		"token": "rvw_a1b2c3d4e5f6g7h8",
+		"type": "reviewer",
+		"class_ids": [1, 2, 3],
+		"expired_at": "2026-03-01T23:59:59+00:00"
+	},
+	"request_id": "uuid"
+}
+```
+
+#### 2) 激活评审令牌
+
+- 接口：`POST /api/v1/tokens/reviewer/activate`
+- 权限：学生（`role=student`）
+
+请求 JSON：
+
+```json
+{
+	"token": "rvw_a1b2c3d4e5f6g7h8"
+}
+```
+
+返回 JSON（成功）：
+
+```json
+{
+	"code": 0,
+	"message": "激活成功",
+	"data": {
+		"token_id": 1,
+		"status": "active",
+		"activated_user_id": 1001,
+		"activated_at": "2026-02-24T03:10:23.325193+00:00",
+		"is_reviewer": true,
+		"reviewer_token_id": 1
+	},
+	"request_id": "uuid"
+}
+```
+
+#### 3) 令牌列表
+
+- 接口：`GET /api/v1/tokens`
+- 权限：教师或管理员（`role in {teacher, admin}`）
+- Query：`type=reviewer`、`status`（可选：`active/expired/revoked`）、`page`、`size`
+
+返回 JSON（成功）：
+
+```json
+{
+	"code": 0,
+	"message": "获取成功",
+	"data": {
+		"page": 1,
+		"size": 10,
+		"total": 1,
+		"list": [
+			{
+				"id": 1,
+				"token": "rvw_a1b2c3d4e5f6g7h8",
+				"type": "reviewer",
+				"class_ids": [1, 2, 3],
+				"status": "active",
+				"expired_at": "2026-03-01T23:59:59+00:00",
+				"created_at": "2026-02-24T03:00:00+00:00",
+				"activated_at": "2026-02-24T03:10:23.325193+00:00",
+				"activated_user_id": 1001
+			}
+		]
+	},
+	"request_id": "uuid"
+}
+```
+
+#### 4) 令牌失效
+
+- 接口：`POST /api/v1/tokens/{token_id}/revoke`
+- 权限：教师或管理员（`role in {teacher, admin}`）
+
+返回 JSON（成功）：
+
+```json
+{
+	"code": 0,
+	"message": "失效成功",
 	"data": {},
 	"request_id": "uuid"
 }
