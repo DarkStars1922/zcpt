@@ -1,11 +1,12 @@
 # 综测平台后端（接口文档对齐版）
 
-本仓库当前实现了四个业务模块：
+本仓库当前实现了五个业务模块：
 
 - 认证与权限（Auth）
 - 学生申报（Applications）
 - 文件上传与下载（Files）
 - 评审令牌管理（Tokens）
+- 审核员审核（Reviews）
 
 技术栈：FastAPI + SQLModel + JWT + bcrypt + SQLite（可切换 MySQL）
 
@@ -81,7 +82,7 @@ python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 | `GET /api/v1/applications/my/category-summary` | ✅ 已实现 | 分类汇总 |
 | `GET /api/v1/applications/my/by-category` | ✅ 已实现 | 分类明细 |
 | `GET /api/v1/applications/{application_id}` | ✅ 已实现 | 详情 |
-| `PUT /api/v1/applications/{application_id}` | ✅ 已实现 | 支持 `version` 并发控制 |
+| `PUT /api/v1/applications/{application_id}` | ✅ 已实现 | 更新申报 |
 | `POST /api/v1/applications/{application_id}/withdraw` | ✅ 已实现 | 撤回 |
 | `DELETE /api/v1/applications/{application_id}` | ✅ 已实现 | 软删 |
 
@@ -101,6 +102,18 @@ python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 | `GET /api/v1/tokens` | ✅ 已实现 | 教师/管理员分页查看令牌 |
 | `POST /api/v1/tokens/{token_id}/revoke` | ✅ 已实现 | 教师/管理员令牌失效 |
 
+### 3.5 审核员审核模块
+
+| 接口 | 状态 | 说明 |
+|---|---|---|
+| `GET /api/v1/reviews/pending` | ✅ 已实现 | 获取待审核列表 |
+| `GET /api/v1/reviews/pending/category-summary` | ✅ 已实现 | 待审核分类汇总 |
+| `GET /api/v1/reviews/pending/by-category` | ✅ 已实现 | 按分类查看待审核明细 |
+| `GET /api/v1/reviews/{application_id}` | ✅ 已实现 | 审核详情 |
+| `POST /api/v1/reviews/{application_id}/decision` | ✅ 已实现 | 提交审核决策 |
+| `GET /api/v1/reviews/history` | ✅ 已实现 | 我的审核历史 |
+| `GET /api/v1/reviews/pending-count` | ✅ 已实现 | 待审核数量 |
+
 ---
 
 ## 4. 当前业务规则
@@ -116,14 +129,17 @@ python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 - 学生仅可操作本人申报
 - 管理员可执行软删
+- 创建后默认状态：`pending_review`（当前阶段跳过 AI 审核）
 - 编辑与撤回仅允许状态：`pending_ai` / `ai_abnormal` / `pending_review`
-- 并发控制：`version` 不一致返回 `1007`
+- 分数字段统一为 `score`：当奖项规则 `score=0` 时，创建/编辑请求中的 `score` 必填
 
 ### 4.3 状态流转
 
-- 已落地：`pending_ai -> withdrawn`
+- 已落地：`pending_review -> withdrawn`
 - 已支持编辑区间：`pending_ai` / `ai_abnormal` / `pending_review`
-- 后续（文档推荐）：`pending_ai -> (pending_review | ai_abnormal) -> (approved | rejected) -> archived`
+- 审核员（班委）审核：`pending_review` / `ai_abnormal` -> `pending_teacher` / `rejected`
+- 教师复核：`pending_teacher` -> `approved` / `rejected`
+- 后续（开启 AI 审核后）：`pending_ai -> (pending_review | ai_abnormal) -> (approved | rejected) -> archived`
 
 ---
 
@@ -131,8 +147,9 @@ python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 - `user_info`：用户基础信息
 - `refresh_token_record`：refresh token 记录与状态
-- `comprehensive_apply`：申报信息（含 `version`、`is_deleted`、`attachments_json`）
+- `comprehensive_apply`：申报信息（含 `is_deleted`、`attachments_json`）
 - `reviewer_token_record`：评审令牌记录（含状态、激活信息、失效信息）
+- `review_record`：审核记录（审核人、决策、驳回原因、时间等）
 
 ---
 
@@ -146,6 +163,7 @@ platform/
 │   │   ├── auth.py
 │   │   ├── applications.py
 │   │   ├── files.py
+│   │   ├── reviews.py
 │   │   └── tokens.py
 │   ├── api/v1/router.py
 │   ├── core/
@@ -159,10 +177,12 @@ platform/
 │   │   ├── user.py
 │   │   ├── refresh_token.py
 │   │   ├── application.py
+│   │   ├── review_record.py
 │   │   └── reviewer_token.py
 │   ├── schemas/
 │   │   ├── auth.py
 │   │   ├── application.py
+│   │   ├── review.py
 │   │   ├── token.py
 │   │   ├── user.py
 │   │   └── common.py
@@ -170,6 +190,7 @@ platform/
 │   │   ├── auth_service.py
 │   │   ├── application_service.py
 │   │   ├── file_service.py
+│   │   ├── review_service.py
 │   │   └── token_service.py
 │   └── main.py
 ├── doc/
@@ -193,15 +214,16 @@ platform/
 	- `auth_service.py` 负责登录、令牌刷新、当前用户解析等认证逻辑。
 	- `application_service.py` 负责申报的创建、查询、编辑、撤回、软删除等规则。
 	- `file_service.py` 负责文件上传校验（类型/大小）、落盘与读取定位。
+	- `review_service.py` 负责审核员待审列表、决策提交、历史记录与权限范围判定。
 	- `token_service.py` 负责评审令牌创建、激活、查询、失效与过期绑定清理。
 
 - `app/models/`
 	- 数据模型层（SQLModel/ORM）：定义数据库表结构与字段约束。
-	- 如 `user.py`、`refresh_token.py`、`application.py` 分别对应用户、刷新令牌、申报记录。
+	- 如 `user.py`、`refresh_token.py`、`application.py`、`review_record.py` 分别对应用户、刷新令牌、申报记录、审核记录。
 
 - `app/schemas/`
 	- 数据契约层（Pydantic）：定义请求/响应的数据结构与校验规则。
-	- 例如登录请求、申报创建请求、附件字段校验等。
+	- 例如登录请求、申报创建请求、审核决策请求、附件字段校验等。
 
 - `app/dependencies/`
 	- 依赖注入层：沉淀可复用的 FastAPI 依赖。
@@ -410,9 +432,12 @@ platform/
 		}
 	],
 	"category": "physical_mental",
-	"sub_type": "basic"
+	"sub_type": "basic",
+	"score": null
 }
 ```
+
+说明：当 `award_uid` 对应规则 `score=0` 时，`score` 必填。
 
 返回 JSON（成功）：
 
@@ -422,9 +447,9 @@ platform/
 	"message": "创建成功",
 	"data": {
 		"id": 10,
-		"status": "pending_ai",
-		"item_score": null,
-		"score_rule_version": null,
+		"status": "pending_review",
+		"score": 5.0,
+		"award_uid": 111,
 		"created_at": "2026-02-21T10:00:00+00:00"
 	},
 	"request_id": "uuid"
@@ -479,11 +504,11 @@ platform/
 		"term": "2025-2026-1",
 		"list": [
 			{
-				"award_uid": 123,
+				"uid": 123,
 				"application_id": 10,
 				"title": "全国大学生数学建模竞赛",
-				"status": "pending_ai",
-				"item_score": null
+				"status": "pending_review",
+				"score": null
 			}
 		]
 	},
@@ -507,6 +532,7 @@ platform/
 		"id": 10,
 		"category": "physical_mental",
 		"sub_type": "basic",
+		"uid": 111,
 		"award_uid": 111,
 		"title": "全国大学生数学建模竞赛",
 		"description": "团队获奖",
@@ -516,10 +542,9 @@ platform/
 				"file_id": "file_abc123"
 			}
 		],
-		"status": "pending_ai",
-		"item_score": null,
+		"status": "pending_review",
+		"score": null,
 		"comment": "审核人/教师 的评论（可为空）",
-		"version": 1,
 		"created_at": "2026-02-21T10:00:00+00:00"
 	},
 	"request_id": "uuid"
@@ -531,7 +556,6 @@ platform/
 - 接口：`PUT /api/v1/applications/{application_id}`
 - 权限：仅学生（已登录，`role=student`）且仅本人数据
 - 状态限制：仅 `pending_ai` / `ai_abnormal` / `pending_review`
-- 并发控制：请求 `version` 必须与数据库一致
 
 请求 JSON：
 
@@ -548,7 +572,7 @@ platform/
 	],
 	"category": "physical_mental",
 	"sub_type": "basic",
-	"version": 1
+	"score": null
 }
 ```
 
@@ -560,8 +584,7 @@ platform/
 	"message": "更新成功",
 	"data": {
 		"id": 10,
-		"status": "pending_ai",
-		"version": 2,
+		"status": "pending_review",
 		"updated_at": "2026-02-21T10:05:00+00:00"
 	},
 	"request_id": "uuid"
@@ -582,8 +605,7 @@ platform/
 	"message": "撤回成功",
 	"data": {
 		"id": 10,
-		"status": "withdrawn",
-		"version": 3
+		"status": "withdrawn"
 	},
 	"request_id": "uuid"
 }
@@ -676,6 +698,285 @@ platform/
 }
 ```
 
+---
+
+### 7.6 人工审核（审核员/教师，Reviews）
+
+> 权限说明（统一接口，不同条件）：
+>
+> - 审核员：沿用 `student` 账号，通过激活审核员令牌后（`is_reviewer=true` 且绑定 `reviewer_token_id`）获得审核能力；数据范围受令牌 `class_ids` 限制；可审核状态为 `pending_review` / `ai_abnormal`。
+> - 教师（含管理员）：可访问全局数据（支持 `class_id` 过滤）；可审核状态为 `pending_teacher`（复核改判入口）。
+
+#### 1) 获取待审核列表
+
+- 接口：`GET /api/v1/reviews/pending`
+- 权限：审核员 / 教师
+- Query：`class_id`、`category`、`sub_type`、`keyword`、`page`、`size`
+
+说明：教师调用该接口时返回“待复核”集合（状态为 `pending_teacher`）。
+
+返回 JSON（成功）：
+
+```json
+{
+	"code": 0,
+	"message": "获取成功",
+	"data": {
+		"page": 1,
+		"size": 10,
+		"total": 1,
+		"list": [
+			{
+				"application_id": 12,
+				"student_id": 1002,
+				"student_name": "李四",
+				"class_id": 301,
+				"title": "数学建模竞赛",
+				"category": "intellectual",
+				"sub_type": "discipline_competition",
+				"status": "pending_review",
+				"score": 4.0,
+				"created_at": "2026-02-26T10:00:00+00:00"
+			}
+		]
+	},
+	"request_id": "uuid"
+}
+```
+
+教师视角示例（仅状态差异）：
+
+```json
+{
+	"code": 0,
+	"message": "获取成功",
+	"data": {
+		"page": 1,
+		"size": 10,
+		"total": 1,
+		"list": [
+			{
+				"application_id": 12,
+				"student_id": 1002,
+				"student_name": "李四",
+				"class_id": 301,
+				"title": "数学建模竞赛",
+				"category": "intellectual",
+				"sub_type": "discipline_competition",
+				"status": "pending_teacher",
+				"score": 4.0,
+				"created_at": "2026-02-26T10:00:00+00:00"
+			}
+		]
+	},
+	"request_id": "uuid"
+}
+```
+
+#### 2) 获取待审核分类汇总
+
+- 接口：`GET /api/v1/reviews/pending/category-summary`
+- 权限：审核员 / 教师
+- Query：`class_id`、`term`
+
+返回 JSON（成功）：
+
+```json
+{
+	"code": 0,
+	"message": "获取成功",
+	"data": {
+		"class_id": 301,
+		"term": "2025-2026-1",
+		"categories": [
+			{
+				"category": "intellectual",
+				"category_name": "intellectual",
+				"pending_count": 8,
+				"approved_count": 23,
+				"rejected_count": 5
+			}
+		]
+	},
+	"request_id": "uuid"
+}
+```
+
+教师复核通过示例：
+
+```json
+{
+	"code": 0,
+	"message": "审核完成",
+	"data": {
+		"application_id": 12,
+		"status": "approved",
+		"review_id": 10,
+		"reviewed_at": "2026-02-26T11:30:00+00:00"
+	},
+	"request_id": "uuid"
+}
+```
+
+#### 3) 按分类获取待审核明细
+
+- 接口：`GET /api/v1/reviews/pending/by-category`
+- 权限：审核员 / 教师
+- Query：`class_id`、`category`（必填）、`sub_type`、`term`、`page`、`size`
+
+返回 JSON（成功）：
+
+```json
+{
+	"code": 0,
+	"message": "获取成功",
+	"data": {
+		"class_id": 301,
+		"category": "intellectual",
+		"term": "2025-2026-1",
+		"page": 1,
+		"size": 10,
+		"total": 1,
+		"list": [
+			{
+				"application_id": 12,
+				"student_name": "李四",
+				"status": "pending_review",
+				"score": 4.0
+			}
+		]
+	},
+	"request_id": "uuid"
+}
+```
+
+#### 4) 获取审核详情
+
+- 接口：`GET /api/v1/reviews/{application_id}`
+- 权限：审核员 / 教师
+
+返回 JSON（成功）：
+
+```json
+{
+	"code": 0,
+	"message": "获取成功",
+	"data": {
+		"id": 12,
+		"student": {
+			"id": 1002,
+			"name": "李四",
+			"account": "20230002",
+			"class_id": 301
+		},
+		"category": "intellectual",
+		"sub_type": "discipline_competition",
+		"uid": 111,
+		"award_uid": 111,
+		"title": "数学建模竞赛",
+		"description": "省赛二等奖",
+		"occurred_at": "2026-01-10",
+		"attachments": [{"file_id": "file_abc123"}],
+		"status": "pending_review",
+		"score": 4.0,
+		"comment": null,
+		"created_at": "2026-02-26T10:00:00+00:00",
+		"updated_at": "2026-02-26T10:00:00+00:00"
+	},
+	"request_id": "uuid"
+}
+```
+
+#### 5) 提交审核决策
+
+- 接口：`POST /api/v1/reviews/{application_id}/decision`
+- 权限：审核员 / 教师
+- 请求 JSON：
+
+```json
+{
+	"decision": "approved",
+	"comment": "材料齐全",
+	"reason_code": null,
+	"reason_text": null
+}
+```
+
+说明：当 `decision=rejected` 时，`reason_code` 与 `reason_text` 必填。
+
+状态变化说明：
+
+- 审核员：`pending_review` / `ai_abnormal` -> `pending_teacher` / `rejected`
+- 教师：`pending_teacher` -> `approved` / `rejected`
+
+返回 JSON（成功）：
+
+```json
+{
+	"code": 0,
+	"message": "审核完成",
+	"data": {
+		"application_id": 12,
+		"status": "pending_teacher",
+		"review_id": 9,
+		"reviewed_at": "2026-02-26T10:30:00+00:00"
+	},
+	"request_id": "uuid"
+}
+```
+
+#### 6) 获取我的审核历史
+
+- 接口：`GET /api/v1/reviews/history`
+- 权限：审核员 / 教师
+- Query：`result`、`from`、`to`、`page`、`size`
+
+返回 JSON（成功）：
+
+```json
+{
+	"code": 0,
+	"message": "获取成功",
+	"data": {
+		"page": 1,
+		"size": 10,
+		"total": 1,
+		"list": [
+			{
+				"application_id": 12,
+				"student_name": "李四",
+				"class_id": 301,
+				"title": "数学建模竞赛",
+				"result": "approved",
+				"comment": "材料齐全",
+				"reason_code": null,
+				"reason_text": null,
+				"reviewed_at": "2026-02-26T10:30:00+00:00"
+			}
+		]
+	},
+	"request_id": "uuid"
+}
+```
+
+#### 7) 获取待审核数量
+
+- 接口：`GET /api/v1/reviews/pending-count`
+- 权限：审核员 / 教师
+
+返回 JSON（成功）：
+
+```json
+{
+	"code": 0,
+	"message": "获取成功",
+	"data": {
+		"pending_count": 8
+	},
+	"request_id": "uuid"
+}
+```
+
 #### 2) 激活评审令牌
 
 - 接口：`POST /api/v1/tokens/reviewer/activate`
@@ -763,5 +1064,6 @@ platform/
 
 - 补齐 `users/me` 与 `change-password`
 - 对接文件模块：`/files/upload` 与申报附件关联
+- 增加审核员模块的班级维度统计与筛选能力
 - 增加 AI 审核结果落库与异步任务
 - 迁移 MySQL + Alembic 版本化迁移

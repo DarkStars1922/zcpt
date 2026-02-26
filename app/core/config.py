@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./platform.db"
     upload_dir: str = "./uploads"
     upload_max_file_size: int = 10485760
+    ai_audit_enabled: bool = False
 
 
 settings = Settings()

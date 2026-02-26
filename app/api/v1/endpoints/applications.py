@@ -33,8 +33,8 @@ def create_application_api(request: Request, payload: ApplicationCreateRequest, 
         data={
             "id": row.id,
             "status": row.status,
-            "item_score": row.item_score,
-            "score_rule_version": row.score_rule_version,
+            "score": row.score,
+            "award_uid": row.award_uid,
             "created_at": row.created_at.isoformat(),
         },
     )
@@ -103,15 +103,15 @@ def detail_api(
             "id": row.id,
             "category": row.category,
             "sub_type": row.sub_type,
+            "uid": row.award_uid,
             "award_uid": row.award_uid,
             "title": row.title,
             "description": row.description,
             "occurred_at": row.occurred_at.isoformat(),
             "attachments": row.attachments,
             "status": row.status,
-            "item_score": row.item_score,
+            "score": row.score,
             "comment": row.comment,
-            "version": row.version,
             "created_at": row.created_at.isoformat(),
         },
     )
@@ -133,7 +133,7 @@ def update_api(
     return success_response(
         request=request,
         message="更新成功",
-        data={"id": row.id, "status": row.status, "version": row.version, "updated_at": row.updated_at.isoformat()},
+        data={"id": row.id, "status": row.status, "updated_at": row.updated_at.isoformat()},
     )
 
 
@@ -152,7 +152,7 @@ def withdraw_api(
     return success_response(
         request=request,
         message="撤回成功",
-        data={"id": row.id, "status": row.status, "version": row.version},
+        data={"id": row.id, "status": row.status},
     )
 
 

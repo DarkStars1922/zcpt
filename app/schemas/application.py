@@ -15,21 +15,22 @@ class AttachmentPayload(BaseModel):
 
 
 class ApplicationCreateRequest(BaseModel):
-    award_uid: int = Field(ge=1)
+    award_uid: int = Field(ge=0)
     title: str = Field(min_length=1, max_length=255)
     description: str = Field(min_length=1, max_length=2000)
     occurred_at: date
     attachments: list[AttachmentPayload] = Field(default_factory=list)
     category: str = Field(min_length=1, max_length=32)
     sub_type: str = Field(min_length=1, max_length=64)
+    score: float | None = Field(default=None, ge=0)
 
 
 class ApplicationUpdateRequest(BaseModel):
-    award_uid: int = Field(ge=1)
+    award_uid: int = Field(ge=0)
     title: str = Field(min_length=1, max_length=255)
     description: str = Field(min_length=1, max_length=2000)
     occurred_at: date
     attachments: list[AttachmentPayload] = Field(default_factory=list)
     category: str = Field(min_length=1, max_length=32)
     sub_type: str = Field(min_length=1, max_length=64)
-    version: int = Field(ge=1)
+    score: float | None = Field(default=None, ge=0)

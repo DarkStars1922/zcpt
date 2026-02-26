@@ -27,8 +27,8 @@ class Application(SQLModel, table=True):
 
     attachments_json: str = Field(default="[]", sa_column=Column(Text, nullable=False, default="[]"))
 
-    status: str = Field(default="pending_ai", sa_column=Column(String(32), nullable=False, default="pending_ai", index=True))
-    item_score: float | None = Field(default=None, sa_column=Column(Float, nullable=True))
+    status: str = Field(default="pending_review", sa_column=Column(String(32), nullable=False, default="pending_review", index=True))
+    score: float | None = Field(default=None, sa_column=Column(Float, nullable=True))
     comment: str | None = Field(default=None, sa_column=Column(Text, nullable=True))
     score_rule_version: str | None = Field(default=None, sa_column=Column(String(32), nullable=True))
 

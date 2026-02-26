@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
+from sqlalchemy import inspect, text
 
 from app.api.v1.router import api_router
 from app.core.database import Base, engine
@@ -10,10 +11,40 @@ from app.core.responses import error_response
 import app.models as models_registry
 
 
+def _ensure_schema_compatibility() -> None:
+    inspector = inspect(engine)
+    if "comprehensive_apply" not in inspector.get_table_names():
+        return
+
+    columns = {column["name"] for column in inspector.get_columns("comprehensive_apply")}
+    with engine.begin() as connection:
+        if "score" not in columns:
+            connection.execute(text("ALTER TABLE comprehensive_apply ADD COLUMN score FLOAT"))
+
+        if "input_score" in columns:
+            connection.execute(
+                text(
+                    "UPDATE comprehensive_apply "
+                    "SET score = input_score "
+                    "WHERE score IS NULL AND input_score IS NOT NULL"
+                )
+            )
+
+        if "item_score" in columns:
+            connection.execute(
+                text(
+                    "UPDATE comprehensive_apply "
+                    "SET score = item_score "
+                    "WHERE score IS NULL AND item_score IS NOT NULL"
+                )
+            )
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     _ = models_registry
     Base.metadata.create_all(engine)
+    _ensure_schema_compatibility()
     yield
 
 
