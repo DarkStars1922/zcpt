@@ -17,9 +17,41 @@ def _ensure_schema_compatibility() -> None:
         return
 
     columns = {column["name"] for column in inspector.get_columns("comprehensive_apply")}
+    migration_sql_by_column = {
+        "award_type": "ALTER TABLE comprehensive_apply ADD COLUMN award_type VARCHAR(64) NOT NULL DEFAULT ''",
+        "award_level": "ALTER TABLE comprehensive_apply ADD COLUMN award_level VARCHAR(64) NOT NULL DEFAULT ''",
+        "award_uid": "ALTER TABLE comprehensive_apply ADD COLUMN award_uid INTEGER NOT NULL DEFAULT 0",
+        "score": "ALTER TABLE comprehensive_apply ADD COLUMN score FLOAT",
+        "comment": "ALTER TABLE comprehensive_apply ADD COLUMN comment TEXT",
+        "score_rule_version": "ALTER TABLE comprehensive_apply ADD COLUMN score_rule_version VARCHAR(32)",
+        "version": "ALTER TABLE comprehensive_apply ADD COLUMN version INTEGER NOT NULL DEFAULT 1",
+        "is_deleted": "ALTER TABLE comprehensive_apply ADD COLUMN is_deleted BOOLEAN NOT NULL DEFAULT 0",
+        "updated_at": "ALTER TABLE comprehensive_apply ADD COLUMN updated_at DATETIME",
+        "deleted_at": "ALTER TABLE comprehensive_apply ADD COLUMN deleted_at DATETIME",
+    }
+
     with engine.begin() as connection:
-        if "score" not in columns:
-            connection.execute(text("ALTER TABLE comprehensive_apply ADD COLUMN score FLOAT"))
+        for column_name, ddl_sql in migration_sql_by_column.items():
+            if column_name not in columns:
+                connection.execute(text(ddl_sql))
+
+        if "award_type" in columns and "category" in columns:
+            connection.execute(
+                text(
+                    "UPDATE comprehensive_apply "
+                    "SET award_type = category "
+                    "WHERE (award_type IS NULL OR award_type = '') AND category IS NOT NULL"
+                )
+            )
+
+        if "award_level" in columns and "sub_type" in columns:
+            connection.execute(
+                text(
+                    "UPDATE comprehensive_apply "
+                    "SET award_level = sub_type "
+                    "WHERE (award_level IS NULL OR award_level = '') AND sub_type IS NOT NULL"
+                )
+            )
 
         if "input_score" in columns:
             connection.execute(

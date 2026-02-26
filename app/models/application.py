@@ -20,6 +20,14 @@ class Application(SQLModel, table=True):
         default="basic",
         sa_column=Column(String(64), nullable=False, default="basic"),
     )
+    award_type: str = Field(
+        default="",
+        sa_column=Column(String(64), nullable=False, default=""),
+    )
+    award_level: str = Field(
+        default="",
+        sa_column=Column(String(64), nullable=False, default=""),
+    )
     award_uid: int = Field(sa_column=Column(Integer, nullable=False, index=True))
     title: str = Field(sa_column=Column(String(255), nullable=False))
     description: str = Field(sa_column=Column(Text, nullable=False))

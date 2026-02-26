@@ -111,6 +111,7 @@ python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 | `GET /api/v1/reviews/pending/by-category` | ✅ 已实现 | 按分类查看待审核明细 |
 | `GET /api/v1/reviews/{application_id}` | ✅ 已实现 | 审核详情 |
 | `POST /api/v1/reviews/{application_id}/decision` | ✅ 已实现 | 提交审核决策 |
+| `POST /api/v1/reviews/batch-decision` | ✅ 已实现 | 批量提交审核决策 |
 | `GET /api/v1/reviews/history` | ✅ 已实现 | 我的审核历史 |
 | `GET /api/v1/reviews/pending-count` | ✅ 已实现 | 待审核数量 |
 
@@ -925,11 +926,54 @@ platform/
 }
 ```
 
+#### 5.1) 批量提交审核决策
+
+- 接口：`POST /api/v1/reviews/batch-decision`
+- 权限：审核员 / 教师
+- 请求 JSON：
+
+```json
+{
+	"application_ids": [12, 13, 14],
+	"decision": "approved",
+	"comment": "材料齐全",
+	"reason_code": null,
+	"reason_text": null
+}
+```
+
+说明：
+
+- `application_ids` 必填，最多 200 条；重复 ID 会自动去重。
+- 批量提交为原子事务：任意一条校验失败（无权限/状态不允许/资源不存在）则整批失败回滚。
+
+返回 JSON（成功）：
+
+```json
+{
+	"code": 0,
+	"message": "批量审核完成",
+	"data": {
+		"total": 3,
+		"success_count": 3,
+		"list": [
+			{
+				"application_id": 12,
+				"status": "pending_teacher",
+				"review_id": 21,
+				"reviewed_at": "2026-02-26T10:40:00+00:00"
+			}
+		]
+	},
+	"request_id": "uuid"
+}
+```
+
 #### 6) 获取我的审核历史
 
 - 接口：`GET /api/v1/reviews/history`
 - 权限：审核员 / 教师
-- Query：`result`、`from`、`to`、`page`、`size`
+- Query：`class_id`、`result`、`from`、`to`、`page`、`size`
 
 返回 JSON（成功）：
 
@@ -963,6 +1007,7 @@ platform/
 
 - 接口：`GET /api/v1/reviews/pending-count`
 - 权限：审核员 / 教师
+- Query：`class_id`
 
 返回 JSON（成功）：
 
@@ -1064,6 +1109,5 @@ platform/
 
 - 补齐 `users/me` 与 `change-password`
 - 对接文件模块：`/files/upload` 与申报附件关联
-- 增加审核员模块的班级维度统计与筛选能力
 - 增加 AI 审核结果落库与异步任务
 - 迁移 MySQL + Alembic 版本化迁移

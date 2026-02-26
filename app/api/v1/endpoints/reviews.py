@@ -7,7 +7,7 @@ from app.core.database import get_db
 from app.core.responses import error_response, success_response
 from app.dependencies.auth import get_current_user
 from app.models.user import User
-from app.schemas.review import ReviewDecisionRequest
+from app.schemas.review import ReviewBatchDecisionRequest, ReviewDecisionRequest
 from app.services.review_service import (
     ReviewError,
     get_pending_by_category,
@@ -16,6 +16,7 @@ from app.services.review_service import (
     get_pending_list,
     get_review_detail,
     get_review_history,
+    submit_batch_review_decision,
     submit_review_decision,
 )
 
@@ -99,6 +100,7 @@ def pending_by_category_api(
 @router.get("/history")
 def review_history_api(
     request: Request,
+    class_id: int | None = Query(default=None),
     result: str | None = Query(default=None),
     from_at: datetime | None = Query(default=None, alias="from"),
     to_at: datetime | None = Query(default=None, alias="to"),
@@ -111,6 +113,7 @@ def review_history_api(
         data = get_review_history(
             db,
             user,
+            class_id=class_id,
             result=result,
             from_at=from_at,
             to_at=to_at,
@@ -126,11 +129,12 @@ def review_history_api(
 @router.get("/pending-count")
 def pending_count_api(
     request: Request,
+    class_id: int | None = Query(default=None),
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
     try:
-        data = get_pending_count(db, user)
+        data = get_pending_count(db, user, class_id=class_id)
     except ReviewError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
 
@@ -150,6 +154,33 @@ def review_detail_api(
         return error_response(request=request, code=exc.code, message=exc.message)
 
     return success_response(request=request, message="获取成功", data=data)
+
+
+@router.post("/batch-decision")
+def review_batch_decision_api(
+    request: Request,
+    payload: ReviewBatchDecisionRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    try:
+        data = submit_batch_review_decision(
+            db,
+            user,
+            application_ids=payload.application_ids,
+            decision=payload.decision,
+            comment=payload.comment,
+            reason_code=payload.reason_code,
+            reason_text=payload.reason_text,
+        )
+    except ReviewError as exc:
+        return error_response(request=request, code=exc.code, message=exc.message)
+
+    return success_response(
+        request=request,
+        message="批量审核完成",
+        data=data,
+    )
 
 
 @router.post("/{application_id}/decision")

@@ -26,6 +26,60 @@ class ReviewError(Exception):
         super().__init__(message)
 
 
+def _normalize_decision(decision: str, *, reason_code: str | None, reason_text: str | None) -> str:
+    normalized_decision = decision.strip().lower()
+    if normalized_decision not in {"approved", "rejected"}:
+        raise ReviewError("decision 参数不合法", 1001)
+    if normalized_decision == "rejected" and (not reason_code or not reason_text):
+        raise ReviewError("驳回时 reason_code/reason_text 必填", 1001)
+    return normalized_decision
+
+
+def _apply_review_decision(
+    db: Session,
+    actor: ReviewActorContext,
+    user: User,
+    *,
+    application_id: int,
+    normalized_decision: str,
+    comment: str | None,
+    reason_code: str | None,
+    reason_text: str | None,
+) -> tuple[Application, ReviewRecord]:
+    row = db.exec(
+        select(Application, User)
+        .join(User, User.id == Application.applicant_id)
+        .where(Application.id == application_id, Application.is_deleted.is_(False))
+    ).first()
+    if not row:
+        raise ReviewError("资源不存在", 1002)
+
+    application, applicant = row
+    if actor.scope_class_ids is not None and applicant.class_id not in actor.scope_class_ids:
+        raise ReviewError("无权限", 1003)
+    if application.status not in actor.reviewable_statuses:
+        raise ReviewError("当前状态不允许审核", 1000)
+
+    target_status = normalized_decision
+    if actor.scope_class_ids is not None and normalized_decision == "approved":
+        target_status = "pending_teacher"
+
+    application.status = target_status
+    application.comment = comment or reason_text
+    application.version += 1
+    application.updated_at = datetime.now(timezone.utc)
+
+    review_record = ReviewRecord(
+        application_id=application.id,
+        reviewer_user_id=user.id,
+        decision=normalized_decision,
+        comment=comment,
+        reason_code=reason_code,
+        reason_text=reason_text,
+    )
+    return application, review_record
+
+
 def _ensure_utc_aware(value: datetime) -> datetime:
     if value.tzinfo is None:
         return value.replace(tzinfo=timezone.utc)
@@ -152,7 +206,6 @@ def get_pending_category_summary(
 ) -> dict:
     actor = _resolve_review_actor(db, user)
     conditions, effective_class_id = _scope_conditions(scope_class_ids=actor.scope_class_ids, class_id=class_id)
-    conditions.append(Application.status.in_(actor.reviewable_statuses))
 
     stmt = (
         select(Application, User)
@@ -293,41 +346,17 @@ def submit_review_decision(
     reason_text: str | None,
 ) -> tuple[Application, ReviewRecord]:
     actor = _resolve_review_actor(db, user)
-
-    normalized_decision = decision.strip().lower()
-    if normalized_decision not in {"approved", "rejected"}:
-        raise ReviewError("decision 参数不合法", 1001)
-
-    if normalized_decision == "rejected" and (not reason_code or not reason_text):
-        raise ReviewError("驳回时 reason_code/reason_text 必填", 1001)
-
-    row = db.exec(
-        select(Application, User)
-        .join(User, User.id == Application.applicant_id)
-        .where(Application.id == application_id, Application.is_deleted.is_(False))
-    ).first()
-    if not row:
-        raise ReviewError("资源不存在", 1002)
-
-    application, applicant = row
-    if actor.scope_class_ids is not None and applicant.class_id not in actor.scope_class_ids:
-        raise ReviewError("无权限", 1003)
-    if application.status not in actor.reviewable_statuses:
-        raise ReviewError("当前状态不允许审核", 1000)
-
-    target_status = normalized_decision
-    if actor.scope_class_ids is not None and normalized_decision == "approved":
-        target_status = "pending_teacher"
-
-    application.status = target_status
-    application.comment = comment or reason_text
-    application.version += 1
-    application.updated_at = datetime.now(timezone.utc)
-
-    review_record = ReviewRecord(
-        application_id=application.id,
-        reviewer_user_id=user.id,
-        decision=normalized_decision,
+    normalized_decision = _normalize_decision(
+        decision,
+        reason_code=reason_code,
+        reason_text=reason_text,
+    )
+    application, review_record = _apply_review_decision(
+        db,
+        actor,
+        user,
+        application_id=application_id,
+        normalized_decision=normalized_decision,
         comment=comment,
         reason_code=reason_code,
         reason_text=reason_text,
@@ -341,19 +370,78 @@ def submit_review_decision(
     return application, review_record
 
 
+def submit_batch_review_decision(
+    db: Session,
+    user: User,
+    *,
+    application_ids: list[int],
+    decision: str,
+    comment: str | None,
+    reason_code: str | None,
+    reason_text: str | None,
+) -> dict:
+    actor = _resolve_review_actor(db, user)
+    normalized_decision = _normalize_decision(
+        decision,
+        reason_code=reason_code,
+        reason_text=reason_text,
+    )
+
+    unique_application_ids: list[int] = list(dict.fromkeys(application_ids))
+    if not unique_application_ids:
+        raise ReviewError("application_ids 不能为空", 1001)
+
+    items: list[dict] = []
+    for application_id in unique_application_ids:
+        application, review_record = _apply_review_decision(
+            db,
+            actor,
+            user,
+            application_id=application_id,
+            normalized_decision=normalized_decision,
+            comment=comment,
+            reason_code=reason_code,
+            reason_text=reason_text,
+        )
+        db.add(application)
+        db.add(review_record)
+        db.flush()
+        items.append(
+            {
+                "application_id": application.id,
+                "status": application.status,
+                "review_id": review_record.id,
+                "reviewed_at": review_record.created_at.isoformat(),
+            }
+        )
+
+    db.commit()
+    return {
+        "total": len(unique_application_ids),
+        "success_count": len(items),
+        "list": items,
+    }
+
+
 def get_review_history(
     db: Session,
     user: User,
     *,
+    class_id: int | None,
     result: str | None,
     from_at: datetime | None,
     to_at: datetime | None,
     page: int,
     size: int,
 ) -> dict:
-    _ = _resolve_review_actor(db, user)
+    actor = _resolve_review_actor(db, user)
 
-    conditions = [ReviewRecord.reviewer_user_id == user.id]
+    scope_conditions, _ = _scope_conditions(
+        scope_class_ids=actor.scope_class_ids,
+        class_id=class_id,
+    )
+
+    conditions = [ReviewRecord.reviewer_user_id == user.id, *scope_conditions]
     if result:
         normalized_result = result.strip().lower()
         if normalized_result not in {"approved", "rejected"}:
@@ -400,17 +488,17 @@ def get_review_history(
         "total": total,
         "list": data,
     }
-
-
-def get_pending_count(db: Session, user: User) -> dict:
+def get_pending_count(db: Session, user: User, *, class_id: int | None) -> dict:
     actor = _resolve_review_actor(db, user)
 
+    scope_conditions, _ = _scope_conditions(
+        scope_class_ids=actor.scope_class_ids,
+        class_id=class_id,
+    )
     conditions = [
-        Application.is_deleted.is_(False),
+        *scope_conditions,
         Application.status.in_(actor.reviewable_statuses),
     ]
-    if actor.scope_class_ids is not None:
-        conditions.append(User.class_id.in_(list(actor.scope_class_ids)))
 
     stmt = (
         select(Application.id)

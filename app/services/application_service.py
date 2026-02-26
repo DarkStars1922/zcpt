@@ -48,14 +48,24 @@ def _resolve_initial_status() -> str:
     return "pending_review"
 
 
+def _resolve_legacy_award_fields(category: str, sub_type: str) -> tuple[str, str]:
+    return category, sub_type
+
+
 def create_application(db: Session, user: User, payload) -> Application:
     _check_student(user)
     resolved_score = _resolve_score(payload.award_uid, payload.score)
+    legacy_award_type, legacy_award_level = _resolve_legacy_award_fields(
+        payload.category,
+        payload.sub_type,
+    )
 
     application = Application(
         applicant_id=user.id,
         category=payload.category,
         sub_type=payload.sub_type,
+        award_type=legacy_award_type,
+        award_level=legacy_award_level,
         award_uid=payload.award_uid,
         title=payload.title,
         description=payload.description,
@@ -186,9 +196,15 @@ def update_application(db: Session, user: User, application_id: int, payload) ->
         raise ApplicationError("当前状态不允许编辑", 1000)
 
     resolved_score = _resolve_score(payload.award_uid, payload.score)
+    legacy_award_type, legacy_award_level = _resolve_legacy_award_fields(
+        payload.category,
+        payload.sub_type,
+    )
 
     row.category = payload.category
     row.sub_type = payload.sub_type
+    row.award_type = legacy_award_type
+    row.award_level = legacy_award_level
     row.award_uid = payload.award_uid
     row.title = payload.title
     row.description = payload.description
