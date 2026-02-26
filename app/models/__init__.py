@@ -1,7 +1,19 @@
 from app.models.application import Application
+from app.models.announcement import Announcement
+from app.models.export_archive import ExportArchive
+from app.models.export_task import ExportTask
 from app.models.refresh_token import RefreshToken
 from app.models.review_record import ReviewRecord
 from app.models.reviewer_token import ReviewerToken
 from app.models.user import User
 
-__all__ = ["User", "RefreshToken", "ReviewerToken", "ReviewRecord", "Application"]
+__all__ = [
+	"User",
+	"RefreshToken",
+	"ReviewerToken",
+	"ReviewRecord",
+	"Application",
+	"ExportTask",
+	"ExportArchive",
+	"Announcement",
+]

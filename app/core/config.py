@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     refresh_token_expire_seconds: int = 604800
     database_url: str = "sqlite:///./platform.db"
     upload_dir: str = "./uploads"
+    export_dir: str = "./exports"
     upload_max_file_size: int = 10485760
     ai_audit_enabled: bool = False
 
