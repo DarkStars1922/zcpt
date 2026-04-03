@@ -11,6 +11,12 @@
 
 前端仓库地址： <https://github.com/MincerGitHub/sdu-ai-evaluation-platform-frontend>
 
+## 文档
+
+- 架构说明：[docs/综测平台基本架构.md](docs/%E7%BB%BC%E6%B5%8B%E5%B9%B3%E5%8F%B0%E5%9F%BA%E6%9C%AC%E6%9E%B6%E6%9E%84.md)
+- 接口文档：[docs/综测平台接口文档.md](docs/%E7%BB%BC%E6%B5%8B%E5%B9%B3%E5%8F%B0%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3.md)
+
+
 ## 技术栈
 
 - Web: FastAPI
@@ -226,7 +232,3 @@ Idempotency-Key: <client-generated-key>
 - 邮件通知当前为异步模拟发送，不接真实 SMTP，但数据库记录、任务链路、日志查询都已实现
 - AI 审核当前为 mock provider，可后续替换成真实 OCR / 风控服务
 
-## 文档
-
-- 架构说明：[doc/综测平台基本架构.md](doc/%E7%BB%BC%E6%B5%8B%E5%B9%B3%E5%8F%B0%E5%9F%BA%E6%9C%AC%E6%9E%B6%E6%9E%84.md)
-- 接口文档：[doc/综测平台接口文档.md](doc/%E7%BB%BC%E6%B5%8B%E5%B9%B3%E5%8F%B0%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3.md)
