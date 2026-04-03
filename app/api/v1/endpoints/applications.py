@@ -7,39 +7,38 @@ from app.dependencies.auth import get_current_user
 from app.models.user import User
 from app.schemas.application import ApplicationCreateRequest, ApplicationUpdateRequest
 from app.services.application_service import (
-    ApplicationError,
     create_application,
     get_application_detail,
     get_my_by_category,
     get_my_category_summary,
+    list_categories,
     list_my_applications,
     soft_delete_application,
     update_application,
     withdraw_application,
 )
+from app.services.errors import ServiceError
 
 router = APIRouter(prefix="/applications", tags=["applications"])
 
 
-@router.post("")
-def create_application_api(request: Request, payload: ApplicationCreateRequest, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    try:
-        row = create_application(db, user, payload)
-    except ApplicationError as exc:
-        return error_response(request=request, code=exc.code, message=exc.message)
+@router.get("/categories")
+def list_categories_api(request: Request, _: User = Depends(get_current_user)):
+    return success_response(request=request, message="获取成功", data=list_categories())
 
-    return success_response(
-        request=request,
-        message="创建成功",
-        data={
-            "id": row.id,
-            "status": row.status,
-            "item_score": row.item_score,
-            "total_score": row.total_score,
-            "score_rule_version": row.score_rule_version,
-            "created_at": row.created_at.isoformat(),
-        },
-    )
+
+@router.post("")
+def create_application_api(
+    request: Request,
+    payload: ApplicationCreateRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    try:
+        data = create_application(db, user, payload)
+    except ServiceError as exc:
+        return error_response(request=request, code=exc.code, message=exc.message)
+    return success_response(request=request, message="创建成功", data=data)
 
 
 @router.get("/my")
@@ -65,9 +64,8 @@ def list_my_applications_api(
             page=page,
             size=size,
         )
-    except ApplicationError as exc:
+    except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
-
     return success_response(request=request, message="获取成功", data=data)
 
 
@@ -80,9 +78,8 @@ def category_summary_api(
 ):
     try:
         data = get_my_category_summary(db, user, term=term)
-    except ApplicationError as exc:
+    except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
-
     return success_response(request=request, message="获取成功", data=data)
 
 
@@ -109,9 +106,8 @@ def by_category_api(
             page=page,
             size=size,
         )
-    except ApplicationError as exc:
+    except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
-
     return success_response(request=request, message="获取成功", data=data)
 
 
@@ -123,30 +119,10 @@ def detail_api(
     user: User = Depends(get_current_user),
 ):
     try:
-        row = get_application_detail(db, user, application_id)
-    except ApplicationError as exc:
+        data = get_application_detail(db, user, application_id)
+    except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
-
-    return success_response(
-        request=request,
-        message="获取成功",
-        data={
-            "id": row.id,
-            "category": row.category,
-            "sub_type": row.sub_type,
-            "award_type": row.award_type,
-            "award_level": row.award_level,
-            "title": row.title,
-            "description": row.description,
-            "occurred_at": row.occurred_at.isoformat(),
-            "attachments": row.attachments,
-            "status": row.status,
-            "item_score": row.item_score,
-            "total_score": row.total_score,
-            "version": row.version,
-            "created_at": row.created_at.isoformat(),
-        },
-    )
+    return success_response(request=request, message="获取成功", data=data)
 
 
 @router.put("/{application_id}")
@@ -158,15 +134,10 @@ def update_api(
     user: User = Depends(get_current_user),
 ):
     try:
-        row = update_application(db, user, application_id, payload)
-    except ApplicationError as exc:
+        data = update_application(db, user, application_id, payload)
+    except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
-
-    return success_response(
-        request=request,
-        message="更新成功",
-        data={"id": row.id, "status": row.status, "version": row.version, "updated_at": row.updated_at.isoformat()},
-    )
+    return success_response(request=request, message="更新成功", data=data)
 
 
 @router.post("/{application_id}/withdraw")
@@ -177,15 +148,10 @@ def withdraw_api(
     user: User = Depends(get_current_user),
 ):
     try:
-        row = withdraw_application(db, user, application_id)
-    except ApplicationError as exc:
+        data = withdraw_application(db, user, application_id)
+    except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
-
-    return success_response(
-        request=request,
-        message="撤回成功",
-        data={"id": row.id, "status": row.status, "version": row.version},
-    )
+    return success_response(request=request, message="撤回成功", data=data)
 
 
 @router.delete("/{application_id}")
@@ -197,7 +163,6 @@ def delete_api(
 ):
     try:
         soft_delete_application(db, user, application_id)
-    except ApplicationError as exc:
+    except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
-
     return success_response(request=request, message="删除成功", data={})

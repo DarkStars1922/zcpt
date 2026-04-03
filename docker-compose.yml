@@ -1,0 +1,69 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: zcpt-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: zcpt
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:7.2
+    container_name: zcpt-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zcpt-api
+    depends_on:
+      - mysql
+      - redis
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: mysql+pymysql://root:root@mysql:3306/zcpt?charset=utf8mb4
+      REDIS_ENABLED: "true"
+      REDIS_URL: redis://redis:6379/0
+      CELERY_TASK_ALWAYS_EAGER: "false"
+      AUTO_CREATE_TABLES: "false"
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zcpt-worker
+    depends_on:
+      - mysql
+      - redis
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: mysql+pymysql://root:root@mysql:3306/zcpt?charset=utf8mb4
+      REDIS_ENABLED: "true"
+      REDIS_URL: redis://redis:6379/0
+      CELERY_TASK_ALWAYS_EAGER: "false"
+      AUTO_CREATE_TABLES: "false"
+    command: ["celery", "-A", "app.core.celery_app:celery_app", "worker", "--loglevel=INFO"]
+    volumes:
+      - .:/app
+
+volumes:
+  mysql_data:
+  redis_data:

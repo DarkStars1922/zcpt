@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Annotated, Any
+
 import bcrypt
 from jose import JWTError, jwt
 
@@ -70,3 +71,8 @@ def decode_token(token: str) -> dict[str, Any]:
     if "sub" not in payload or "type" not in payload or "jti" not in payload:
         raise TokenPayloadError("token 载荷不完整")
     return payload
+
+
+def seconds_until_timestamp(timestamp: int) -> int:
+    expires_at = datetime.fromtimestamp(timestamp, tz=timezone.utc)
+    return max(int((expires_at - datetime.now(timezone.utc)).total_seconds()), 0)

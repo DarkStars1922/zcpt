@@ -1,58 +1,71 @@
-from datetime import datetime, timezone
+from sqlalchemy import func, or_
+from sqlmodel import Session, select
 
-from sqlalchemy import and_, func, or_, select
-from sqlmodel import Session
-
+from app.core.award_catalog import load_award_tree
+from app.core.constants import EDITABLE_APPLICATION_STATUSES, REVIEWER_REVIEWABLE_STATUSES, ROLE_STUDENT
+from app.core.utils import json_loads, utcnow
+from app.models.ai_audit_report import AIAuditReport
 from app.models.application import Application
+from app.models.application_attachment import ApplicationAttachment
+from app.models.award_dict import AwardDict
+from app.models.file_info import FileInfo
+from app.models.reviewer_token import ReviewerToken
 from app.models.user import User
-
-EDITABLE_STATUSES = {"pending_ai", "ai_abnormal", "pending_review"}
-VIEWABLE_ROLES = {"student", "teacher"}
-
-CATEGORY_NAME_MAP = {
-    "moral": "思想道德",
-    "intellectual": "学业科研",
-}
+from app.schemas.application import ApplicationCreateRequest, ApplicationUpdateRequest
+from app.services.errors import ServiceError
+from app.services.serializers import serialize_application, serialize_file
+from app.services.system_log_service import write_system_log
+from app.tasks.jobs import enqueue_ai_audit
 
 
-class ApplicationError(Exception):
-    def __init__(self, message: str, code: int = 1000):
-        self.message = message
-        self.code = code
-        super().__init__(message)
+def list_categories() -> list[dict]:
+    return load_award_tree()
 
 
-def _check_student(user: User) -> None:
-    if user.role != "student":
-        raise ApplicationError("无权限", 1003)
+def create_application(db: Session, user: User, payload: ApplicationCreateRequest) -> dict:
+    _require_student(user)
+    award = _get_award(db, payload.award_uid)
+    item_score = _resolve_score(payload.score, award.max_score, award.score)
 
-
-def _base_my_query(user_id: int):
-    return select(Application).where(and_(Application.applicant_id == user_id, Application.is_deleted.is_(False)))
-
-
-def create_application(db: Session, user: User, payload) -> Application:
-    _check_student(user)
     application = Application(
         applicant_id=user.id,
         category=payload.category,
         sub_type=payload.sub_type,
-        award_type=payload.award_type,
-        award_level=payload.award_level,
+        award_uid=payload.award_uid,
         title=payload.title,
         description=payload.description,
         occurred_at=payload.occurred_at,
         status="pending_ai",
-        item_score=None,
-        total_score=None,
-        score_rule_version=None,
+        item_score=item_score,
+        total_score=item_score,
+        score_rule_version="v1",
+        updated_at=utcnow(),
     )
-    application.set_attachments([item.model_dump() for item in payload.attachments])
-
     db.add(application)
+    db.flush()
+    _replace_attachments(db, user, application.id, [item.file_id for item in payload.attachments], auto_commit=False)
+    _upsert_ai_report(db, application.id, auto_commit=False)
     db.commit()
     db.refresh(application)
-    return application
+    write_system_log(
+        db,
+        action="application.create",
+        actor_id=user.id,
+        target_type="application",
+        target_id=str(application.id),
+    )
+    enqueue_ai_audit(application.id)
+    return {
+        "id": application.id,
+        "application_id": application.id,
+        "status": application.status,
+        "score": application.item_score,
+        "item_score": application.item_score,
+        "total_score": application.total_score,
+        "score_rule_version": application.score_rule_version,
+        "award_uid": application.award_uid,
+        "created_at": application.created_at.isoformat(),
+    }
 
 
 def list_my_applications(
@@ -66,96 +79,63 @@ def list_my_applications(
     page: int,
     size: int,
 ) -> dict:
-    _check_student(user)
-
-    conditions = [Application.applicant_id == user.id, Application.is_deleted.is_(False)]
+    _require_student(user)
+    stmt = select(Application).where(Application.applicant_id == user.id, Application.is_deleted.is_(False))
     if status:
-        conditions.append(Application.status == status)
-    if award_type:
-        conditions.append(Application.award_type == award_type)
+        stmt = stmt.where(Application.status == status)
     if category:
-        conditions.append(Application.category == category)
+        stmt = stmt.where(Application.category == category)
+    if award_type:
+        stmt = stmt.where(Application.sub_type == award_type)
     if keyword:
-        like_exp = f"%{keyword}%"
-        conditions.append(
-            or_(
-                Application.title.ilike(like_exp),
-                Application.description.ilike(like_exp),
-                Application.award_type.ilike(like_exp),
-            )
-        )
+        like_value = f"%{keyword}%"
+        stmt = stmt.where(or_(Application.title.ilike(like_value), Application.description.ilike(like_value)))
 
-    count_stmt = select(func.count()).select_from(Application).where(and_(*conditions))
-    total = db.scalar(count_stmt) or 0
-
-    stmt = (
-        select(Application)
-        .where(and_(*conditions))
-        .order_by(Application.created_at.desc())
-        .offset((page - 1) * size)
-        .limit(size)
-    )
-    rows = db.scalars(stmt).all()
-
+    total = db.exec(select(func.count()).select_from(stmt.subquery())).one()
+    rows = db.exec(stmt.order_by(Application.created_at.desc()).offset((page - 1) * size).limit(size)).all()
     return {
         "page": page,
         "size": size,
         "total": total,
-        "list": [
-            {
-                "id": row.id,
-                "category": row.category,
-                "sub_type": row.sub_type,
-                "award_type": row.award_type,
-                "award_level": row.award_level,
-                "title": row.title,
-                "status": row.status,
-                "item_score": row.item_score,
-                "total_score": row.total_score,
-                "created_at": row.created_at.isoformat(),
-            }
-            for row in rows
-        ],
+        "list": [serialize_application(row) for row in rows],
     }
 
 
 def get_my_category_summary(db: Session, user: User, *, term: str | None) -> dict:
-    _check_student(user)
-
-    stmt = select(Application).where(
-        and_(Application.applicant_id == user.id, Application.is_deleted.is_(False))
-    )
-    rows = db.scalars(stmt).all()
-
-    category_data: dict[str, dict] = {}
+    _require_student(user)
+    rows = db.exec(
+        select(Application).where(Application.applicant_id == user.id, Application.is_deleted.is_(False))
+    ).all()
+    categories: dict[tuple[str, str], dict] = {}
     total_score = 0.0
     for row in rows:
-        cat = row.category
-        if cat not in category_data:
-            category_data[cat] = {
-                "category": cat,
-                "category_name": CATEGORY_NAME_MAP.get(cat, cat),
+        key = (row.category, row.sub_type)
+        entry = categories.setdefault(
+            key,
+            {
+                "category": row.category,
+                "sub_type": row.sub_type,
                 "count": 0,
                 "approved": 0,
                 "pending": 0,
                 "rejected": 0,
                 "category_score": 0.0,
-            }
-        item = category_data[cat]
-        item["count"] += 1
-
+            },
+        )
+        entry["count"] += 1
         if row.status == "approved":
-            item["approved"] += 1
-            if row.item_score is not None:
-                item["category_score"] += float(row.item_score)
-                total_score += float(row.item_score)
+            entry["approved"] += 1
+            entry["category_score"] += float(row.item_score or 0.0)
+            total_score += float(row.item_score or 0.0)
         elif row.status == "rejected":
-            item["rejected"] += 1
-        elif row.status in {"pending_ai", "ai_abnormal", "pending_review"}:
-            item["pending"] += 1
-
-    categories = list(category_data.values())
-    return {"term": term, "categories": categories, "total_score": round(total_score, 2)}
+            entry["rejected"] += 1
+        else:
+            entry["pending"] += 1
+    return {
+        "term": term,
+        "categories": list(categories.values()),
+        "total_score": round(total_score, 4),
+    }
 
 
 def get_my_by_category(
@@ -169,120 +149,226 @@ def get_my_by_category(
     page: int,
     size: int,
 ) -> dict:
-    _check_student(user)
-
-    conditions = [
+    _require_student(user)
+    stmt = select(Application).where(
         Application.applicant_id == user.id,
-        Application.category == category,
         Application.is_deleted.is_(False),
-    ]
-    if sub_type:
-        conditions.append(Application.sub_type == sub_type)
-    if status:
-        conditions.append(Application.status == status)
-
-    stmt = (
-        select(Application)
-        .where(and_(*conditions))
-        .order_by(Application.created_at.desc())
-        .offset((page - 1) * size)
-        .limit(size)
+        Application.category == category,
     )
-    rows = db.scalars(stmt).all()
-
+    if sub_type:
+        stmt = stmt.where(Application.sub_type == sub_type)
+    if status:
+        stmt = stmt.where(Application.status == status)
+    total = db.exec(select(func.count()).select_from(stmt.subquery())).one()
+    rows = db.exec(stmt.order_by(Application.created_at.desc()).offset((page - 1) * size).limit(size)).all()
     return {
         "category": category,
         "term": term,
-        "list": [
-            {
-                "application_id": row.id,
-                "title": row.title,
-                "status": row.status,
-                "item_score": row.item_score,
-                "total_score": row.total_score,
-            }
-            for row in rows
-        ],
+        "page": page,
+        "size": size,
+        "total": total,
+        "list": [serialize_application(row) for row in rows],
     }
 
 
-def get_application_detail(db: Session, user: User, application_id: int) -> Application:
-    if user.role not in VIEWABLE_ROLES:
-        raise ApplicationError("无权限", 1003)
-
-    row = db.get(Application, application_id)
-    if not row or row.is_deleted:
-        raise ApplicationError("资源不存在", 1002)
-
-    if user.role == "student" and row.applicant_id != user.id:
-        raise ApplicationError("无权限", 1003)
-
-    return row
+def get_application_detail(db: Session, user: User, application_id: int) -> dict:
+    application = _get_viewable_application(db, user, application_id)
+    attachments = get_application_attachments(db, application.id)
+    return serialize_application(application, attachments=attachments, include_detail=True)
 
 
-def update_application(db: Session, user: User, application_id: int, payload) -> Application:
-    _check_student(user)
-    row = db.get(Application, application_id)
-    if not row or row.is_deleted:
-        raise ApplicationError("资源不存在", 1002)
-    if row.applicant_id != user.id:
-        raise ApplicationError("无权限", 1003)
-    if row.status not in EDITABLE_STATUSES:
-        raise ApplicationError("当前状态不允许编辑", 1000)
-    if payload.version != row.version:
-        raise ApplicationError("并发冲突（版本不匹配）", 1007)
+def update_application(db: Session, user: User, application_id: int, payload: ApplicationUpdateRequest) -> dict:
+    _require_student(user)
+    application = _get_owned_application(db, user, application_id)
+    if application.status not in EDITABLE_APPLICATION_STATUSES:
+        raise ServiceError("application status is not editable", 1000)
+    if payload.version is not None and payload.version != application.version:
+        raise ServiceError("version conflict", 1007)
 
-    row.category = payload.category
-    row.sub_type = payload.sub_type
-    row.award_type = payload.award_type
-    row.award_level = payload.award_level
-    row.title = payload.title
-    row.description = payload.description
-    row.occurred_at = payload.occurred_at
-    row.set_attachments([item.model_dump() for item in payload.attachments])
+    award = _get_award(db, payload.award_uid)
+    item_score = _resolve_score(payload.score, award.max_score, award.score)
 
-    row.version += 1
-    row.updated_at = datetime.now(timezone.utc)
-
-    db.add(row)
+    application.category = payload.category
+    application.sub_type = payload.sub_type
+    application.award_uid = payload.award_uid
+    application.title = payload.title
+    application.description = payload.description
+    application.occurred_at = payload.occurred_at
+    application.item_score = item_score
+    application.total_score = item_score
+    application.status = "pending_ai"
+    application.comment = None
+    application.version += 1
+    application.updated_at = utcnow()
+    db.add(application)
+    _replace_attachments(db, user, application.id, [item.file_id for item in payload.attachments], auto_commit=False)
+    _upsert_ai_report(db, application.id, auto_commit=False)
     db.commit()
-    db.refresh(row)
-    return row
+    write_system_log(
+        db,
+        action="application.update",
+        actor_id=user.id,
+        target_type="application",
+        target_id=str(application.id),
+    )
+    enqueue_ai_audit(application.id)
+    db.refresh(application)
+    return {
+        "id": application.id,
+        "application_id": application.id,
+        "status": application.status,
+        "version": application.version,
+        "score": application.item_score,
+        "updated_at": application.updated_at.isoformat(),
+    }
 
 
-def withdraw_application(db: Session, user: User, application_id: int) -> Application:
-    _check_student(user)
-    row = db.get(Application, application_id)
-    if not row or row.is_deleted:
-        raise ApplicationError("资源不存在", 1002)
-    if row.applicant_id != user.id:
-        raise ApplicationError("无权限", 1003)
-    if row.status not in EDITABLE_STATUSES:
-        raise ApplicationError("当前状态不允许撤回", 1000)
-
-    row.status = "withdrawn"
-    row.version += 1
-    row.updated_at = datetime.now(timezone.utc)
-
-    db.add(row)
+def withdraw_application(db: Session, user: User, application_id: int) -> dict:
+    _require_student(user)
+    application = _get_owned_application(db, user, application_id)
+    if application.status not in EDITABLE_APPLICATION_STATUSES:
+        raise ServiceError("application status cannot be withdrawn", 1000)
+    application.status = "withdrawn"
+    application.version += 1
+    application.updated_at = utcnow()
+    db.add(application)
     db.commit()
-    db.refresh(row)
-    return row
+    write_system_log(
+        db,
+        action="application.withdraw",
+        actor_id=user.id,
+        target_type="application",
+        target_id=str(application.id),
+    )
+    return {
+        "id": application.id,
+        "application_id": application.id,
+        "status": application.status,
+        "version": application.version,
+    }
 
 
 def soft_delete_application(db: Session, user: User, application_id: int) -> None:
-    row = db.get(Application, application_id)
-    if not row or row.is_deleted:
-        raise ApplicationError("资源不存在", 1002)
-
-    if user.role == "student" and row.applicant_id != user.id:
-        raise ApplicationError("无权限", 1003)
-    if user.role not in {"student", "admin"}:
-        raise ApplicationError("无权限", 1003)
-
-    row.is_deleted = True
-    row.deleted_at = datetime.now(timezone.utc)
-    row.version += 1
-
-    db.add(row)
+    application = db.get(Application, application_id)
+    if not application or application.is_deleted:
+        raise ServiceError("resource not found", 1002)
+    if user.role == ROLE_STUDENT:
+        if application.applicant_id != user.id:
+            raise ServiceError("permission denied", 1003)
+        if application.status not in EDITABLE_APPLICATION_STATUSES:
+            raise ServiceError("application status cannot be deleted", 1000)
+    elif user.role not in {"admin"}:
+        raise ServiceError("permission denied", 1003)
+    application.is_deleted = True
+    application.deleted_at = utcnow()
+    application.version += 1
+    db.add(application)
     db.commit()
+    write_system_log(
+        db,
+        action="application.delete",
+        actor_id=user.id,
+        target_type="application",
+        target_id=str(application.id),
+    )
+
+
+def get_application_attachments(db: Session, application_id: int) -> list[dict]:
+    rows = db.exec(
+        select(ApplicationAttachment, FileInfo)
+        .join(FileInfo, ApplicationAttachment.file_id == FileInfo.id)
+        .where(ApplicationAttachment.application_id == application_id, FileInfo.status != "deleted")
+    ).all()
+    return [serialize_file(file) for _, file in rows]
+
+
+def _replace_attachments(
+    db: Session,
+    user: User,
+    application_id: int,
+    file_ids: list[str],
+    *,
+    auto_commit: bool = True,
+) -> None:
+    old_rows = db.exec(select(ApplicationAttachment).where(ApplicationAttachment.application_id == application_id)).all()
+    for row in old_rows:
+        db.delete(row)
+    for file_id in dict.fromkeys(file_ids):
+        file = db.get(FileInfo, file_id)
+        if not file or file.status == "deleted":
+            raise ServiceError(f"attachment not found: {file_id}", 1002)
+        if file.uploader_id != user.id:
+            raise ServiceError("attachment owner mismatch", 1003)
+        db.add(ApplicationAttachment(application_id=application_id, file_id=file_id))
+    if auto_commit:
+        db.commit()
+
+
+def _upsert_ai_report(db: Session, application_id: int, *, auto_commit: bool = True) -> None:
+    report = db.exec(select(AIAuditReport).where(AIAuditReport.application_id == application_id)).first()
+    now = utcnow()
+    if report:
+        report.status = "queued"
+        report.result = None
+        report.error_message = None
+        report.updated_at = now
+        report.audited_at = None
+        db.add(report)
+    else:
+        db.add(AIAuditReport(application_id=application_id, status="queued", updated_at=now))
+    if auto_commit:
+        db.commit()
+
+
+def _get_award(db: Session, award_uid: int) -> AwardDict:
+    award = db.exec(select(AwardDict).where(AwardDict.award_uid == award_uid, AwardDict.is_active.is_(True))).first()
+    if not award:
+        raise ServiceError("award_uid not found", 1001)
+    return award
+
+
+def _resolve_score(score: float | None, max_score: float, default_score: float) -> float:
+    if score is None:
+        return float(default_score)
+    if score > max_score:
+        raise ServiceError("score exceeds max_score", 1001)
+    return float(score)
+
+
+def _require_student(user: User) -> None:
+    if user.role != ROLE_STUDENT:
+        raise ServiceError("permission denied", 1003)
+
+
+def _get_owned_application(db: Session, user: User, application_id: int) -> Application:
+    application = db.get(Application, application_id)
+    if not application or application.is_deleted:
+        raise ServiceError("resource not found", 1002)
+    if application.applicant_id != user.id:
+        raise ServiceError("permission denied", 1003)
+    return application
+
+
+def _get_viewable_application(db: Session, user: User, application_id: int) -> Application:
+    application = db.get(Application, application_id)
+    if not application or application.is_deleted:
+        raise ServiceError("resource not found", 1002)
+    if user.role in {"teacher", "admin"}:
+        return application
+    if application.applicant_id == user.id:
+        return application
+    if user.role == ROLE_STUDENT and user.is_reviewer:
+        reviewer_class_ids = _get_active_reviewer_class_ids(db, user)
+        applicant = db.get(User, application.applicant_id)
+        if applicant and applicant.class_id in reviewer_class_ids and application.status in REVIEWER_REVIEWABLE_STATUSES:
+            return application
+    raise ServiceError("permission denied", 1003)
+
+
+def _get_active_reviewer_class_ids(db: Session, user: User) -> list[int]:
+    if not user.reviewer_token_id:
+        return []
+    token = db.get(ReviewerToken, user.reviewer_token_id)
+    if not token or token.status != "active":
+        return []
+    return [int(item) for item in json_loads(token.class_ids_json, [])]

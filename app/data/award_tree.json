@@ -1,0 +1,58 @@
+[
+  {
+    "category": "physical_mental",
+    "name": "身心素养",
+    "children": [
+      {
+        "code": "basic",
+        "name": "基础性评价"
+      },
+      {
+        "code": "achievement",
+        "name": "成果性评价"
+      }
+    ]
+  },
+  {
+    "category": "art",
+    "name": "文艺素养",
+    "children": [
+      {
+        "code": "basic",
+        "name": "基础性评价"
+      },
+      {
+        "code": "achievement",
+        "name": "成果性评价"
+      }
+    ]
+  },
+  {
+    "category": "labor",
+    "name": "劳动素养",
+    "children": [
+      {
+        "code": "basic",
+        "name": "基础性评价"
+      },
+      {
+        "code": "achievement",
+        "name": "成果性评价"
+      }
+    ]
+  },
+  {
+    "category": "innovation",
+    "name": "创新素养",
+    "children": [
+      {
+        "code": "basic",
+        "name": "基础素养"
+      },
+      {
+        "code": "achievement",
+        "name": "突破提升"
+      }
+    ]
+  }
+]

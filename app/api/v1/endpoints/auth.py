@@ -1,71 +1,45 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, Request
 from sqlmodel import Session
 
 from app.core.database import get_db
 from app.core.responses import error_response, success_response
-from app.dependencies.auth import get_current_user
+from app.dependencies.auth import get_current_access_token, get_current_user
 from app.models.user import User
-from app.schemas.auth import LoginRequest, LogoutRequest, RefreshRequest, RegisterRequest
+from app.schemas.auth import ChangePasswordRequest, LoginRequest, LogoutRequest, RefreshRequest, RegisterRequest
 from app.services.auth_service import (
-    AuthError,
     access_token_expire_seconds,
+    change_password,
     login_user,
+    logout_user,
     refresh_access_token,
     register_user,
-    revoke_refresh_token,
 )
+from app.services.errors import ServiceError
+from app.services.serializers import serialize_user
 
-router = APIRouter()
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/register")
-def register(request: Request, payload: RegisterRequest, db: Session = Depends(get_db)):
+def register_api(request: Request, payload: RegisterRequest, db: Session = Depends(get_db)):
     try:
-        user = register_user(
-            db,
-            account=payload.account,
-            password=payload.password,
-            name=payload.name,
-            role=payload.role,
-            class_id=payload.class_id,
-            is_reviewer=payload.is_reviewer,
-            email=payload.email,
-            phone=payload.phone,
-        )
-    except AuthError as exc:
+        user = register_user(db, **payload.model_dump())
+    except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
-
-    return success_response(
-        request=request,
-        message="注册成功",
-        data={
-            "user": {
-                "id": user.id,
-                "name": user.name,
-                "role": user.role,
-                "class_id": user.class_id
-            }
-        },
-    )
+    return success_response(request=request, message="register success", data={"user": serialize_user(user)})
 
 
 @router.post("/login")
-def login(request: Request, payload: LoginRequest, db: Session = Depends(get_db)):
+def login_api(request: Request, payload: LoginRequest, db: Session = Depends(get_db)):
     try:
-        user, access_token, refresh_token = login_user(db, account=payload.account, password=payload.password)
-    except AuthError as exc:
+        user, access_token, refresh_token = login_user(db, **payload.model_dump())
+    except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
-
     return success_response(
         request=request,
-        message="登录成功",
+        message="login success",
         data={
-            "user": {
-                "id": user.id,
-                "name": user.name,
-                "role": user.role,
-                "class_id": user.class_id,
-            },
+            "user": user,
             "access_token": access_token,
             "refresh_token": refresh_token,
             "expires_in": access_token_expire_seconds(),
@@ -74,29 +48,43 @@ def login(request: Request, payload: LoginRequest, db: Session = Depends(get_db)
 
 
 @router.post("/refresh")
-def refresh_token(request: Request, payload: RefreshRequest, db: Session = Depends(get_db)):
+def refresh_api(request: Request, payload: RefreshRequest, db: Session = Depends(get_db)):
     try:
         access_token = refresh_access_token(db, refresh_token=payload.refresh_token)
-    except AuthError as exc:
+    except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
-
     return success_response(
         request=request,
-        message="刷新成功",
+        message="refresh success",
         data={"access_token": access_token, "expires_in": access_token_expire_seconds()},
     )
 
 
 @router.post("/logout")
-def logout(
+def logout_api(
     request: Request,
     payload: LogoutRequest,
     _: User = Depends(get_current_user),
+    access_token: str = Depends(get_current_access_token),
     db: Session = Depends(get_db),
 ):
     try:
-        revoke_refresh_token(db, refresh_token=payload.refresh_token)
-    except AuthError as exc:
+        logout_user(db, access_token=access_token, refresh_token=payload.refresh_token)
+    except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
+    return success_response(request=request, message="logout success", data={})
 
-    return success_response(request=request, message="退出成功", data={})
+
+@router.post("/change-password")
+def change_password_api(
+    request: Request,
+    payload: ChangePasswordRequest,
+    user: User = Depends(get_current_user),
+    access_token: str = Depends(get_current_access_token),
+    db: Session = Depends(get_db),
+):
+    try:
+        change_password(db, user=user, access_token=access_token, payload=payload)
+    except ServiceError as exc:
+        return error_response(request=request, code=exc.code, message=exc.message)
+    return success_response(request=request, message="password updated", data={})

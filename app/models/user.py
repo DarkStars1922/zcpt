@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
 from sqlmodel import Field, SQLModel
+
 
 class User(SQLModel, table=True):
     __tablename__ = "user_info"
@@ -10,12 +11,20 @@ class User(SQLModel, table=True):
     account: str = Field(sa_column=Column(String(32), unique=True, index=True, nullable=False))
     password_hash: str = Field(sa_column=Column(String(255), nullable=False))
     name: str = Field(sa_column=Column(String(64), nullable=False))
-    role: str = Field(default="student", sa_column=Column(String(20), nullable=False, default="student"))
-    is_reviewer: bool | None = Field(default=False, sa_column=Column(Integer, nullable=False, default=0))
-    class_id: int | None = Field(default=None, sa_column=Column(Integer, nullable=True))
+    role: str = Field(sa_column=Column(String(20), nullable=False, default="student"))
+    is_reviewer: bool = Field(default=False, sa_column=Column(Boolean, nullable=False, default=False))
+    reviewer_token_id: int | None = Field(
+        default=None,
+        sa_column=Column(Integer, ForeignKey("reviewer_token_record.id"), nullable=True),
+    )
+    class_id: int | None = Field(default=None, sa_column=Column(Integer, nullable=True, index=True))
     email: str | None = Field(default=None, sa_column=Column(String(128), nullable=True))
     phone: str | None = Field(default=None, sa_column=Column(String(20), nullable=True))
     created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column=Column(DateTime(timezone=True), nullable=False),
+    )
+    updated_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
         sa_column=Column(DateTime(timezone=True), nullable=False),
     )

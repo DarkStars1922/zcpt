@@ -1,0 +1,1294 @@
+{
+  "1": {
+    "score": 5.0,
+    "maxScore": 5.0
+  },
+  "2": {
+    "score": 2.0,
+    "maxScore": 2.0
+  },
+  "3": {
+    "score": 6.0,
+    "maxScore": 6.0
+  },
+  "4": {
+    "score": 6.0,
+    "maxScore": 6.0
+  },
+  "5": {
+    "score": 5.25,
+    "maxScore": 5.25
+  },
+  "6": {
+    "score": 4.5,
+    "maxScore": 4.5
+  },
+  "7": {
+    "score": 3.75,
+    "maxScore": 3.75
+  },
+  "8": {
+    "score": 4.5,
+    "maxScore": 4.5
+  },
+  "9": {
+    "score": 3.75,
+    "maxScore": 3.75
+  },
+  "10": {
+    "score": 3.0,
+    "maxScore": 3.0
+  },
+  "11": {
+    "score": 2.25,
+    "maxScore": 2.25
+  },
+  "12": {
+    "score": 2.25,
+    "maxScore": 2.25
+  },
+  "13": {
+    "score": 1.5,
+    "maxScore": 1.5
+  },
+  "14": {
+    "score": 0.75,
+    "maxScore": 0.75
+  },
+  "15": {
+    "score": 0.375,
+    "maxScore": 0.375
+  },
+  "16": {
+    "score": 0.3,
+    "maxScore": 0.3
+  },
+  "17": {
+    "score": 6.0,
+    "maxScore": 6.0
+  },
+  "18": {
+    "score": 6.0,
+    "maxScore": 6.0
+  },
+  "19": {
+    "score": 5.25,
+    "maxScore": 5.25
+  },
+  "20": {
+    "score": 4.5,
+    "maxScore": 4.5
+  },
+  "21": {
+    "score": 3.75,
+    "maxScore": 3.75
+  },
+  "22": {
+    "score": 5.25,
+    "maxScore": 5.25
+  },
+  "23": {
+    "score": 4.5,
+    "maxScore": 4.5
+  },
+  "24": {
+    "score": 3.75,
+    "maxScore": 3.75
+  },
+  "25": {
+    "score": 3.0,
+    "maxScore": 3.0
+  },
+  "26": {
+    "score": 3.0,
+    "maxScore": 3.0
+  },
+  "27": {
+    "score": 2.25,
+    "maxScore": 2.25
+  },
+  "28": {
+    "score": 1.5,
+    "maxScore": 1.5
+  },
+  "29": {
+    "score": 0.75,
+    "maxScore": 0.75
+  },
+  "30": {
+    "score": 0.3,
+    "maxScore": 0.3
+  },
+  "31": {
+    "score": 1.5,
+    "maxScore": 1.5
+  },
+  "32": {
+    "score": 6.0,
+    "maxScore": 6.0
+  },
+  "33": {
+    "score": 6.0,
+    "maxScore": 6.0
+  },
+  "34": {
+    "score": 5.25,
+    "maxScore": 5.25
+  },
+  "35": {
+    "score": 4.5,
+    "maxScore": 4.5
+  },
+  "36": {
+    "score": 3.75,
+    "maxScore": 3.75
+  },
+  "37": {
+    "score": 4.5,
+    "maxScore": 4.5
+  },
+  "38": {
+    "score": 3.75,
+    "maxScore": 3.75
+  },
+  "39": {
+    "score": 3.0,
+    "maxScore": 3.0
+  },
+  "40": {
+    "score": 2.25,
+    "maxScore": 2.25
+  },
+  "41": {
+    "score": 2.25,
+    "maxScore": 2.25
+  },
+  "42": {
+    "score": 1.5,
+    "maxScore": 1.5
+  },
+  "43": {
+    "score": 0.75,
+    "maxScore": 0.75
+  },
+  "44": {
+    "score": 0.375,
+    "maxScore": 0.375
+  },
+  "45": {
+    "score": 0.3,
+    "maxScore": 0.3
+  },
+  "46": {
+    "score": 6.0,
+    "maxScore": 6.0
+  },
+  "47": {
+    "score": 6.0,
+    "maxScore": 6.0
+  },
+  "48": {
+    "score": 5.25,
+    "maxScore": 5.25
+  },
+  "49": {
+    "score": 4.5,
+    "maxScore": 4.5
+  },
+  "50": {
+    "score": 3.75,
+    "maxScore": 3.75
+  },
+  "51": {
+    "score": 5.25,
+    "maxScore": 5.25
+  },
+  "52": {
+    "score": 4.5,
+    "maxScore": 4.5
+  },
+  "53": {
+    "score": 3.75,
+    "maxScore": 3.75
+  },
+  "54": {
+    "score": 3.0,
+    "maxScore": 3.0
+  },
+  "55": {
+    "score": 3.0,
+    "maxScore": 3.0
+  },
+  "56": {
+    "score": 2.25,
+    "maxScore": 2.25
+  },
+  "57": {
+    "score": 1.5,
+    "maxScore": 1.5
+  },
+  "58": {
+    "score": 0.75,
+    "maxScore": 0.75
+  },
+  "59": {
+    "score": 0.3,
+    "maxScore": 0.3
+  },
+  "60": {
+    "score": 0.0,
+    "maxScore": 5.0
+  },
+  "61": {
+    "score": 5.0,
+    "maxScore": 5.0
+  },
+  "62": {
+    "score": 0.0,
+    "maxScore": 5.0
+  },
+  "63": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "64": {
+    "score": 10.0,
+    "maxScore": 10.0
+  },
+  "65": {
+    "score": 8.5,
+    "maxScore": 8.5
+  },
+  "66": {
+    "score": 7.0,
+    "maxScore": 7.0
+  },
+  "67": {
+    "score": 5.5,
+    "maxScore": 5.5
+  },
+  "68": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "69": {
+    "score": 0.0,
+    "maxScore": 10.0
+  },
+  "70": {
+    "score": 0.0,
+    "maxScore": 8.5
+  },
+  "71": {
+    "score": 0.0,
+    "maxScore": 7.0
+  },
+  "72": {
+    "score": 0.0,
+    "maxScore": 5.5
+  },
+  "73": {
+    "score": 0.0,
+    "maxScore": 4.0
+  },
+  "74": {
+    "score": 10.0,
+    "maxScore": 10.0
+  },
+  "75": {
+    "score": 8.5,
+    "maxScore": 8.5
+  },
+  "76": {
+    "score": 7.0,
+    "maxScore": 7.0
+  },
+  "77": {
+    "score": 5.5,
+    "maxScore": 5.5
+  },
+  "78": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "79": {
+    "score": 10.0,
+    "maxScore": 10.0
+  },
+  "80": {
+    "score": 8.5,
+    "maxScore": 8.5
+  },
+  "81": {
+    "score": 7.0,
+    "maxScore": 7.0
+  },
+  "82": {
+    "score": 5.5,
+    "maxScore": 5.5
+  },
+  "83": {
+    "score": 8.5,
+    "maxScore": 8.5
+  },
+  "84": {
+    "score": 7.0,
+    "maxScore": 7.0
+  },
+  "85": {
+    "score": 5.5,
+    "maxScore": 5.5
+  },
+  "86": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "87": {
+    "score": 7.0,
+    "maxScore": 7.0
+  },
+  "88": {
+    "score": 5.5,
+    "maxScore": 5.5
+  },
+  "89": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "90": {
+    "score": 2.5,
+    "maxScore": 2.5
+  },
+  "91": {
+    "score": 5.5,
+    "maxScore": 5.5
+  },
+  "92": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "93": {
+    "score": 2.5,
+    "maxScore": 2.5
+  },
+  "94": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "95": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "96": {
+    "score": 2.5,
+    "maxScore": 2.5
+  },
+  "97": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "98": {
+    "score": 10.0,
+    "maxScore": 10.0
+  },
+  "99": {
+    "score": 8.5,
+    "maxScore": 8.5
+  },
+  "100": {
+    "score": 7.0,
+    "maxScore": 7.0
+  },
+  "101": {
+    "score": 5.5,
+    "maxScore": 5.5
+  },
+  "102": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "103": {
+    "score": 10.0,
+    "maxScore": 10.0
+  },
+  "104": {
+    "score": 8.5,
+    "maxScore": 8.5
+  },
+  "105": {
+    "score": 7.0,
+    "maxScore": 7.0
+  },
+  "106": {
+    "score": 5.5,
+    "maxScore": 5.5
+  },
+  "107": {
+    "score": 8.5,
+    "maxScore": 8.5
+  },
+  "108": {
+    "score": 7.0,
+    "maxScore": 7.0
+  },
+  "109": {
+    "score": 5.5,
+    "maxScore": 5.5
+  },
+  "110": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "111": {
+    "score": 7.0,
+    "maxScore": 7.0
+  },
+  "112": {
+    "score": 5.5,
+    "maxScore": 5.5
+  },
+  "113": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "114": {
+    "score": 2.5,
+    "maxScore": 2.5
+  },
+  "115": {
+    "score": 5.5,
+    "maxScore": 5.5
+  },
+  "116": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "117": {
+    "score": 2.5,
+    "maxScore": 2.5
+  },
+  "118": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "119": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "120": {
+    "score": 2.5,
+    "maxScore": 2.5
+  },
+  "121": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "122": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "123": {
+    "score": 3.5,
+    "maxScore": 3.5
+  },
+  "124": {
+    "score": 3.0,
+    "maxScore": 3.0
+  },
+  "125": {
+    "score": 2.0,
+    "maxScore": 2.0
+  },
+  "126": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "127": {
+    "score": 3.5,
+    "maxScore": 3.5
+  },
+  "128": {
+    "score": 3.5,
+    "maxScore": 3.5
+  },
+  "129": {
+    "score": 3.0,
+    "maxScore": 3.0
+  },
+  "130": {
+    "score": 3.0,
+    "maxScore": 3.0
+  },
+  "131": {
+    "score": 2.5,
+    "maxScore": 2.5
+  },
+  "132": {
+    "score": 2.0,
+    "maxScore": 2.0
+  },
+  "133": {
+    "score": 10.0,
+    "maxScore": 10.0
+  },
+  "134": {
+    "score": 8.5,
+    "maxScore": 8.5
+  },
+  "135": {
+    "score": 7.0,
+    "maxScore": 7.0
+  },
+  "136": {
+    "score": 8.5,
+    "maxScore": 8.5
+  },
+  "137": {
+    "score": 7.0,
+    "maxScore": 7.0
+  },
+  "138": {
+    "score": 5.5,
+    "maxScore": 5.5
+  },
+  "139": {
+    "score": 7.0,
+    "maxScore": 7.0
+  },
+  "140": {
+    "score": 5.5,
+    "maxScore": 5.5
+  },
+  "141": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "142": {
+    "score": 5.5,
+    "maxScore": 5.5
+  },
+  "143": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "144": {
+    "score": 2.5,
+    "maxScore": 2.5
+  },
+  "145": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "146": {
+    "score": 2.5,
+    "maxScore": 2.5
+  },
+  "147": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "148": {
+    "score": 0.0,
+    "maxScore": 10.0
+  },
+  "149": {
+    "score": 0.0,
+    "maxScore": 8.5
+  },
+  "150": {
+    "score": 0.0,
+    "maxScore": 7.0
+  },
+  "151": {
+    "score": 0.0,
+    "maxScore": 5.5
+  },
+  "152": {
+    "score": 0.0,
+    "maxScore": 4.0
+  },
+  "153": {
+    "score": 10.0,
+    "maxScore": 10.0
+  },
+  "154": {
+    "score": 0.0,
+    "maxScore": 5.0
+  },
+  "155": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "156": {
+    "score": 0.8,
+    "maxScore": 0.8
+  },
+  "157": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "158": {
+    "score": 3.0,
+    "maxScore": 3.0
+  },
+  "159": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "160": {
+    "score": 0.3,
+    "maxScore": 0.3
+  },
+  "161": {
+    "score": 2.0,
+    "maxScore": 2.0
+  },
+  "162": {
+    "score": 0.3,
+    "maxScore": 0.3
+  },
+  "163": {
+    "score": 0.2,
+    "maxScore": 0.2
+  },
+  "164": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "165": {
+    "score": 0.2,
+    "maxScore": 0.2
+  },
+  "166": {
+    "score": 0.1,
+    "maxScore": 0.1
+  },
+  "167": {
+    "score": 5.0,
+    "maxScore": 5.0
+  },
+  "168": {
+    "score": 1.5,
+    "maxScore": 1.5
+  },
+  "169": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "170": {
+    "score": 3.0,
+    "maxScore": 3.0
+  },
+  "171": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "172": {
+    "score": 0.3,
+    "maxScore": 0.3
+  },
+  "173": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "174": {
+    "score": 2.8,
+    "maxScore": 2.8
+  },
+  "175": {
+    "score": 2.5,
+    "maxScore": 2.5
+  },
+  "176": {
+    "score": 5.0,
+    "maxScore": 5.0
+  },
+  "177": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "178": {
+    "score": 0.15,
+    "maxScore": 0.15
+  },
+  "179": {
+    "score": "3.5+0.3*X",
+    "maxScore": "3.5+0.3*X"
+  },
+  "180": {
+    "score": "2+0.3*X",
+    "maxScore": "2+0.3*X"
+  },
+  "181": {
+    "score": "0.5+0.3*X",
+    "maxScore": "0.5+0.3*X"
+  },
+  "182": {
+    "score": 5.0,
+    "maxScore": 5.0
+  },
+  "183": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "184": {
+    "score": 0.15,
+    "maxScore": 0.15
+  },
+  "185": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "186": {
+    "score": 0.4,
+    "maxScore": 0.4
+  },
+  "187": {
+    "score": 0.13,
+    "maxScore": 0.13
+  },
+  "188": {
+    "score": 3.0,
+    "maxScore": 3.0
+  },
+  "189": {
+    "score": 0.3,
+    "maxScore": 0.3
+  },
+  "190": {
+    "score": 0.1,
+    "maxScore": 0.1
+  },
+  "191": {
+    "score": 5.0,
+    "maxScore": 5.0
+  },
+  "192": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "193": {
+    "score": 2.5,
+    "maxScore": 2.5
+  },
+  "194": {
+    "score": 2.0,
+    "maxScore": 2.0
+  },
+  "195": {
+    "score": 1.5,
+    "maxScore": 1.5
+  },
+  "196": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "197": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "198": {
+    "score": 0.3,
+    "maxScore": 0.3
+  },
+  "199": {
+    "score": 0.25,
+    "maxScore": 0.25
+  },
+  "200": {
+    "score": 4.0,
+    "maxScore": 4.0
+  },
+  "201": {
+    "score": 3.0,
+    "maxScore": 3.0
+  },
+  "202": {
+    "score": 2.0,
+    "maxScore": 2.0
+  },
+  "203": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "204": {
+    "score": 2.0,
+    "maxScore": 2.0
+  },
+  "205": {
+    "score": 1.5,
+    "maxScore": 1.5
+  },
+  "206": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "207": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "208": {
+    "score": 1.5,
+    "maxScore": 1.5
+  },
+  "209": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "210": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "211": {
+    "score": 0.35,
+    "maxScore": 0.35
+  },
+  "212": {
+    "score": 2.0,
+    "maxScore": 2.0
+  },
+  "213": {
+    "score": 2.0,
+    "maxScore": 2.0
+  },
+  "214": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "215": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "216": {
+    "score": 0.35,
+    "maxScore": 0.35
+  },
+  "217": {
+    "score": 1.5,
+    "maxScore": 1.5
+  },
+  "218": {
+    "score": 1.5,
+    "maxScore": 1.5
+  },
+  "219": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "220": {
+    "score": 0.35,
+    "maxScore": 0.35
+  },
+  "221": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "222": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "223": {
+    "score": 0.35,
+    "maxScore": 0.35
+  },
+  "224": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "225": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "226": {
+    "score": 0.2,
+    "maxScore": 0.2
+  },
+  "227": {
+    "score": 2.0,
+    "maxScore": 2.0
+  },
+  "228": {
+    "score": 1.5,
+    "maxScore": 1.5
+  },
+  "229": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "230": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "231": {
+    "score": 0.75,
+    "maxScore": 0.75
+  },
+  "232": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "233": {
+    "score": 1.25,
+    "maxScore": 1.25
+  },
+  "234": {
+    "score": 1.25,
+    "maxScore": 1.25
+  },
+  "235": {
+    "score": 0.75,
+    "maxScore": 0.75
+  },
+  "236": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "237": {
+    "score": 0.25,
+    "maxScore": 0.25
+  },
+  "238": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "239": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "240": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "241": {
+    "score": 0.25,
+    "maxScore": 0.25
+  },
+  "242": {
+    "score": 0.175,
+    "maxScore": 0.175
+  },
+  "243": {
+    "score": 0.75,
+    "maxScore": 0.75
+  },
+  "244": {
+    "score": 0.75,
+    "maxScore": 0.75
+  },
+  "245": {
+    "score": 0.25,
+    "maxScore": 0.25
+  },
+  "246": {
+    "score": 0.175,
+    "maxScore": 0.175
+  },
+  "247": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "248": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "249": {
+    "score": 0.175,
+    "maxScore": 0.175
+  },
+  "250": {
+    "score": 0.25,
+    "maxScore": 0.25
+  },
+  "251": {
+    "score": 0.25,
+    "maxScore": 0.25
+  },
+  "252": {
+    "score": 0.1,
+    "maxScore": 0.1
+  },
+  "253": {
+    "score": 1.5,
+    "maxScore": 1.5
+  },
+  "254": {
+    "score": 1.5,
+    "maxScore": 1.5
+  },
+  "255": {
+    "score": 1.3333,
+    "maxScore": 1.3333
+  },
+  "256": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "257": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "258": {
+    "score": 1.0,
+    "maxScore": 1.0
+  },
+  "259": {
+    "score": 1.3333,
+    "maxScore": 1.3333
+  },
+  "260": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "261": {
+    "score": 0.8333,
+    "maxScore": 0.8333
+  },
+  "262": {
+    "score": 0.8333,
+    "maxScore": 0.8333
+  },
+  "263": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "264": {
+    "score": 0.3333,
+    "maxScore": 0.3333
+  },
+  "265": {
+    "score": 0.6667,
+    "maxScore": 0.6667
+  },
+  "266": {
+    "score": 0.6667,
+    "maxScore": 0.6667
+  },
+  "267": {
+    "score": 0.3333,
+    "maxScore": 0.3333
+  },
+  "268": {
+    "score": 0.1667,
+    "maxScore": 0.1667
+  },
+  "269": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "270": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "271": {
+    "score": 0.1667,
+    "maxScore": 0.1667
+  },
+  "272": {
+    "score": 0.1167,
+    "maxScore": 0.1167
+  },
+  "273": {
+    "score": 0.3333,
+    "maxScore": 0.3333
+  },
+  "274": {
+    "score": 0.3333,
+    "maxScore": 0.3333
+  },
+  "275": {
+    "score": 0.1167,
+    "maxScore": 0.1167
+  },
+  "276": {
+    "score": 0.1667,
+    "maxScore": 0.1667
+  },
+  "277": {
+    "score": 0.1667,
+    "maxScore": 0.1667
+  },
+  "278": {
+    "score": 0.0667,
+    "maxScore": 0.0667
+  },
+  "279": {
+    "score": 1.125,
+    "maxScore": 1.125
+  },
+  "280": {
+    "score": 1.125,
+    "maxScore": 1.125
+  },
+  "281": {
+    "score": 1,
+    "maxScore": 1
+  },
+  "282": {
+    "score": 0.75,
+    "maxScore": 0.75
+  },
+  "283": {
+    "score": 0.75,
+    "maxScore": 0.75
+  },
+  "284": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "285": {
+    "score": 0.625,
+    "maxScore": 0.625
+  },
+  "286": {
+    "score": 0.375,
+    "maxScore": 0.375
+  },
+  "287": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "288": {
+    "score": 0.5,
+    "maxScore": 0.5
+  },
+  "289": {
+    "score": 0.25,
+    "maxScore": 0.25
+  },
+  "290": {
+    "score": 0.375,
+    "maxScore": 0.375
+  },
+  "291": {
+    "score": 0.375,
+    "maxScore": 0.375
+  },
+  "292": {
+    "score": 0.125,
+    "maxScore": 0.125
+  },
+  "293": {
+    "score": 0.25,
+    "maxScore": 0.25
+  },
+  "294": {
+    "score": 0.25,
+    "maxScore": 0.25
+  },
+  "295": {
+    "score": 0.0875,
+    "maxScore": 0.0875
+  },
+  "296": {
+    "score": 0.125,
+    "maxScore": 0.125
+  },
+  "297": {
+    "score": 0.125,
+    "maxScore": 0.125
+  },
+  "298": {
+    "score": 0.05,
+    "maxScore": 0.05
+  },
+  "299": {
+    "score": 0.5625,
+    "maxScore": 0.5625
+  },
+  "300": {
+    "score": 0.375,
+    "maxScore": 0.375
+  },
+  "301": {
+    "score": 0.3125,
+    "maxScore": 0.3125
+  },
+  "302": {
+    "score": 0.25,
+    "maxScore": 0.25
+  },
+  "303": {
+    "score": 0.1875,
+    "maxScore": 0.1875
+  },
+  "304": {
+    "score": 0.125,
+    "maxScore": 0.125
+  },
+  "305": {
+    "score": 0.0625,
+    "maxScore": 0.0625
+  },
+  "306": {
+    "score": 0.2813,
+    "maxScore": 0.2813
+  },
+  "307": {
+    "score": 0.1875,
+    "maxScore": 0.1875
+  },
+  "308": {
+    "score": 0.1563,
+    "maxScore": 0.1563
+  },
+  "309": {
+    "score": 0.125,
+    "maxScore": 0.125
+  },
+  "310": {
+    "score": 0.0938,
+    "maxScore": 0.0938
+  },
+  "311": {
+    "score": 0.0625,
+    "maxScore": 0.0625
+  },
+  "312": {
+    "score": 0.0313,
+    "maxScore": 0.0313
+  },
+  "313": {
+    "score": 4,
+    "maxScore": 4
+  },
+  "314": {
+    "score": 2,
+    "maxScore": 2
+  },
+  "315": {
+    "score": 1,
+    "maxScore": 1
+  },
+  "316": {
+    "score": 0,
+    "maxScore": 5
+  },
+  "317": {
+    "score": 0,
+    "maxScore": 40
+  },
+  "318": {
+    "score": 0,
+    "maxScore": 40
+  },
+  "319": {
+    "score": 40,
+    "maxScore": 40
+  },
+  "320": {
+    "score": 30,
+    "maxScore": 30
+  },
+  "321": {
+    "score": 10,
+    "maxScore": 10
+  },
+  "322": {
+    "score": 20,
+    "maxScore": 20
+  },
+  "323": {
+    "score": 10,
+    "maxScore": 10
+  }
+}
