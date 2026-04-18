@@ -14,3 +14,5 @@ alembic==1.14.0
 openpyxl==3.1.5
 pytest==8.3.4
 httpx==0.28.1
+paddlepaddle==3.3.1
+paddleocr==3.4.0

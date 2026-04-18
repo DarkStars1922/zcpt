@@ -7,6 +7,7 @@ from app.models.application import Application
 from app.models.archive_record import ArchiveRecord
 from app.models.email_record import EmailRecord
 from app.models.export_task import ExportTask
+from app.models.file_analysis_result import FileAnalysisResult
 from app.models.file_info import FileInfo
 from app.models.review_record import ReviewRecord
 from app.models.reviewer_token import ReviewerToken
@@ -29,8 +30,8 @@ def serialize_user(user: User) -> dict:
     }
 
 
-def serialize_file(file: FileInfo) -> dict:
-    return {
+def serialize_file(file: FileInfo, *, analysis: FileAnalysisResult | None = None) -> dict:
+    payload = {
         "file_id": file.id,
         "filename": file.original_name,
         "content_type": file.content_type,
@@ -38,6 +39,10 @@ def serialize_file(file: FileInfo) -> dict:
         "url": f"/api/v1/files/{file.id}",
         "created_at": file.created_at.isoformat(),
     }
+    if analysis:
+        payload["analysis_status"] = analysis.status
+        payload["analysis"] = serialize_file_analysis(analysis)
+    return payload
 
 
 def serialize_application(
@@ -202,6 +207,22 @@ def serialize_ai_audit(report: AIAuditReport) -> dict:
         "error_message": report.error_message,
         "audited_at": report.audited_at.isoformat() if report.audited_at else None,
         "created_at": report.created_at.isoformat(),
+    }
+
+
+def serialize_file_analysis(record: FileAnalysisResult) -> dict:
+    payload = json_loads(record.analysis_json, {})
+    return {
+        "status": record.status,
+        "provider": record.provider,
+        "document_title": payload.get("document_title"),
+        "recognized_levels": payload.get("recognized_levels", []),
+        "uploader_name_match": payload.get("uploader_name_match", {}),
+        "filename_vs_document_title": payload.get("filename_vs_document_title", {}),
+        "seal": payload.get("seal", {"detected": False, "items": []}),
+        "signature": payload.get("signature", {"detected": False, "items": []}),
+        "error_message": record.error_message,
+        "analyzed_at": record.analyzed_at.isoformat() if record.analyzed_at else None,
     }
 
 

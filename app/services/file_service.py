@@ -11,6 +11,7 @@ from app.core.utils import json_loads
 from app.models.application import Application
 from app.models.application_attachment import ApplicationAttachment
 from app.models.file_info import FileInfo
+from app.services.file_analysis_service import analyze_file, get_file_analysis_record
 from app.models.reviewer_token import ReviewerToken
 from app.models.user import User
 from app.services.errors import ServiceError
@@ -65,7 +66,8 @@ async def save_upload_file(db: Session, user: User, file: UploadFile) -> dict:
     db.add(record)
     db.commit()
     db.refresh(record)
-    return serialize_file(record)
+    analysis = analyze_file(db, record, uploader=user)
+    return serialize_file(record, analysis=analysis)
 
 
 def get_file_record(db: Session, file_id: str) -> FileInfo:
@@ -77,7 +79,8 @@ def get_file_record(db: Session, file_id: str) -> FileInfo:
 
 def get_file_metadata(db: Session, user: User, file_id: str) -> dict:
     record = get_file_for_user(db, user, file_id)
-    return serialize_file(record)
+    analysis = get_file_analysis_record(db, record.id)
+    return serialize_file(record, analysis=analysis)
 
 
 def get_file_path_for_user(db: Session, user: User, file_id: str) -> Path:

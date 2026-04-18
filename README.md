@@ -26,6 +26,7 @@
 - 数据库: SQLite / MySQL
 - 缓存与队列: Redis / Celery
 - 导出: openpyxl
+- OCR: PaddleOCR / PaddlePaddle
 - 迁移: Alembic
 
 ## 已实现能力
@@ -113,6 +114,11 @@ AUTO_CREATE_TABLES=true
 ```bash
 py -3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
+
+说明：
+
+- 首次触发文件 OCR 时，PaddleOCR 会自动下载模型到 `models/paddleocr/`
+- 如需自定义模型路径，可在 `.env` 中配置 `PADDLE_MODEL_DIR` 或各个 `PADDLEOCR_*_MODEL_DIR`
 
 4. 访问文档
 
@@ -230,5 +236,5 @@ Idempotency-Key: <client-generated-key>
 
 - 奖项分值与分类树已迁移到后端本地数据目录 `app/data`
 - 邮件通知当前为异步模拟发送，不接真实 SMTP，但数据库记录、任务链路、日志查询都已实现
-- AI 审核当前为 mock provider，可后续替换成真实 OCR / 风控服务
-
+- AI 审核已接入 PaddleOCR，会在上传时缓存文件 OCR 结果，并在申报审核时结合标题、级别、姓名、文件名、印章、落款等信息生成审核报告
+- 默认模型目录为 `models/paddleocr/`，已加入 `.gitignore`

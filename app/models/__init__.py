@@ -8,6 +8,7 @@ from app.models.archive_record import ArchiveRecord
 from app.models.award_dict import AwardDict
 from app.models.email_record import EmailRecord
 from app.models.export_task import ExportTask
+from app.models.file_analysis_result import FileAnalysisResult
 from app.models.file_info import FileInfo
 from app.models.refresh_token import RefreshToken
 from app.models.review_record import ReviewRecord
@@ -23,6 +24,7 @@ __all__ = [
     "ReviewerToken",
     "ReviewRecord",
     "FileInfo",
+    "FileAnalysisResult",
     "ApplicationAttachment",
     "AIAuditReport",
     "ExportTask",

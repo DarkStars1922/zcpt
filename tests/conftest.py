@@ -34,6 +34,7 @@ def client(tmp_path: Path):
     settings.upload_dir = str(upload_dir)
     settings.export_dir = str(export_dir)
     settings.auto_create_tables = True
+    settings.file_analysis_enabled = False
 
     configure_engine(settings.database_url)
     celery_app.conf.update(
@@ -70,6 +71,7 @@ def client_with_redis(tmp_path: Path):
     settings.upload_dir = str(upload_dir)
     settings.export_dir = str(export_dir)
     settings.auto_create_tables = True
+    settings.file_analysis_enabled = False
 
     configure_engine(settings.database_url)
     celery_app.conf.update(
@@ -173,6 +175,7 @@ def client_with_mysql(tmp_path: Path):
         settings.auto_create_tables = False
         settings.upload_dir = str(tmp_path / "uploads")
         settings.export_dir = str(tmp_path / "exports")
+        settings.file_analysis_enabled = False
         configure_engine(settings.database_url)
         celery_app.conf.update(
             task_always_eager=True,

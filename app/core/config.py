@@ -46,8 +46,23 @@ class Settings(BaseSettings):
     email_default_from: str = "noreply@zcpt.local"
     email_mock_success: bool = True
 
-    ai_audit_provider: str = "mock"
+    ai_audit_provider: str = "paddleocr"
     ai_audit_fallback_to_manual: bool = True
+    file_analysis_enabled: bool = True
+    paddle_model_source: str = "BOS"
+    paddle_model_dir: str = "./models/paddleocr"
+    paddleocr_device: str = "cpu"
+    paddleocr_use_doc_orientation_classify: bool = True
+    paddleocr_use_textline_orientation: bool = True
+    paddleocr_text_detection_model_name: str = "PP-OCRv5_mobile_det"
+    paddleocr_text_detection_model_dir: str | None = None
+    paddleocr_text_recognition_model_name: str = "PP-OCRv5_mobile_rec"
+    paddleocr_text_recognition_model_dir: str | None = None
+    paddleocr_layout_detection_model_name: str = "PP-DocLayout-S"
+    paddleocr_layout_detection_model_dir: str | None = None
+    paddleocr_cpu_threads: int = 4
+    paddleocr_enable_mkldnn: bool = True
+    paddleocr_seal_score_threshold: float = 0.4
 
     default_term: str = "2025-2026-1"
     export_download_base_path: str = "/api/v1/teacher/exports"
@@ -59,6 +74,10 @@ class Settings(BaseSettings):
     @property
     def export_dir_path(self) -> Path:
         return Path(self.export_dir)
+
+    @property
+    def paddle_model_dir_path(self) -> Path:
+        return Path(self.paddle_model_dir)
 
 
 settings = Settings()

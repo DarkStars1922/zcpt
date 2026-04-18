@@ -8,6 +8,7 @@ from app.models.ai_audit_report import AIAuditReport
 from app.models.application import Application
 from app.models.application_attachment import ApplicationAttachment
 from app.models.award_dict import AwardDict
+from app.models.file_analysis_result import FileAnalysisResult
 from app.models.file_info import FileInfo
 from app.models.reviewer_token import ReviewerToken
 from app.models.user import User
@@ -275,11 +276,12 @@ def soft_delete_application(db: Session, user: User, application_id: int) -> Non
 
 def get_application_attachments(db: Session, application_id: int) -> list[dict]:
     rows = db.exec(
-        select(ApplicationAttachment, FileInfo)
+        select(ApplicationAttachment, FileInfo, FileAnalysisResult)
         .join(FileInfo, ApplicationAttachment.file_id == FileInfo.id)
+        .outerjoin(FileAnalysisResult, FileAnalysisResult.file_id == FileInfo.id)
         .where(ApplicationAttachment.application_id == application_id, FileInfo.status != "deleted")
     ).all()
-    return [serialize_file(file) for _, file in rows]
+    return [serialize_file(file, analysis=analysis) for _, file, analysis in rows]
 
 
 def _replace_attachments(

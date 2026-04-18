@@ -79,6 +79,86 @@ def create_application(client, access_token: str, *, award_uid: int = 1, file_id
     return assert_ok(response)
 
 
+def test_upload_analysis_and_ai_audit_use_real_summary(client, monkeypatch):
+    from app.core.config import settings
+
+    settings.file_analysis_enabled = True
+
+    def fake_run_document_ocr(_):
+        return {
+            "ocr_text": "省级志愿服务一等奖证书 Applicant One 学生工作处 2026年04月01日",
+            "ocr_pages": [
+                {
+                    "page_index": 0,
+                    "text": "省级志愿服务一等奖证书\nApplicant One\n学生工作处\nApplicant One 2026年04月01日",
+                    "width": 600,
+                    "height": 800,
+                    "lines": [
+                        {"text": "省级志愿服务一等奖证书", "score": 0.99, "box": [10, 20, 320, 80]},
+                        {"text": "Applicant One", "score": 0.98, "box": [10, 120, 220, 170]},
+                        {"text": "学生工作处", "score": 0.97, "box": [360, 600, 520, 680]},
+                        {"text": "Applicant One 2026年04月01日", "score": 0.95, "box": [280, 700, 560, 760]},
+                    ],
+                }
+            ],
+            "layout_pages": [
+                {
+                    "page_index": 0,
+                    "boxes": [{"label": "seal", "score": 0.99, "coordinate": [330, 560, 560, 720]}],
+                }
+            ],
+        }
+
+    monkeypatch.setattr("app.services.file_analysis_service.run_document_ocr", fake_run_document_ocr)
+
+    register_user(
+        client,
+        account="stud4001",
+        name="Applicant One",
+        class_id=301,
+        email="stud4001@example.com",
+    )
+    student_login = login_user(client, account="stud4001")
+    student_headers = auth_headers(student_login["access_token"])
+
+    upload_resp = assert_ok(
+        client.post(
+            f"{API_PREFIX}/files/upload",
+            headers=student_headers,
+            files={"file": ("省级志愿服务一等奖证书.png", b"mock", "image/png")},
+        )
+    )
+    assert upload_resp["analysis_status"] == "completed"
+    assert upload_resp["analysis"]["seal"]["detected"] is True
+    file_id = upload_resp["file_id"]
+
+    application = assert_ok(
+        client.post(
+            f"{API_PREFIX}/applications",
+            headers=student_headers,
+            json={
+                "award_uid": 1,
+                "title": "省级志愿服务一等奖",
+                "description": "Applicant One 志愿服务材料",
+                "occurred_at": date.today().isoformat(),
+                "attachments": [{"file_id": file_id}],
+                "category": "innovation",
+                "sub_type": "achievement",
+                "score": 4.0,
+            },
+        )
+    )
+
+    ai_report = assert_ok(client.get(f"{API_PREFIX}/ai-audits/{application['application_id']}/report", headers=student_headers))
+    assert ai_report["status"] == "completed"
+    assert ai_report["result"] == "pass"
+    assert ai_report["identity_check"]["status"] == "matched"
+    assert ai_report["consistency_check"]["title_check"]["status"] == "matched"
+    assert ai_report["consistency_check"]["level_check"]["status"] == "matched"
+    assert ai_report["consistency_check"]["seal_check"]["detected"] is True
+    assert ai_report["consistency_check"]["signature_check"]["detected"] is True
+
+
 def test_auth_and_profile_flow(client):
     user = register_user(
         client,
