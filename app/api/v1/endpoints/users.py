@@ -13,8 +13,12 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.get("/me")
-def get_me_api(request: Request, user: User = Depends(get_current_user)):
-    return success_response(request=request, message="获取成功", data=get_me(user))
+def get_me_api(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return success_response(request=request, message="fetch success", data=get_me(db, user))
 
 
 @router.put("/me")
@@ -28,4 +32,4 @@ def update_me_api(
         data = update_me(db, user, payload)
     except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
-    return success_response(request=request, message="更新成功", data=data)
+    return success_response(request=request, message="update success", data=data)

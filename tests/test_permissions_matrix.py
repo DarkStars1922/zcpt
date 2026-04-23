@@ -601,9 +601,9 @@ def test_reviewer_teacher_admin_and_notification_boundaries(permission_context):
     )
     assert batch_result["success_count"] == 1
 
-    assert_api_code(client.get(f"{API_PREFIX}/reviews/{permission_context['owner_app']}", headers=teacher), 1000)
+    assert_ok(client.get(f"{API_PREFIX}/reviews/{permission_context['owner_app']}", headers=teacher))
     teacher_pending = assert_ok(client.get(f"{API_PREFIX}/reviews/pending", headers=teacher))
-    assert any(item["application_id"] == permission_context["peer_app"] for item in teacher_pending["list"])
+    assert all(item["application_id"] != permission_context["peer_app"] for item in teacher_pending["list"])
     assert_ok(client.get(f"{API_PREFIX}/reviews/{permission_context['peer_app']}", headers=teacher))
     rechecked = assert_ok(
         client.post(
@@ -768,7 +768,7 @@ def test_archive_announcement_appeal_and_token_boundaries(permission_context):
     )
     assert processed["status"] == "processed"
 
-    assert_forbidden(client.get(f"{API_PREFIX}/tokens", headers=owner))
+    assert_ok(client.get(f"{API_PREFIX}/tokens", headers=owner))
     assert_ok(client.get(f"{API_PREFIX}/tokens", headers=teacher))
     assert_ok(client.get(f"{API_PREFIX}/tokens", headers=admin))
     assert_forbidden(client.post(f"{API_PREFIX}/tokens/reviewer", headers=owner, json={"class_ids": [301]}))

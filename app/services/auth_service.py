@@ -14,7 +14,7 @@ from app.core.security import (
     seconds_until_timestamp,
     verify_password,
 )
-from app.core.utils import utcnow
+from app.core.utils import ensure_utc_datetime, utcnow
 from app.models.refresh_token import RefreshToken
 from app.models.user import User
 from app.schemas.auth import ChangePasswordRequest
@@ -85,7 +85,10 @@ def refresh_access_token(db: Session, *, refresh_token: str) -> str:
     token_record = db.exec(select(RefreshToken).where(RefreshToken.token_jti == payload["jti"])).first()
     if not token_record or token_record.is_revoked:
         raise ServiceError("refresh token 无效", 1006)
-    if token_record.expires_at < utcnow():
+    expires_at = ensure_utc_datetime(token_record.expires_at)
+    if expires_at is None:
+        raise ServiceError("refresh token 无效", 1006)
+    if expires_at < utcnow():
         raise ServiceError("refresh token 已过期", 1006)
 
     user = db.get(User, int(payload["sub"]))

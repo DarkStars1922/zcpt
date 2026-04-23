@@ -3,17 +3,18 @@ from sqlmodel import Session, select
 
 from app.core.award_catalog import load_award_tree
 from app.core.constants import EDITABLE_APPLICATION_STATUSES, REVIEWER_REVIEWABLE_STATUSES, ROLE_STUDENT
-from app.core.utils import json_loads, utcnow
+from app.core.utils import utcnow
 from app.models.ai_audit_report import AIAuditReport
 from app.models.application import Application
 from app.models.application_attachment import ApplicationAttachment
 from app.models.award_dict import AwardDict
 from app.models.file_analysis_result import FileAnalysisResult
 from app.models.file_info import FileInfo
-from app.models.reviewer_token import ReviewerToken
 from app.models.user import User
 from app.schemas.application import ApplicationCreateRequest, ApplicationUpdateRequest
 from app.services.errors import ServiceError
+from app.services.reviewer_scope_service import get_active_reviewer_class_ids
+from app.services.score_summary_service import get_student_actual_score_map
 from app.services.serializers import serialize_application, serialize_file
 from app.services.system_log_service import write_system_log
 from app.tasks.jobs import enqueue_ai_audit
@@ -124,18 +125,23 @@ def get_my_category_summary(db: Session, user: User, *, term: str | None) -> dic
             },
         )
         entry["count"] += 1
-        if row.status == "approved":
+        is_archived_approved = row.status == "archived" and bool(row.actual_score_recorded)
+        is_archived_rejected = row.status == "archived" and not bool(row.actual_score_recorded)
+        if row.status == "approved" or is_archived_approved:
             entry["approved"] += 1
             entry["category_score"] += float(row.item_score or 0.0)
             total_score += float(row.item_score or 0.0)
-        elif row.status == "rejected":
+        elif row.status == "rejected" or is_archived_rejected:
             entry["rejected"] += 1
         else:
             entry["pending"] += 1
+    actual_score_map = get_student_actual_score_map(db, [user.id])
+    actual_score = float(actual_score_map.get(user.id, 0.0))
     return {
         "term": term,
         "categories": list(categories.values()),
         "total_score": round(total_score, 4),
+        "actual_score": round(actual_score, 4),
     }
 
 
@@ -181,7 +187,7 @@ def get_application_detail(db: Session, user: User, application_id: int) -> dict
 def update_application(db: Session, user: User, application_id: int, payload: ApplicationUpdateRequest) -> dict:
     _require_student(user)
     application = _get_owned_application(db, user, application_id)
-    if application.status not in EDITABLE_APPLICATION_STATUSES:
+    if application.status not in EDITABLE_APPLICATION_STATUSES and application.status != "rejected":
         raise ServiceError("application status is not editable", 1000)
     if payload.version is not None and payload.version != application.version:
         raise ServiceError("version conflict", 1007)
@@ -197,6 +203,7 @@ def update_application(db: Session, user: User, application_id: int, payload: Ap
     application.occurred_at = payload.occurred_at
     application.item_score = item_score
     application.total_score = item_score
+    application.actual_score_recorded = False
     application.status = "pending_ai"
     application.comment = None
     application.version += 1
@@ -360,17 +367,8 @@ def _get_viewable_application(db: Session, user: User, application_id: int) -> A
     if application.applicant_id == user.id:
         return application
     if user.role == ROLE_STUDENT and user.is_reviewer:
-        reviewer_class_ids = _get_active_reviewer_class_ids(db, user)
+        reviewer_class_ids = get_active_reviewer_class_ids(db, user)
         applicant = db.get(User, application.applicant_id)
         if applicant and applicant.class_id in reviewer_class_ids and application.status in REVIEWER_REVIEWABLE_STATUSES:
             return application
     raise ServiceError("permission denied", 1003)
-
-
-def _get_active_reviewer_class_ids(db: Session, user: User) -> list[int]:
-    if not user.reviewer_token_id:
-        return []
-    token = db.get(ReviewerToken, user.reviewer_token_id)
-    if not token or token.status != "active":
-        return []
-    return [int(item) for item in json_loads(token.class_ids_json, [])]

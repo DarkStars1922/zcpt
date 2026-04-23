@@ -14,6 +14,7 @@ from app.services.teacher_service import (
     archive_applications,
     get_class_statistics,
     get_statistics,
+    get_student_statistics,
     list_teacher_applications,
     recheck_application,
 )
@@ -112,6 +113,21 @@ def get_class_statistics_api(
     return success_response(request=request, message="fetch success", data=data)
 
 
+@router.get("/statistics/students")
+def get_student_statistics_api(
+    request: Request,
+    grade: int | None = Query(default=None),
+    class_id: int | None = Query(default=None),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        data = get_student_statistics(db, user, grade=grade, class_id=class_id)
+    except ServiceError as exc:
+        return error_response(request=request, code=exc.code, message=exc.message)
+    return success_response(request=request, message="fetch success", data=data)
+
+
 @router.post("/exports")
 def create_export_api(
     request: Request,
@@ -126,7 +142,7 @@ def create_export_api(
             user,
             payload,
             idempotency_key=idempotency_key,
-            store_to_archive=False,
+            store_to_archive=payload.store_to_archive,
         )
     except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)

@@ -96,11 +96,13 @@ def get_pending_by_category_api(
 def get_pending_count_api(
     request: Request,
     class_id: int | None = Query(default=None),
+    category: str | None = Query(default=None),
+    sub_type: str | None = Query(default=None),
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
     try:
-        data = get_pending_count(db, user, class_id=class_id)
+        data = get_pending_count(db, user, class_id=class_id, category=category, sub_type=sub_type)
     except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
     return success_response(request=request, message="获取成功", data=data)

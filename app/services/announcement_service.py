@@ -1,5 +1,3 @@
-from datetime import datetime, timezone
-
 from sqlmodel import Session, select
 
 from app.core.constants import ANNOUNCEMENT_STATUS_ACTIVE, ANNOUNCEMENT_STATUS_CLOSED, CLASS_GRADE_MAP
@@ -20,7 +18,7 @@ def create_announcement(db: Session, user: User, payload: AnnouncementCreateRequ
         archive_record_id=archive.id,
         title=payload.title,
         scope_json=json_dumps(payload.scope.model_dump()),
-        show_fields_json=json_dumps(payload.show_fields),
+        show_fields_json=json_dumps(payload.show_fields or []),
         start_at=payload.start_at,
         end_at=payload.end_at,
         created_by=user.id,
@@ -61,7 +59,7 @@ def update_announcement(db: Session, user: User, announcement_id: int, payload: 
     announcement.archive_record_id = archive.id
     announcement.title = payload.title
     announcement.scope_json = json_dumps(payload.scope.model_dump())
-    announcement.show_fields_json = json_dumps(payload.show_fields)
+    announcement.show_fields_json = json_dumps(payload.show_fields or [])
     announcement.start_at = payload.start_at
     announcement.end_at = payload.end_at
     announcement.updated_at = utcnow()
@@ -92,6 +90,27 @@ def close_announcement(db: Session, user: User, announcement_id: int) -> dict:
     return serialize_announcement(announcement, archive.archive_id if archive else "")
 
 
+def reopen_announcement(db: Session, user: User, announcement_id: int) -> dict:
+    _require_manage(user)
+    announcement = db.get(Announcement, announcement_id)
+    if not announcement:
+        raise ServiceError("announcement not found", 1002)
+    announcement.status = ANNOUNCEMENT_STATUS_ACTIVE
+    announcement.closed_at = None
+    announcement.updated_at = utcnow()
+    db.add(announcement)
+    db.commit()
+    archive = db.get(ArchiveRecord, announcement.archive_record_id)
+    write_system_log(
+        db,
+        action="announcement.reopen",
+        actor_id=user.id,
+        target_type="announcement",
+        target_id=str(announcement.id),
+    )
+    return serialize_announcement(announcement, archive.archive_id if archive else "")
+
+
 def delete_announcement(db: Session, user: User, announcement_id: int) -> None:
     _require_manage(user)
     announcement = db.get(Announcement, announcement_id)
@@ -114,25 +133,25 @@ def can_student_view_announcement(announcement: Announcement, user: User) -> boo
     if announcement.status != ANNOUNCEMENT_STATUS_ACTIVE:
         return False
 
-    now = _normalize_datetime(utcnow())
-    start_at = _normalize_datetime(announcement.start_at)
-    end_at = _normalize_datetime(announcement.end_at)
-
-    if start_at > now:
-        return False
-    if end_at and end_at < now:
-        return False
-
     scope = json_loads(announcement.scope_json, {})
-    scope_grade = scope.get("grade")
-    scope_class_ids = [int(item) for item in (scope.get("class_ids") or [])]
-    user_grade = CLASS_GRADE_MAP.get(user.class_id) if user.class_id is not None else None
+    raw_scope_grade = scope.get("grade")
+    scope_grade = _safe_int(raw_scope_grade)
+    if raw_scope_grade is not None and scope_grade is None:
+        return False
+    scope_class_ids = _safe_int_list(scope.get("class_ids") or [])
 
-    if scope_grade is not None and user_grade != int(scope_grade):
-        return False
-    if scope_class_ids and user.class_id not in scope_class_ids:
-        return False
-    return True
+    # Class scope has highest priority when explicitly configured.
+    if scope_class_ids:
+        return user.class_id in scope_class_ids
+
+    if scope_grade is None:
+        return True
+
+    user_grade = _resolve_user_grade(user.class_id)
+    if user_grade is None:
+        # Legacy/unknown class mapping: avoid false negatives for student visibility.
+        return True
+    return user_grade == scope_grade
 
 
 def _require_manage(user: User) -> None:
@@ -147,9 +166,30 @@ def _get_archive(db: Session, archive_id: str) -> ArchiveRecord:
     return archive
 
 
-def _normalize_datetime(value: datetime | None) -> datetime | None:
-    if value is None:
+def _safe_int(value) -> int | None:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
         return None
-    if value.tzinfo is None:
-        return value.replace(tzinfo=timezone.utc)
-    return value.astimezone(timezone.utc)
+
+
+def _safe_int_list(values: list) -> list[int]:
+    result = []
+    for item in values:
+        number = _safe_int(item)
+        if number is None:
+            continue
+        if number not in result:
+            result.append(number)
+    return result
+
+
+def _resolve_user_grade(class_id: int | None) -> int | None:
+    if class_id is None:
+        return None
+    mapped_grade = CLASS_GRADE_MAP.get(class_id)
+    if mapped_grade is not None:
+        return mapped_grade
+    if 100 <= class_id <= 999:
+        return 2020 + class_id // 100
+    return None

@@ -16,8 +16,8 @@ from app.models.system_log import SystemLog
 from app.models.user import User
 
 
-def serialize_user(user: User) -> dict:
-    return {
+def serialize_user(user: User, *, tokens: list[dict] | None = None) -> dict:
+    payload = {
         "id": user.id,
         "account": user.account,
         "name": user.name,
@@ -28,6 +28,9 @@ def serialize_user(user: User) -> dict:
         "email": user.email,
         "phone": user.phone,
     }
+    if tokens is not None:
+        payload["tokens"] = tokens
+    return payload
 
 
 def serialize_file(file: FileInfo, *, analysis: FileAnalysisResult | None = None) -> dict:

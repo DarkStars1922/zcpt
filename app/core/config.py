@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     allowed_upload_content_types: list[str] = Field(
         default_factory=lambda: [
             "application/pdf",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             "image/jpeg",
             "image/png",
             "image/webp",
@@ -43,7 +44,7 @@ class Settings(BaseSettings):
     )
 
     email_provider: str = "mock"
-    email_default_from: str = "noreply@zcpt.local"
+    email_default_from: str = "noreply@zcpt.example.com"
     email_mock_success: bool = True
 
     ai_audit_provider: str = "paddleocr"

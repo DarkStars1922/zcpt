@@ -14,7 +14,7 @@ class AnnouncementCreateRequest(BaseModel):
     scope: AnnouncementScope
     start_at: datetime
     end_at: datetime
-    show_fields: list[str] = Field(min_length=1)
+    show_fields: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def validate_dates(self):

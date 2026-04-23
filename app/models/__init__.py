@@ -15,6 +15,7 @@ from app.models.review_record import ReviewRecord
 from app.models.reviewer_token import ReviewerToken
 from app.models.system_config import SystemConfig
 from app.models.system_log import SystemLog
+from app.models.student_score_summary import StudentScoreSummary
 from app.models.user import User
 
 __all__ = [
@@ -36,4 +37,5 @@ __all__ = [
     "SystemLog",
     "SystemConfig",
     "AwardDict",
+    "StudentScoreSummary",
 ]

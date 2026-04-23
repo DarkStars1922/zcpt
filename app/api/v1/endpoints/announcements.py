@@ -11,6 +11,7 @@ from app.services.announcement_service import (
     create_announcement,
     delete_announcement,
     list_announcements,
+    reopen_announcement,
     update_announcement,
 )
 from app.services.errors import ServiceError
@@ -68,6 +69,20 @@ def close_announcement_api(
     except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
     return success_response(request=request, message="关闭成功", data=data)
+
+
+@router.post("/{announcement_id}/reopen")
+def reopen_announcement_api(
+    request: Request,
+    announcement_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        data = reopen_announcement(db, user, announcement_id)
+    except ServiceError as exc:
+        return error_response(request=request, code=exc.code, message=exc.message)
+    return success_response(request=request, message="鍚敤鎴愬姛", data=data)
 
 
 @router.delete("/{announcement_id}")

@@ -9,15 +9,15 @@ from app.core.constants import (
     ROLE_STUDENT,
     TEACHER_RECHECKABLE_STATUSES,
 )
-from app.core.utils import json_loads, utcnow
+from app.core.utils import utcnow
 from app.models.application import Application
 from app.models.review_record import ReviewRecord
-from app.models.reviewer_token import ReviewerToken
 from app.models.user import User
 from app.schemas.review import BatchReviewDecisionRequest, ReviewDecisionRequest
 from app.services.application_service import get_application_attachments
 from app.services.errors import ServiceError
 from app.services.notification_service import enqueue_reject_email_for_application
+from app.services.reviewer_scope_service import get_active_reviewer_class_ids
 from app.services.serializers import serialize_application, serialize_review_record
 from app.services.system_log_service import write_system_log
 
@@ -114,13 +114,20 @@ def get_pending_by_category(
     }
 
 
-def get_pending_count(db: Session, user: User, *, class_id: int | None) -> dict:
+def get_pending_count(
+    db: Session,
+    user: User,
+    *,
+    class_id: int | None,
+    category: str | None,
+    sub_type: str | None,
+) -> dict:
     _, total = _query_pending_applications(
         db,
         user,
         class_id=class_id,
-        category=None,
-        sub_type=None,
+        category=category,
+        sub_type=sub_type,
         keyword=None,
         page=1,
         size=1,
@@ -147,7 +154,7 @@ def get_review_detail(db: Session, user: User, application_id: int) -> dict:
 
 def submit_review_decision(db: Session, user: User, application_id: int, payload: ReviewDecisionRequest) -> dict:
     application, student = _get_reviewable_application(db, user, application_id)
-    new_status = _resolve_decision_status(user, application.status, payload.decision)
+    new_status = _resolve_decision_status(db, user, application.status, payload.decision)
     application.status = new_status
     application.comment = payload.comment
     application.updated_at = utcnow()
@@ -156,7 +163,7 @@ def submit_review_decision(db: Session, user: User, application_id: int, payload
     record = ReviewRecord(
         application_id=application.id,
         reviewer_id=user.id,
-        reviewer_role=_resolve_reviewer_role(user),
+        reviewer_role=_resolve_reviewer_role(db, user),
         decision=payload.decision,
         result=new_status,
         comment=payload.comment,
@@ -211,7 +218,7 @@ def get_review_history(
     page: int,
     size: int,
 ) -> dict:
-    _resolve_reviewer_role(user)
+    _resolve_reviewer_role(db, user)
     stmt = select(ReviewRecord, Application, User).join(Application, ReviewRecord.application_id == Application.id).join(
         User, Application.applicant_id == User.id
     )
@@ -253,12 +260,12 @@ def _query_pending_applications(
     page: int,
     size: int,
 ) -> tuple[list[tuple[Application, User]], int]:
-    role = _resolve_reviewer_role(user)
+    role = _resolve_reviewer_role(db, user)
     stmt = select(Application, User).join(User, Application.applicant_id == User.id).where(Application.is_deleted.is_(False))
     if role == "teacher":
-        stmt = stmt.where(Application.status == "pending_teacher")
+        stmt = stmt.where(Application.status.in_(tuple(REVIEWER_REVIEWABLE_STATUSES)))
     else:
-        class_ids = _get_reviewer_class_ids(db, user)
+        class_ids = get_active_reviewer_class_ids(db, user)
         if not class_ids:
             return [], 0
         stmt = stmt.where(Application.status.in_(tuple(REVIEWER_REVIEWABLE_STATUSES)))
@@ -287,12 +294,12 @@ def _get_reviewable_application(db: Session, user: User, application_id: int) ->
     if not row:
         raise ServiceError("resource not found", 1002)
     application, student = row
-    role = _resolve_reviewer_role(user)
+    role = _resolve_reviewer_role(db, user)
     if role == "teacher":
         if application.status not in TEACHER_RECHECKABLE_STATUSES:
             raise ServiceError("teacher cannot review this status", 1000)
     else:
-        class_ids = _get_reviewer_class_ids(db, user)
+        class_ids = get_active_reviewer_class_ids(db, user)
         if student.class_id not in class_ids:
             raise ServiceError("permission denied", 1003)
         if application.applicant_id == user.id:
@@ -302,32 +309,23 @@ def _get_reviewable_application(db: Session, user: User, application_id: int) ->
     return application, student
 
 
-def _resolve_decision_status(user: User, current_status: str, decision: str) -> str:
-    role = _resolve_reviewer_role(user)
+def _resolve_decision_status(db: Session, user: User, current_status: str, decision: str) -> str:
+    role = _resolve_reviewer_role(db, user)
     if role == "teacher":
         if current_status not in TEACHER_RECHECKABLE_STATUSES:
             raise ServiceError("teacher cannot review this status", 1000)
         return "approved" if decision == "approved" else "rejected"
     if current_status not in REVIEWER_REVIEWABLE_STATUSES:
         raise ServiceError("reviewer cannot review this status", 1000)
-    return "pending_teacher" if decision == "approved" else "rejected"
+    return "approved" if decision == "approved" else "rejected"
 
 
-def _resolve_reviewer_role(user: User) -> str:
+def _resolve_reviewer_role(db: Session, user: User) -> str:
     if user.role in MANAGE_REVIEW_ROLES:
         return "teacher"
-    if user.role == ROLE_STUDENT and user.is_reviewer:
+    if user.role == ROLE_STUDENT and get_active_reviewer_class_ids(db, user):
         return "reviewer"
     raise ServiceError("permission denied", 1003)
-
-
-def _get_reviewer_class_ids(db: Session, user: User) -> list[int]:
-    if not user.reviewer_token_id:
-        return []
-    token = db.get(ReviewerToken, user.reviewer_token_id)
-    if not token or token.status != "active":
-        return []
-    return [int(item) for item in json_loads(token.class_ids_json, [])]
 
 
 def _serialize_pending_row(row: tuple[Application, User]) -> dict:

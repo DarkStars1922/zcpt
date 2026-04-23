@@ -283,7 +283,7 @@ def test_application_review_notification_and_ai_flow(client):
             json={"decision": "approved", "comment": "材料齐全"},
         )
     )
-    assert review_result["status"] == "pending_teacher"
+    assert review_result["status"] == "approved"
 
     history = assert_ok(client.get(f"{API_PREFIX}/reviews/history", headers=reviewer_headers))
     assert history["total"] == 1

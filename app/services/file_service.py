@@ -7,18 +7,18 @@ from sqlmodel import Session, select
 
 from app.core.config import settings
 from app.core.constants import REVIEWER_REVIEWABLE_STATUSES
-from app.core.utils import json_loads
 from app.models.application import Application
 from app.models.application_attachment import ApplicationAttachment
 from app.models.file_info import FileInfo
 from app.services.file_analysis_service import analyze_file, get_file_analysis_record
-from app.models.reviewer_token import ReviewerToken
 from app.models.user import User
 from app.services.errors import ServiceError
+from app.services.reviewer_scope_service import get_active_reviewer_class_ids
 from app.services.serializers import serialize_file
 
 CONTENT_TYPE_EXT_MAP = {
     "application/pdf": ".pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
     "image/jpeg": ".jpg",
     "image/png": ".png",
     "image/webp": ".webp",
@@ -106,7 +106,7 @@ def _detect_extension(file: UploadFile) -> str:
     if ext:
         return ext
     suffix = Path(file.filename or "").suffix.lower()
-    if suffix in {".pdf", ".jpg", ".jpeg", ".png", ".webp"}:
+    if suffix in {".pdf", ".docx", ".jpg", ".jpeg", ".png", ".webp"}:
         return ".jpg" if suffix == ".jpeg" else suffix
     raise ServiceError("unsupported file type", 1008)
 
@@ -116,7 +116,7 @@ def _validate_content_type(file: UploadFile) -> None:
     suffix = Path(file.filename or "").suffix.lower()
     if content_type in settings.allowed_upload_content_types:
         return
-    if suffix in {".pdf", ".jpg", ".jpeg", ".png", ".webp"}:
+    if suffix in {".pdf", ".docx", ".jpg", ".jpeg", ".png", ".webp"}:
         return
     raise ServiceError("unsupported file type", 1008)
 
@@ -151,13 +151,4 @@ def _can_reviewer_access_application_file(db: Session, user: User, application: 
     applicant = db.get(User, application.applicant_id)
     if not applicant:
         return False
-    return applicant.class_id in _get_active_reviewer_class_ids(db, user)
-
-
-def _get_active_reviewer_class_ids(db: Session, user: User) -> list[int]:
-    if not user.reviewer_token_id:
-        return []
-    token = db.get(ReviewerToken, user.reviewer_token_id)
-    if not token or token.status != "active":
-        return []
-    return [int(item) for item in json_loads(token.class_ids_json, [])]
+    return applicant.class_id in get_active_reviewer_class_ids(db, user)

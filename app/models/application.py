@@ -20,6 +20,10 @@ class Application(SQLModel, table=True):
     status: str = Field(sa_column=Column(String(32), nullable=False, index=True, default="pending_ai"))
     item_score: float | None = Field(default=None, sa_column=Column(Float, nullable=True))
     total_score: float | None = Field(default=None, sa_column=Column(Float, nullable=True))
+    actual_score_recorded: bool = Field(
+        default=False,
+        sa_column=Column(Boolean, nullable=False, default=False, index=True),
+    )
     comment: str | None = Field(default=None, sa_column=Column(Text, nullable=True))
     score_rule_version: str | None = Field(default=None, sa_column=Column(String(32), nullable=True))
     version: int = Field(default=1, sa_column=Column(Integer, nullable=False, default=1))

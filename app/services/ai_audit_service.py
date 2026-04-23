@@ -4,7 +4,7 @@ from pathlib import Path
 from sqlmodel import Session, select
 
 from app.core.config import settings
-from app.core.constants import ROLE_STUDENT
+from app.core.constants import MANAGE_REVIEW_ROLES, ROLE_STUDENT
 from app.core.utils import json_dumps, utcnow
 from app.models.ai_audit_report import AIAuditReport
 from app.models.application import Application
@@ -15,6 +15,7 @@ from app.models.file_info import FileInfo
 from app.models.user import User
 from app.services.errors import ServiceError
 from app.services.file_analysis_service import analyze_file, get_file_analysis_payload
+from app.services.reviewer_scope_service import get_active_reviewer_class_ids
 from app.services.serializers import serialize_ai_audit
 from app.services.system_log_service import write_system_log
 
@@ -22,18 +23,30 @@ from app.services.system_log_service import write_system_log
 def get_ai_report(db: Session, user: User, application_id: int) -> dict:
     application = db.get(Application, application_id)
     if not application or application.is_deleted:
-        raise ServiceError("资源不存在", 1002)
-    if user.role == ROLE_STUDENT and application.applicant_id != user.id:
-        raise ServiceError("无权限", 1003)
+        raise ServiceError("resource not found", 1002)
+
+    if user.role in MANAGE_REVIEW_ROLES:
+        pass
+    elif user.role == ROLE_STUDENT:
+        if application.applicant_id != user.id:
+            reviewer_class_ids = get_active_reviewer_class_ids(db, user)
+            if not reviewer_class_ids:
+                raise ServiceError("permission denied", 1003)
+            applicant = db.get(User, application.applicant_id)
+            if not applicant or applicant.class_id not in reviewer_class_ids:
+                raise ServiceError("permission denied", 1003)
+    else:
+        raise ServiceError("permission denied", 1003)
+
     report = db.exec(select(AIAuditReport).where(AIAuditReport.application_id == application_id)).first()
     if not report:
-        raise ServiceError("暂无 AI 审核报告", 1002)
+        raise ServiceError("ai report not found", 1002)
     return serialize_ai_audit(report)
 
 
 def get_ai_logs(db: Session, user: User, *, result: str | None, page: int, size: int) -> dict:
     if user.role not in {"teacher", "admin"}:
-        raise ServiceError("无权限", 1003)
+        raise ServiceError("permission denied", 1003)
     stmt = select(AIAuditReport)
     if result:
         stmt = stmt.where(AIAuditReport.result == result)
