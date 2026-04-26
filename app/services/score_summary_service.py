@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from sqlmodel import Session, select
 
+from app.core.config import settings
 from app.core.score_rules import (
     SCORE_CATEGORY_FIELD_KEYS,
     SCORE_CATEGORY_KEYS,
@@ -12,6 +13,7 @@ from app.core.score_rules import (
     SCORE_SUB_TYPE_KEYS,
     is_valid_score_category,
 )
+from app.core.term_utils import apply_datetime_term_filter
 from app.core.utils import json_dumps, json_loads, utcnow
 from app.models.application import Application
 from app.models.student_score_summary import StudentScoreSummary
@@ -55,14 +57,14 @@ def recalculate_student_score(
     *,
     auto_commit: bool = False,
 ) -> StudentScoreSummary:
-    rows = db.exec(
-        select(Application).where(
-            Application.applicant_id == student_id,
-            Application.status.in_(("approved", "archived")),
-            Application.actual_score_recorded.is_(True),
-            Application.is_deleted.is_(False),
-        )
-    ).all()
+    stmt = select(Application).where(
+        Application.applicant_id == student_id,
+        Application.status.in_(("approved", "archived")),
+        Application.actual_score_recorded.is_(True),
+        Application.is_deleted.is_(False),
+    )
+    stmt = apply_datetime_term_filter(stmt, Application.created_at, settings.default_term)
+    rows = db.exec(stmt).all()
     values = calculate_score_values(rows)
     summary = get_or_create_student_score_summary(db, student_id)
     _apply_score_values(summary, values)

@@ -1,4 +1,4 @@
-from sqlalchemy import func
+from sqlalchemy import and_, func, or_
 from sqlmodel import Session, select
 
 from app.core.utils import utcnow
@@ -9,7 +9,7 @@ from app.models.appeal_attachment import AppealAttachment
 from app.models.file_info import FileInfo
 from app.models.user import User
 from app.schemas.appeal import AppealCreateRequest, AppealProcessRequest
-from app.services.announcement_service import can_student_view_announcement
+from app.services.announcement_service import can_student_view_announcement, _query_public_applications, _query_public_students
 from app.services.errors import ServiceError
 from app.services.score_summary_service import recalculate_student_score
 from app.services.serializers import serialize_appeal, serialize_file
@@ -22,17 +22,21 @@ def create_appeal(db: Session, user: User, payload: AppealCreateRequest) -> dict
     announcement = db.get(Announcement, payload.announcement_id)
     if not announcement:
         raise ServiceError("announcement not found", 1002)
-    if not can_student_view_announcement(announcement, user):
+    if not can_student_view_announcement(announcement, user, db=db):
         raise ServiceError("permission denied", 1003)
 
     if payload.application_id:
         application = db.get(Application, payload.application_id)
-        if not application or application.is_deleted or application.applicant_id != user.id:
+        if not application or application.is_deleted:
             raise ServiceError("application not found", 1002)
+        public_application_ids = {row.id for row, _ in _query_public_applications(db, announcement)}
+        if application.id not in public_application_ids:
+            raise ServiceError("该申报不在当前公示范围内", 1003)
     appeal = Appeal(
         announcement_id=payload.announcement_id,
         student_id=user.id,
         application_id=payload.application_id,
+        is_anonymous=payload.is_anonymous,
         content=payload.content,
     )
     db.add(appeal)
@@ -50,6 +54,8 @@ def create_appeal(db: Session, user: User, payload: AppealCreateRequest) -> dict
     return {
         "id": appeal.id,
         "announcement_id": appeal.announcement_id,
+        "application_id": appeal.application_id,
+        "is_anonymous": bool(appeal.is_anonymous),
         "status": appeal.status,
         "created_at": appeal.created_at.isoformat(),
     }
@@ -64,8 +70,13 @@ def list_appeals(
     student_id: int | None,
     status: str | None,
     announcement_id: int | None,
+    student_name: str | None = None,
+    keyword: str | None = None,
 ) -> dict:
     stmt = select(Appeal)
+    needs_student_join = bool(student_name or keyword)
+    if needs_student_join:
+        stmt = stmt.join(User, Appeal.student_id == User.id)
     if user.role == "student":
         stmt = stmt.where(Appeal.student_id == user.id)
     elif user.role not in {"teacher", "admin"}:
@@ -76,13 +87,110 @@ def list_appeals(
         stmt = stmt.where(Appeal.status == status)
     if announcement_id:
         stmt = stmt.where(Appeal.announcement_id == announcement_id)
+    if student_name:
+        like = f"%{student_name.strip()}%"
+        if user.role in {"teacher", "admin"}:
+            stmt = stmt.where(Appeal.is_anonymous.is_(False))
+        stmt = stmt.where(or_(User.name.like(like), User.account.like(like)))
+    if keyword:
+        like = f"%{keyword.strip()}%"
+        if needs_student_join:
+            if user.role in {"teacher", "admin"}:
+                stmt = stmt.where(
+                    or_(
+                        Appeal.content.like(like),
+                        and_(Appeal.is_anonymous.is_(False), or_(User.name.like(like), User.account.like(like))),
+                    )
+                )
+            else:
+                stmt = stmt.where(or_(Appeal.content.like(like), User.name.like(like), User.account.like(like)))
+        else:
+            stmt = stmt.where(Appeal.content.like(like))
     total = db.exec(select(func.count()).select_from(stmt.subquery())).one()
     rows = db.exec(stmt.order_by(Appeal.created_at.desc()).offset((page - 1) * size).limit(size)).all()
     result = []
     for row in rows:
         student = db.get(User, row.student_id)
-        result.append(serialize_appeal(row, student=student, attachments=_get_attachments(db, row.id)))
+        result.append(serialize_appeal(row, student=student, attachments=_get_attachments(db, row.id), viewer=user))
     return {"page": page, "size": size, "total": total, "list": result}
+
+
+def search_appeal_target_applications(
+    db: Session,
+    user: User,
+    *,
+    student_name: str | None = None,
+    student_id: int | None = None,
+    announcement_id: int | None = None,
+    appeal_id: int | None = None,
+    keyword: str | None = None,
+    limit: int = 20,
+) -> list[dict]:
+    if user.role not in {"teacher", "admin", "student"}:
+        raise ServiceError("permission denied", 1003)
+
+    appeal = db.get(Appeal, appeal_id) if appeal_id else None
+    if appeal_id and not appeal:
+        raise ServiceError("appeal not found", 1002)
+    if appeal and user.role not in {"teacher", "admin"} and appeal.student_id != user.id:
+        raise ServiceError("permission denied", 1003)
+
+    if appeal:
+        announcement_id = appeal.announcement_id
+    if user.role == "student" and not announcement_id:
+        raise ServiceError("announcement_id is required", 1001)
+
+    stmt = (
+        select(Application, User)
+        .join(User, Application.applicant_id == User.id)
+        .where(
+            Application.is_deleted.is_(False),
+            Application.status.in_(("approved", "archived")),
+            User.role == "student",
+            User.is_deleted.is_(False),
+        )
+    )
+    if user.role in {"teacher", "admin"} and student_id:
+        stmt = stmt.where(User.id == student_id)
+    if student_name:
+        like = f"%{student_name.strip()}%"
+        stmt = stmt.where(or_(User.name.like(like), User.account.like(like)))
+    if keyword:
+        like = f"%{keyword.strip()}%"
+        stmt = stmt.where(or_(Application.title.like(like), User.name.like(like), User.account.like(like)))
+    if announcement_id:
+        announcement = db.get(Announcement, announcement_id)
+        if announcement:
+            if user.role == "student" and not can_student_view_announcement(announcement, user, db=db):
+                raise ServiceError("permission denied", 1003)
+            allowed_student_ids = {row.id for row in _query_public_students(db, announcement) if row.id is not None}
+            if not allowed_student_ids:
+                return []
+            stmt = stmt.where(Application.applicant_id.in_(allowed_student_ids))
+            public_application_ids = {application.id for application, _ in _query_public_applications(db, announcement)}
+            if public_application_ids:
+                stmt = stmt.where(Application.id.in_(public_application_ids))
+            else:
+                return []
+
+    rows = db.exec(
+        stmt.order_by(User.class_id.asc(), User.account.asc(), Application.occurred_at.desc(), Application.id.desc())
+        .limit(max(1, min(limit, 100)))
+    ).all()
+    return [
+        {
+            "application_id": application.id,
+            "student_id": student.id,
+            "student_name": student.name,
+            "student_account": student.account,
+            "class_id": student.class_id,
+            "title": application.title,
+            "status": application.status,
+            "score": application.item_score,
+            "occurred_at": application.occurred_at.isoformat() if application.occurred_at else None,
+        }
+        for application, student in rows
+    ]
 
 
 def process_appeal(db: Session, user: User, appeal_id: int, payload: AppealProcessRequest) -> dict:
@@ -141,9 +249,15 @@ def _apply_approved_appeal_score_action(
     if not application_id:
         raise ServiceError("application_id is required for score appeal action", 1001)
     application = db.get(Application, application_id)
-    if not application or application.is_deleted or application.applicant_id != appeal.student_id:
+    if not application or application.is_deleted:
         raise ServiceError("application not found", 1002)
-    if application.status not in {"approved", "archived", "rejected"}:
+    announcement = db.get(Announcement, appeal.announcement_id)
+    if not announcement:
+        raise ServiceError("announcement not found", 1002)
+    public_application_ids = {row.id for row, _ in _query_public_applications(db, announcement)}
+    if application.id not in public_application_ids:
+        raise ServiceError("该申报不在当前公示范围内", 1003)
+    if application.status not in {"approved", "archived"}:
         raise ServiceError("application status cannot be changed by appeal", 1000)
 
     if payload.score_action == "cancel_application":
@@ -167,7 +281,7 @@ def _apply_approved_appeal_score_action(
     application.version += 1
     db.add(application)
     db.flush()
-    recalculate_student_score(db, appeal.student_id)
+    recalculate_student_score(db, application.applicant_id)
     return application
 
 

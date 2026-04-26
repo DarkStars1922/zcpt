@@ -2,8 +2,10 @@ from sqlalchemy import func, or_
 from sqlmodel import Session, select
 
 from app.core.award_catalog import load_award_tree
+from app.core.config import settings
 from app.core.constants import EDITABLE_APPLICATION_STATUSES, REVIEWER_REVIEWABLE_STATUSES, ROLE_STUDENT
 from app.core.score_rules import SCORE_RULE_VERSION, is_valid_score_category
+from app.core.term_utils import apply_datetime_term_filter
 from app.core.utils import utcnow
 from app.models.ai_audit_report import AIAuditReport
 from app.models.application import Application
@@ -107,9 +109,9 @@ def list_my_applications(
 
 def get_my_category_summary(db: Session, user: User, *, term: str | None) -> dict:
     _require_student(user)
-    rows = db.exec(
-        select(Application).where(Application.applicant_id == user.id, Application.is_deleted.is_(False))
-    ).all()
+    stmt = select(Application).where(Application.applicant_id == user.id, Application.is_deleted.is_(False))
+    stmt = apply_datetime_term_filter(stmt, Application.created_at, term or settings.default_term)
+    rows = db.exec(stmt).all()
     categories: dict[tuple[str, str], dict] = {}
     for row in rows:
         key = (row.category, row.sub_type)
@@ -166,6 +168,7 @@ def get_my_by_category(
         Application.is_deleted.is_(False),
         Application.category == category,
     )
+    stmt = apply_datetime_term_filter(stmt, Application.created_at, term or settings.default_term)
     if sub_type:
         stmt = stmt.where(Application.sub_type == sub_type)
     if status:

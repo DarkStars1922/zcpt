@@ -28,28 +28,61 @@ from app.services.reviewer_scope_service import refresh_user_reviewer_state
 DEFAULT_PASSWORD = "pass1234"
 STANDARD_ACCOUNTS = [
     {
+        "account": "admin",
+        "name": "系统管理员",
+        "role": "admin",
+        "class_id": None,
+        "email": "admin@zcpt.local",
+    },
+    {
         "account": "teacher",
-        "name": "Teacher",
+        "name": "测试教师一号",
         "role": "teacher",
         "class_id": None,
         "email": "teacher@zcpt.local",
     },
     {
+        "account": "teacher_demo",
+        "name": "测试教师二号",
+        "role": "teacher",
+        "class_id": None,
+        "email": "teacher_demo@zcpt.local",
+    },
+    {
         "account": "student_reviewer",
-        "name": "Student Reviewer",
+        "name": "学生审核员一号",
         "role": "student",
         "class_id": 301,
         "email": "student_reviewer@zcpt.local",
     },
     {
+        "account": "student_reviewer_302",
+        "name": "学生审核员二号",
+        "role": "student",
+        "class_id": 302,
+        "email": "student_reviewer_302@zcpt.local",
+    },
+    {
         "account": "student_normal",
-        "name": "Student Normal",
+        "name": "普通学生一号",
         "role": "student",
         "class_id": 301,
         "email": "student_normal@zcpt.local",
     },
+    {
+        "account": "student_302",
+        "name": "普通学生二号",
+        "role": "student",
+        "class_id": 302,
+        "email": "student_302@zcpt.local",
+    },
 ]
 REVIEWER_TOKEN = "rvw_standard_301"
+REVIEWER_TOKENS = {
+    "student_reviewer": "rvw_standard_301",
+    "student_reviewer_302": "rvw_standard_302",
+}
+REGISTER_REVIEWER_TOKEN = "rvw_register_301"
 
 
 def main() -> None:
@@ -73,18 +106,29 @@ def main() -> None:
         users = {
             account["account"]: _upsert_user(db, password=args.password, **account) for account in STANDARD_ACCOUNTS
         }
-        _ensure_score_summary(db, users["student_reviewer"].id)
-        _ensure_score_summary(db, users["student_normal"].id)
-        _upsert_reviewer_token(db, teacher=users["teacher"], reviewer=users["student_reviewer"])
+        for account in STANDARD_ACCOUNTS:
+            if account["role"] == "student":
+                _ensure_score_summary(db, users[account["account"]].id)
+        for reviewer_account, token_value in REVIEWER_TOKENS.items():
+            _upsert_reviewer_token(db, token_value=token_value, teacher=users["teacher"], reviewer=users[reviewer_account])
+        _upsert_pending_reviewer_token(db, token_value=REGISTER_REVIEWER_TOKEN, teacher=users["teacher"], class_ids=[301])
+        for account in STANDARD_ACCOUNTS:
+            if account["role"] == "student":
+                refresh_user_reviewer_state(db, users[account["account"]])
         db.commit()
 
     print("standard accounts seeded")
     print(f"database_url={database_url}")
     print("accounts:")
-    print(f"  teacher | account=teacher          | password={args.password}")
-    print(f"  student | account=student_reviewer | password={args.password} | reviewer=yes | class_id=301")
-    print(f"  student | account=student_normal   | password={args.password} | reviewer=no  | class_id=301")
-    print(f"reviewer_token={REVIEWER_TOKEN}")
+    print(f"  admin   | account=admin                | password={args.password}")
+    print(f"  teacher | account=teacher              | password={args.password}")
+    print(f"  teacher | account=teacher_demo         | password={args.password}")
+    print(f"  student | account=student_reviewer     | password={args.password} | reviewer=yes | class_id=301")
+    print(f"  student | account=student_reviewer_302 | password={args.password} | reviewer=yes | class_id=302")
+    print(f"  student | account=student_normal       | password={args.password} | reviewer=no  | class_id=301")
+    print(f"  student | account=student_302          | password={args.password} | reviewer=no  | class_id=302")
+    print(f"active_reviewer_tokens={', '.join(REVIEWER_TOKENS.values())}")
+    print(f"unused_register_reviewer_token={REGISTER_REVIEWER_TOKEN}")
 
 
 def _ensure_database(database_url: str) -> None:
@@ -143,6 +187,8 @@ def _upsert_user(
     user.class_id = class_id
     user.email = email
     user.phone = None
+    user.is_deleted = False
+    user.deleted_at = None
     user.updated_at = utcnow()
     if role != "student":
         user.is_reviewer = False
@@ -163,11 +209,11 @@ def _ensure_score_summary(db: Session, student_id: int | None) -> None:
     db.commit()
 
 
-def _upsert_reviewer_token(db: Session, *, teacher: User, reviewer: User) -> None:
-    token = db.exec(select(ReviewerToken).where(ReviewerToken.token == REVIEWER_TOKEN)).first()
+def _upsert_reviewer_token(db: Session, *, token_value: str, teacher: User, reviewer: User) -> None:
+    token = db.exec(select(ReviewerToken).where(ReviewerToken.token == token_value)).first()
     now = utcnow()
     if not token:
-        token = ReviewerToken(token=REVIEWER_TOKEN)
+        token = ReviewerToken(token=token_value)
     token.token_type = "reviewer"
     token.class_ids_json = json_dumps([reviewer.class_id])
     token.status = "active"
@@ -180,6 +226,22 @@ def _upsert_reviewer_token(db: Session, *, teacher: User, reviewer: User) -> Non
     db.commit()
 
     refresh_user_reviewer_state(db, reviewer)
+    db.commit()
+
+
+def _upsert_pending_reviewer_token(db: Session, *, token_value: str, teacher: User, class_ids: list[int]) -> None:
+    token = db.exec(select(ReviewerToken).where(ReviewerToken.token == token_value)).first()
+    if not token:
+        token = ReviewerToken(token=token_value)
+    token.token_type = "reviewer"
+    token.class_ids_json = json_dumps(class_ids)
+    token.status = "pending"
+    token.created_by = teacher.id
+    token.activated_user_id = None
+    token.activated_at = None
+    token.expires_at = None
+    token.revoked_at = None
+    db.add(token)
     db.commit()
 
 

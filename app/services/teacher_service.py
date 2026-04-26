@@ -4,17 +4,19 @@ from sqlalchemy import func, or_
 from sqlmodel import Session, select
 
 from app.core.award_catalog import serialize_award_rule
+from app.core.config import settings
 from app.core.constants import (
-    CLASS_GRADE_MAP,
     MANAGE_REVIEW_ROLES,
     TEACHER_RECHECKABLE_STATUSES,
 )
+from app.core.term_utils import apply_datetime_term_filter
 from app.core.utils import utcnow
 from app.models.application import Application
 from app.models.review_record import ReviewRecord
 from app.models.user import User
 from app.schemas.review import TeacherRecheckRequest
 from app.services.errors import ServiceError
+from app.services.class_service import get_class_grade, get_class_ids_by_grade, is_graduating_class
 from app.services.notification_service import enqueue_reject_email_for_application
 from app.services.score_summary_service import (
     get_student_score_summary_map,
@@ -44,12 +46,19 @@ def list_teacher_applications(
 ) -> dict:
     _require_teacher(user)
     stmt = select(Application, User).join(User, Application.applicant_id == User.id).where(Application.is_deleted.is_(False))
+    stmt = apply_datetime_term_filter(stmt, Application.created_at, settings.default_term)
+    stmt = stmt.where(User.is_deleted.is_(False))
     if class_id:
         stmt = stmt.where(User.class_id == class_id)
     if grade:
-        class_ids = [cid for cid, grade_value in CLASS_GRADE_MAP.items() if grade_value == grade]
+        class_ids = get_class_ids_by_grade(db, grade, include_graduating=False)
         if class_ids:
             stmt = stmt.where(User.class_id.in_(class_ids))
+        else:
+            stmt = stmt.where(User.class_id == -1)
+    graduating_class_ids = [row.class_id for row in db.exec(select(User.class_id).where(User.role == "student")).all() if is_graduating_class(db, row)]
+    if graduating_class_ids:
+        stmt = stmt.where(User.class_id.notin_(list(dict.fromkeys(graduating_class_ids))))
     if status:
         stmt = stmt.where(Application.status == status)
     if category:
@@ -67,7 +76,7 @@ def list_teacher_applications(
         data.append(
             {
                 "application_id": application.id,
-                "grade": CLASS_GRADE_MAP.get(student.class_id),
+                "grade": get_class_grade(db, student.class_id),
                 "class_id": student.class_id,
                 "student_id": student.id,
                 "student_account": student.account,

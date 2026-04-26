@@ -7,6 +7,7 @@ class AppealCreateRequest(BaseModel):
     announcement_id: int = Field(gt=0)
     content: str = Field(min_length=1, max_length=2000)
     application_id: int | None = Field(default=None, gt=0)
+    is_anonymous: bool = False
     attachments: list[AttachmentPayload] = Field(default_factory=list)
 
 

@@ -8,6 +8,7 @@ class RegisterRequest(BaseModel):
     role: str = Field(default="student")
     class_id: int | None = None
     is_reviewer: bool | None = False
+    reviewer_token: str | None = Field(default=None, max_length=128)
     email: EmailStr | None = None
     phone: str | None = Field(default=None, max_length=20)
 

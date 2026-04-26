@@ -20,6 +20,8 @@ class User(SQLModel, table=True):
     class_id: int | None = Field(default=None, sa_column=Column(Integer, nullable=True, index=True))
     email: str | None = Field(default=None, sa_column=Column(String(128), nullable=True))
     phone: str | None = Field(default=None, sa_column=Column(String(20), nullable=True))
+    is_deleted: bool = Field(default=False, sa_column=Column(Boolean, nullable=False, default=False, index=True))
+    deleted_at: datetime | None = Field(default=None, sa_column=Column(DateTime(timezone=True), nullable=True))
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
         sa_column=Column(DateTime(timezone=True), nullable=False),

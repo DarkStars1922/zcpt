@@ -5,10 +5,26 @@ from app.core.database import get_db
 from app.core.responses import error_response, success_response
 from app.dependencies.auth import get_current_user
 from app.models.user import User
+from app.schemas.image_authenticity import ImageAuthenticityRequest
 from app.services.ai_audit_service import get_ai_logs, get_ai_report
 from app.services.errors import ServiceError
+from app.services.image_authenticity_service import plan_image_authenticity_check
 
 router = APIRouter(prefix="/ai-audits", tags=["ai-audits"])
+
+
+@router.post("/image-authenticity")
+def plan_image_authenticity_api(
+    request: Request,
+    payload: ImageAuthenticityRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        data = plan_image_authenticity_check(db, user, file_id=payload.file_id)
+    except ServiceError as exc:
+        return error_response(request=request, code=exc.code, message=exc.message)
+    return success_response(request=request, message="接口已预留", data=data)
 
 
 @router.get("/{application_id}/report")

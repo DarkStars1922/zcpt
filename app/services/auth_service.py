@@ -4,7 +4,7 @@ from sqlmodel import Session, select
 
 from app.core.cache import blacklist_access_token, is_access_token_blacklisted
 from app.core.config import settings
-from app.core.constants import VALID_ROLES
+from app.core.constants import ROLE_STUDENT, REVIEWER_TOKEN_STATUS_ACTIVE
 from app.core.security import (
     TokenPayloadError,
     create_access_token,
@@ -16,9 +16,16 @@ from app.core.security import (
 )
 from app.core.utils import ensure_utc_datetime, utcnow
 from app.models.refresh_token import RefreshToken
+from app.models.reviewer_token import ReviewerToken
 from app.models.user import User
 from app.schemas.auth import ChangePasswordRequest
+from app.services.class_service import get_class_info, is_graduating_class
 from app.services.errors import ServiceError
+from app.services.reviewer_scope_service import (
+    is_datetime_expired,
+    refresh_user_reviewer_state,
+    sync_reviewer_token_expirations,
+)
 from app.services.serializers import serialize_user
 from app.services.system_log_service import write_system_log
 
@@ -32,28 +39,45 @@ def register_user(
     role: str,
     class_id: int | None,
     is_reviewer: bool | None,
+    reviewer_token: str | None,
     email: str | None,
     phone: str | None,
 ) -> User:
-    if role not in VALID_ROLES:
-        raise ServiceError("角色不合法", 1001)
+    if role != ROLE_STUDENT:
+        raise ServiceError("公开注册仅支持学生账号，教师账号请由管理员创建", 1003)
+    if class_id is None:
+        raise ServiceError("学生注册必须选择班级", 1001)
+    if not get_class_info(db, class_id, active_only=True) or is_graduating_class(db, class_id):
+        raise ServiceError("请选择有效班级", 1001)
+    if is_reviewer and not (reviewer_token or "").strip():
+        raise ServiceError("申请审核员身份必须填写老师分配的激活码", 1001)
 
     existing = db.exec(select(User).where(User.account == account)).first()
     if existing:
         raise ServiceError("账号已存在", 1007)
 
+    token_record = _validate_reviewer_token_for_register(db, reviewer_token) if is_reviewer else None
+
     user = User(
         account=account,
         password_hash=hash_password(password),
         name=name,
-        role=role,
+        role=ROLE_STUDENT,
         class_id=class_id,
-        is_reviewer=bool(is_reviewer),
+        is_reviewer=False,
         email=email,
         phone=phone,
         updated_at=utcnow(),
     )
     db.add(user)
+    db.flush()
+    if token_record:
+        token_record.status = REVIEWER_TOKEN_STATUS_ACTIVE
+        token_record.activated_user_id = user.id
+        token_record.activated_at = utcnow()
+        token_record.revoked_at = None
+        db.add(token_record)
+        refresh_user_reviewer_state(db, user)
     db.commit()
     db.refresh(user)
     write_system_log(db, action="auth.register", actor_id=user.id, target_type="user", target_id=str(user.id))
@@ -61,7 +85,7 @@ def register_user(
 
 
 def login_user(db: Session, *, account: str, password: str) -> tuple[dict, str, str]:
-    user = db.exec(select(User).where(User.account == account)).first()
+    user = db.exec(select(User).where(User.account == account, User.is_deleted.is_(False))).first()
     if not user or not verify_password(password, user.password_hash):
         raise ServiceError("账号或密码错误", 1000)
 
@@ -92,7 +116,7 @@ def refresh_access_token(db: Session, *, refresh_token: str) -> str:
         raise ServiceError("refresh token 已过期", 1006)
 
     user = db.get(User, int(payload["sub"]))
-    if not user:
+    if not user or user.is_deleted:
         raise ServiceError("用户不存在", 1002)
     return create_access_token(str(user.id), user.role)
 
@@ -164,6 +188,23 @@ def get_current_user_by_access_token(
 
 def access_token_expire_seconds() -> int:
     return settings.access_token_expire_seconds
+
+
+def _validate_reviewer_token_for_register(db: Session, token_value: str | None) -> ReviewerToken:
+    token_text = (token_value or "").strip()
+    sync_reviewer_token_expirations(db, auto_commit=False)
+    token = db.exec(select(ReviewerToken).where(ReviewerToken.token == token_text)).first()
+    if not token:
+        raise ServiceError("审核员激活码不存在", 1002)
+    if token.status == "revoked":
+        raise ServiceError("审核员激活码已撤销", 1000)
+    if is_datetime_expired(token.expires_at):
+        token.status = "expired"
+        db.add(token)
+        raise ServiceError("审核员激活码已过期", 1000)
+    if token.status == REVIEWER_TOKEN_STATUS_ACTIVE and token.activated_user_id:
+        raise ServiceError("审核员激活码已被使用", 1007)
+    return token
 
 
 def _decode_refresh_token(refresh_token: str) -> dict:

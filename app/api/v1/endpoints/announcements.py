@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Request
+from fastapi.responses import FileResponse
 from sqlmodel import Session
 
 from app.core.database import get_db
@@ -10,6 +11,8 @@ from app.services.announcement_service import (
     close_announcement,
     create_announcement,
     delete_announcement,
+    get_announcement_download_path,
+    get_my_announcement_report,
     list_announcements,
     reopen_announcement,
     update_announcement,
@@ -40,6 +43,34 @@ def create_announcement_api(
     except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
     return success_response(request=request, message="发布成功", data=data)
+
+
+@router.get("/{announcement_id}/my-report")
+def get_my_announcement_report_api(
+    request: Request,
+    announcement_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        data = get_my_announcement_report(db, user, announcement_id)
+    except ServiceError as exc:
+        return error_response(request=request, code=exc.code, message=exc.message)
+    return success_response(request=request, message="获取成功", data=data)
+
+
+@router.get("/{announcement_id}/download")
+def download_announcement_api(
+    request: Request,
+    announcement_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        file_path = get_announcement_download_path(db, user, announcement_id)
+    except ServiceError as exc:
+        return error_response(request=request, code=exc.code, message=exc.message)
+    return FileResponse(path=file_path, filename=file_path.name)
 
 
 @router.put("/{announcement_id}")

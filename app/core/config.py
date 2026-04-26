@@ -3,6 +3,8 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app.core.term_utils import current_fill_term_label
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
@@ -49,6 +51,10 @@ class Settings(BaseSettings):
 
     ai_audit_provider: str = "paddleocr"
     ai_audit_fallback_to_manual: bool = True
+    image_authenticity_provider: str = "reserved"
+    image_authenticity_api_url: str | None = None
+    image_authenticity_api_key: str | None = None
+    image_authenticity_model: str = "reserved"
     file_analysis_enabled: bool = True
     paddle_model_source: str = "BOS"
     paddle_model_dir: str = "./models/paddleocr"
@@ -65,8 +71,15 @@ class Settings(BaseSettings):
     paddleocr_enable_mkldnn: bool = True
     paddleocr_seal_score_threshold: float = 0.4
 
-    default_term: str = "2025-2026-1"
+    default_term: str = Field(default_factory=current_fill_term_label)
     export_download_base_path: str = "/api/v1/teacher/exports"
+
+    evaluation_llm_api_url: str | None = None
+    evaluation_llm_api_key: str | None = None
+    evaluation_llm_model: str = "gpt-4o-mini"
+    evaluation_llm_timeout_seconds: float = 20.0
+    evaluation_llm_temperature: float = 0.7
+    evaluation_llm_max_tokens: int = 320
 
     @property
     def upload_dir_path(self) -> Path:

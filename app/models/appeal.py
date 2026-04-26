@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlmodel import Field, SQLModel
 
 
@@ -16,6 +16,7 @@ class Appeal(SQLModel, table=True):
         default=None,
         sa_column=Column(Integer, ForeignKey("comprehensive_apply.id"), nullable=True, index=True),
     )
+    is_anonymous: bool = Field(default=False, sa_column=Column(Boolean, nullable=False, default=False, index=True))
     content: str = Field(sa_column=Column(Text, nullable=False))
     status: str = Field(sa_column=Column(String(20), nullable=False, default="pending", index=True))
     result: str | None = Field(default=None, sa_column=Column(String(20), nullable=True))

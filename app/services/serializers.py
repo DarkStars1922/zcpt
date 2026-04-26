@@ -28,6 +28,7 @@ def serialize_user(user: User, *, tokens: list[dict] | None = None) -> dict:
         "reviewer_token_id": user.reviewer_token_id,
         "email": user.email,
         "phone": user.phone,
+        "is_deleted": bool(getattr(user, "is_deleted", False)),
     }
     if tokens is not None:
         payload["tokens"] = tokens
@@ -148,32 +149,65 @@ def serialize_archive(record: ArchiveRecord) -> dict:
     }
 
 
-def serialize_announcement(announcement: Announcement, archive_public_id: str) -> dict:
+def serialize_announcement(
+    announcement: Announcement,
+    archive_public_id: str,
+    *,
+    scopes: list[dict] | None = None,
+) -> dict:
     scope = json_loads(announcement.scope_json, {})
     show_fields = json_loads(announcement.show_fields_json, [])
+    scope_rows = scopes or []
+    archive_ids = []
+    class_ids = []
+    grade = scope.get("grade")
+    for item in scope_rows:
+        archive_id = item.get("archive_id")
+        if archive_id and archive_id not in archive_ids:
+            archive_ids.append(archive_id)
+        if grade is None and item.get("grade") is not None:
+            grade = item["grade"]
+        class_id = item.get("class_id")
+        if class_id is not None and class_id not in class_ids:
+            class_ids.append(class_id)
+    if scope_rows:
+        scope = {"grade": grade, "class_ids": sorted(class_ids)}
+    if archive_public_id and archive_public_id not in archive_ids:
+        archive_ids.insert(0, archive_public_id)
     return {
         "id": announcement.id,
         "announcement_id": announcement.id,
         "title": announcement.title,
         "archive_id": archive_public_id,
+        "archive_ids": archive_ids,
         "scope": scope,
+        "scopes": scope_rows,
         "show_fields": show_fields,
         "status": announcement.status,
         "start_at": announcement.start_at.isoformat(),
         "end_at": announcement.end_at.isoformat() if announcement.end_at else None,
-        "download_url": f"/api/v1/archives/exports/{archive_public_id}/download",
+        "download_url": f"/api/v1/announcements/{announcement.id}/download",
         "created_at": announcement.created_at.isoformat(),
     }
 
 
-def serialize_appeal(appeal: Appeal, *, student: User | None = None, attachments: list[dict] | None = None) -> dict:
+def serialize_appeal(
+    appeal: Appeal,
+    *,
+    student: User | None = None,
+    attachments: list[dict] | None = None,
+    viewer: User | None = None,
+) -> dict:
+    anonymous_for_viewer = bool(appeal.is_anonymous) and viewer is not None and viewer.id != appeal.student_id
     return {
         "id": appeal.id,
         "announcement_id": appeal.announcement_id,
-        "student_id": appeal.student_id,
-        "student_name": student.name if student else None,
-        "student_email": student.email if student else None,
+        "student_id": None if anonymous_for_viewer else appeal.student_id,
+        "student_name": "匿名学生" if anonymous_for_viewer else (student.name if student else None),
+        "student_account": None if anonymous_for_viewer else (student.account if student else None),
+        "student_email": None if anonymous_for_viewer else (student.email if student else None),
         "application_id": appeal.application_id,
+        "is_anonymous": bool(appeal.is_anonymous),
         "content": appeal.content,
         "attachments": attachments or [],
         "status": appeal.status,

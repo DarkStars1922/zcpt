@@ -4,14 +4,13 @@ from uuid import uuid4
 from sqlmodel import Session, select
 
 from app.core.cache import build_idempotency_key, get_json, set_json
+from app.core.config import settings
 from app.core.constants import MANAGE_REVIEW_ROLES
 from app.core.utils import json_dumps, json_loads
-from app.models.announcement import Announcement
 from app.models.archive_record import ArchiveRecord
 from app.models.export_task import ExportTask
 from app.models.user import User
 from app.schemas.archive import ArchiveExportCreateRequest
-from app.services.announcement_service import can_student_view_announcement
 from app.services.errors import ServiceError
 from app.services.serializers import serialize_archive, serialize_export_task
 from app.services.system_log_service import write_system_log
@@ -107,7 +106,7 @@ def get_archive_download_path(db: Session, user: User, archive_id: str) -> Path:
     row = db.exec(select(ArchiveRecord).where(ArchiveRecord.archive_id == archive_id)).first()
     if not row:
         raise ServiceError("archive not found", 1002)
-    if user.role not in {"teacher", "admin"} and not _can_student_download_archive(db, user, row):
+    if user.role not in {"teacher", "admin"}:
         raise ServiceError("permission denied", 1003)
     task = db.exec(select(ExportTask).where(ExportTask.task_id == row.export_task_id)).first()
     if not task or task.status != "completed" or not task.file_path:
@@ -123,7 +122,7 @@ def create_archive_record_from_task(db: Session, task: ExportTask) -> ArchiveRec
     archive = ArchiveRecord(
         archive_id=f"arc_{uuid4().hex[:12]}",
         archive_name=f"archive_{task.task_id}",
-        term=filters.get("term") or "2025-2026-1",
+        term=filters.get("term") or settings.default_term,
         grade=filters.get("grade"),
         class_ids_json=json_dumps([filters["class_id"]]) if filters.get("class_id") else json_dumps([]),
         export_task_id=task.task_id,
@@ -132,13 +131,6 @@ def create_archive_record_from_task(db: Session, task: ExportTask) -> ArchiveRec
     db.commit()
     db.refresh(archive)
     return archive
-
-
-def _can_student_download_archive(db: Session, user: User, archive: ArchiveRecord) -> bool:
-    if user.role != "student":
-        return False
-    announcements = db.exec(select(Announcement).where(Announcement.archive_record_id == archive.id)).all()
-    return any(can_student_view_announcement(item, user) for item in announcements)
 
 
 def _require_teacher(user: User) -> None:

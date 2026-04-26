@@ -7,16 +7,36 @@ from sqlmodel import Session, select
 from app.core.cache import set_json
 from app.core.celery_app import celery_app
 from app.core.config import settings
-from app.core.constants import CLASS_GRADE_MAP
+from app.core.score_rules import SCORE_CATEGORY_KEYS
 from app.core.database import get_engine
+from app.core.term_utils import apply_datetime_term_filter
 from app.core.utils import json_loads, utcnow
 from app.models.application import Application
 from app.models.email_record import EmailRecord
 from app.models.export_task import ExportTask
 from app.models.user import User
+from app.services.class_service import get_class_grade, get_class_ids_by_grade, is_graduating_class
 from app.services.score_summary_service import get_student_score_summary_map, serialize_score_summary
 
 PENDING_STATUSES = {"pending_ai", "pending_review", "ai_abnormal"}
+EXPORT_SCORE_COLUMNS = [
+    ("身心素养总分", "physical_mental_score"),
+    ("身心素养基础分", "physical_mental_basic"),
+    ("身心素养成果分", "physical_mental_achievement"),
+    ("身心素养成果分+溢出分", "physical_mental_achievement_with_overflow"),
+    ("文艺素养总分", "art_score"),
+    ("文艺素养基础分", "art_basic"),
+    ("文艺素养成果分", "art_achievement"),
+    ("文艺素养成果分+溢出分", "art_achievement_with_overflow"),
+    ("劳动素养总分", "labor_score"),
+    ("劳动素养基础分", "labor_basic"),
+    ("劳动素养成果分", "labor_achievement"),
+    ("劳动素养成果分+溢出分", "labor_achievement_with_overflow"),
+    ("创新素养总分", "innovation_score"),
+    ("创新素养基础分", "innovation_basic"),
+    ("创新素养突破分", "innovation_achievement"),
+    ("创新素养突破分+溢出分", "innovation_achievement_with_overflow"),
+]
 
 
 def enqueue_ai_audit(application_id: int) -> None:
@@ -108,12 +128,18 @@ def generate_export_task(task_id: str) -> None:
 
 def _query_export_rows(db: Session, filters: dict) -> list[tuple[Application, User]]:
     stmt = select(Application, User).join(User, Application.applicant_id == User.id).where(Application.is_deleted.is_(False))
+    stmt = apply_datetime_term_filter(stmt, Application.created_at, filters.get("term") or settings.default_term)
     if filters.get("class_id"):
         stmt = stmt.where(User.class_id == int(filters["class_id"]))
     if filters.get("grade"):
-        class_ids = [cid for cid, grade in CLASS_GRADE_MAP.items() if grade == int(filters["grade"])]
+        class_ids = get_class_ids_by_grade(db, int(filters["grade"]), include_graduating=False)
         if class_ids:
             stmt = stmt.where(User.class_id.in_(class_ids))
+        else:
+            stmt = stmt.where(User.class_id == -1)
+    graduating_class_ids = [row.class_id for row in db.exec(select(User.class_id).where(User.role == "student")).all() if is_graduating_class(db, row)]
+    if graduating_class_ids:
+        stmt = stmt.where(User.class_id.notin_(list(dict.fromkeys(graduating_class_ids))))
     if filters.get("status"):
         stmt = stmt.where(Application.status == filters["status"])
     return db.exec(stmt.order_by(Application.created_at.desc())).all()
@@ -171,19 +197,18 @@ def _build_student_statistics_workbook(db: Session, rows: list[tuple[Application
     ws.title = "student_statistics"
     ws.append(
         [
-            "grade",
-            "class_id",
-            "student_id",
-            "student_account",
-            "student_name",
-            "total_count",
-            "rejected_count",
-            "pending_count",
-            "total_score",
-            "raw_total_score",
-            "overflow_score",
-            "average_score",
-            "actual_score",
+            "年级",
+            "班级",
+            "学生ID",
+            "学号",
+            "姓名",
+            "申报总数",
+            "驳回数",
+            "待处理数",
+            "官方总分",
+            "原始总分",
+            *[label for label, _ in EXPORT_SCORE_COLUMNS],
+            "平均分",
         ]
     )
     for row in summary:
@@ -199,9 +224,8 @@ def _build_student_statistics_workbook(db: Session, rows: list[tuple[Application
                 row["pending_count"],
                 row["total_score"],
                 row["raw_total_score"],
-                row["overflow_score"],
+                *[row[key] for _, key in EXPORT_SCORE_COLUMNS],
                 row["average_score"],
-                row["actual_score"],
             ]
         )
     wb.save(file_path)
@@ -223,7 +247,7 @@ def _aggregate_student_statistics(db: Session, rows: list[tuple[Application, Use
     )
     for application, user in rows:
         item = summary[user.id]
-        item["grade"] = CLASS_GRADE_MAP.get(user.class_id)
+        item["grade"] = get_class_grade(db, user.class_id)
         item["class_id"] = user.class_id
         item["student_id"] = user.id
         item["student_account"] = user.account
@@ -240,12 +264,28 @@ def _aggregate_student_statistics(db: Session, rows: list[tuple[Application, Use
     for item in summary.values():
         total_count = int(item["total_count"] or 0)
         score_summary = serialize_score_summary(score_summary_map.get(item["student_id"]), student_id=item["student_id"])
+        category_scores = score_summary.get("category_scores") or {}
+        sub_scores = score_summary.get("sub_scores") or {}
+        achievement_overflow_scores = score_summary.get("achievement_overflow_scores") or {}
+        score_columns = {}
+        for category in SCORE_CATEGORY_KEYS:
+            score_columns[f"{category}_score"] = category_scores.get(f"{category}_score", 0.0)
+            score_columns[f"{category}_basic"] = sub_scores.get(f"{category}_basic", 0.0)
+            score_columns[f"{category}_achievement"] = sub_scores.get(f"{category}_achievement", 0.0)
+            achievement_overflow = achievement_overflow_scores.get(
+                f"{category}_achievement_overflow",
+                0.0,
+            )
+            score_columns[f"{category}_achievement_with_overflow"] = round(
+                score_columns[f"{category}_achievement"] + achievement_overflow,
+                4,
+            )
         result.append(
             {
                 **item,
                 "total_score": score_summary["actual_score"],
                 "raw_total_score": score_summary["raw_total_score"],
-                "overflow_score": score_summary["overflow_score"],
+                **score_columns,
                 "average_score": round(score_summary["actual_score"] / total_count, 4) if total_count else 0.0,
                 "actual_score": score_summary["actual_score"],
             }

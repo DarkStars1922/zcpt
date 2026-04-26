@@ -3,6 +3,7 @@ from datetime import datetime
 from sqlalchemy import func, or_
 from sqlmodel import Session, select
 
+from app.core.config import settings
 from app.core.constants import (
     MANAGE_REVIEW_ROLES,
     REVIEWER_REVIEWABLE_STATUSES,
@@ -10,6 +11,7 @@ from app.core.constants import (
     TEACHER_RECHECKABLE_STATUSES,
 )
 from app.core.score_rules import SCORE_CATEGORY_RULES
+from app.core.term_utils import apply_datetime_term_filter
 from app.core.utils import utcnow
 from app.models.application import Application
 from app.models.review_record import ReviewRecord
@@ -17,6 +19,7 @@ from app.models.user import User
 from app.schemas.review import BatchReviewDecisionRequest, ReviewDecisionRequest
 from app.services.application_service import get_application_attachments
 from app.services.errors import ServiceError
+from app.services.class_service import is_graduating_class
 from app.services.notification_service import enqueue_reject_email_for_application
 from app.services.reviewer_scope_service import get_active_reviewer_class_ids
 from app.services.score_summary_service import mark_application_score_recorded, recalculate_student_score
@@ -267,6 +270,8 @@ def _query_pending_applications(
 ) -> tuple[list[tuple[Application, User]], int]:
     role = _resolve_reviewer_role(db, user)
     stmt = select(Application, User).join(User, Application.applicant_id == User.id).where(Application.is_deleted.is_(False))
+    stmt = apply_datetime_term_filter(stmt, Application.created_at, settings.default_term)
+    stmt = stmt.where(User.is_deleted.is_(False))
     if role == "teacher":
         stmt = stmt.where(Application.status.in_(tuple(REVIEWER_REVIEWABLE_STATUSES)))
     else:
@@ -285,6 +290,9 @@ def _query_pending_applications(
     if keyword:
         like_value = f"%{keyword}%"
         stmt = stmt.where(or_(Application.title.ilike(like_value), User.name.ilike(like_value), User.account.ilike(like_value)))
+    graduating_class_ids = [row.class_id for row in db.exec(select(User.class_id).where(User.role == "student")).all() if is_graduating_class(db, row)]
+    if graduating_class_ids:
+        stmt = stmt.where(User.class_id.notin_(list(dict.fromkeys(graduating_class_ids))))
     total = db.exec(select(func.count()).select_from(stmt.subquery())).one()
     rows = db.exec(stmt.order_by(Application.created_at.desc()).offset((page - 1) * size).limit(size)).all()
     return rows, total

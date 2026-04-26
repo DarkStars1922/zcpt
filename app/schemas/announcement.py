@@ -8,10 +8,17 @@ class AnnouncementScope(BaseModel):
     class_ids: list[int] = Field(default_factory=list)
 
 
+class AnnouncementScopeBindingPayload(BaseModel):
+    archive_id: str = Field(min_length=1, max_length=64)
+    grade: int | None = None
+    class_ids: list[int] = Field(default_factory=list)
+
+
 class AnnouncementCreateRequest(BaseModel):
     title: str = Field(min_length=1, max_length=255)
     archive_id: str = Field(min_length=1, max_length=64)
     scope: AnnouncementScope
+    scopes: list[AnnouncementScopeBindingPayload] = Field(default_factory=list)
     start_at: datetime
     end_at: datetime
     show_fields: list[str] = Field(default_factory=list)
