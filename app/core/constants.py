@@ -2,6 +2,8 @@ ROLE_STUDENT = "student"
 ROLE_TEACHER = "teacher"
 ROLE_ADMIN = "admin"
 
+from app.core.score_rules import build_category_options
+
 VALID_ROLES = {ROLE_STUDENT, ROLE_TEACHER, ROLE_ADMIN}
 VIEWABLE_ROLES = {ROLE_STUDENT, ROLE_TEACHER, ROLE_ADMIN}
 MANAGE_REVIEW_ROLES = {ROLE_TEACHER, ROLE_ADMIN}
@@ -30,8 +32,6 @@ TEACHER_RECHECKABLE_STATUSES = {
     APPLICATION_STATUS_REJECTED,
 }
 SCORE_INCLUDED_STATUSES = {
-    APPLICATION_STATUS_PENDING_AI,
-    APPLICATION_STATUS_PENDING_REVIEW,
     APPLICATION_STATUS_APPROVED,
     APPLICATION_STATUS_ARCHIVED,
 }
@@ -57,40 +57,7 @@ REVIEWER_TOKEN_STATUS_ACTIVE = "active"
 REVIEWER_TOKEN_STATUS_REVOKED = "revoked"
 REVIEWER_TOKEN_STATUS_EXPIRED = "expired"
 
-CATEGORY_OPTIONS = [
-    {
-        "category": "physical_mental",
-        "name": "身心素养",
-        "children": [
-            {"code": "basic", "name": "基础性评价"},
-            {"code": "achievement", "name": "成果性评价"},
-        ],
-    },
-    {
-        "category": "art",
-        "name": "文艺素养",
-        "children": [
-            {"code": "basic", "name": "基础性评价"},
-            {"code": "achievement", "name": "成果性评价"},
-        ],
-    },
-    {
-        "category": "labor",
-        "name": "劳动素养",
-        "children": [
-            {"code": "basic", "name": "基础性评价"},
-            {"code": "achievement", "name": "成果性评价"},
-        ],
-    },
-    {
-        "category": "innovation",
-        "name": "创新素养",
-        "children": [
-            {"code": "basic", "name": "基础素养"},
-            {"code": "achievement", "name": "突破提升"},
-        ],
-    },
-]
+CATEGORY_OPTIONS = build_category_options()
 
 CLASS_GRADE_MAP = {
     301: 2023,

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from difflib import SequenceMatcher
 from pathlib import Path
 
@@ -105,7 +106,14 @@ def _build_summary(*, file: FileInfo, uploader: User | None, raw_result: dict) -
     return {
         "document_title": document_title,
         "recognized_levels": _extract_levels(full_text, document_title, file.original_name),
-        "uploader_name_match": _match_name(full_text, uploader.name if uploader else None),
+        "uploader_name_match": _match_name(
+            full_text,
+            [
+                uploader.name if uploader else None,
+                uploader.account if uploader else None,
+            ],
+            pages=pages,
+        ),
         "filename_vs_document_title": _compare_filename(file.original_name, document_title),
         "seal": seal_and_signature["seal"],
         "signature": seal_and_signature["signature"],
@@ -144,17 +152,72 @@ def _extract_levels(*texts: str) -> list[str]:
     return matched
 
 
-def _match_name(text: str, uploader_name: str | None) -> dict:
-    if not uploader_name:
-        return {"expected_name": None, "matched": None, "matches": []}
+def _match_name(text: str, expected_names: list[str | None], *, pages: list[dict] | None = None) -> dict:
+    candidates = [name.strip() for name in expected_names if isinstance(name, str) and name.strip()]
+    recognized_candidates = _extract_name_candidates(text)
+    if not candidates:
+        return {
+            "expected_name": None,
+            "expected_candidates": [],
+            "matched": None,
+            "matches": [],
+            "matched_page_indexes": [],
+            "recognized_name_candidates": recognized_candidates,
+        }
     normalized_text = _normalize_text(text)
-    normalized_name = _normalize_text(uploader_name)
-    matched = bool(normalized_name and normalized_name in normalized_text)
+    matches = [name for name in candidates if _normalize_text(name) and _normalize_text(name) in normalized_text]
+    matched = bool(matches)
+    matched_page_indexes = _find_matching_page_indexes(pages or [], candidates)
+    for name in matches:
+        if name not in recognized_candidates:
+            recognized_candidates.insert(0, name)
     return {
-        "expected_name": uploader_name,
+        "expected_name": candidates[0],
+        "expected_candidates": candidates,
         "matched": matched,
-        "matches": [uploader_name] if matched else [],
+        "matches": matches,
+        "matched_page_indexes": matched_page_indexes,
+        "recognized_name_candidates": recognized_candidates,
     }
+
+
+def _extract_name_candidates(text: str) -> list[str]:
+    if not text:
+        return []
+    patterns = [
+        "(?:姓名|获奖者|获奖学生|学生姓名|参赛者|参赛学生|作者|申报人|申请人)[:：\\s]*([\\u4e00-\\u9fff]{2,4})",
+        "([\\u4e00-\\u9fff]{2,4})同学",
+        "授予[:：\\s]*([\\u4e00-\\u9fff]{2,4})",
+        "(?:Name|Student|Applicant)[:：\\s]*([A-Za-z][A-Za-z ._-]{1,40})",
+    ]
+    ignored = {"学生", "姓名", "获奖", "证书", "大学", "学院", "学校", "项目", "成员"}
+    results: list[str] = []
+    for pattern in patterns:
+        for match in re.finditer(pattern, text, flags=re.IGNORECASE):
+            value = match.group(1).strip(" ：:，,。.;；")
+            if not value or value in ignored or value in results:
+                continue
+            results.append(value)
+            if len(results) >= 8:
+                return results
+    return results
+
+
+def _find_matching_page_indexes(pages: list[dict], candidates: list[str]) -> list[int]:
+    result = []
+    normalized_candidates = [_normalize_text(candidate) for candidate in candidates if _normalize_text(candidate)]
+    if not normalized_candidates:
+        return result
+    for fallback_index, page in enumerate(pages):
+        page_text = page.get("text") or "\n".join(line.get("text") or "" for line in page.get("lines", []))
+        normalized_page_text = _normalize_text(page_text)
+        if any(candidate in normalized_page_text for candidate in normalized_candidates):
+            page_index = page.get("page_index", fallback_index)
+            try:
+                result.append(int(page_index))
+            except (TypeError, ValueError):
+                result.append(fallback_index)
+    return result
 
 
 def _compare_filename(filename: str, document_title: str | None) -> dict:

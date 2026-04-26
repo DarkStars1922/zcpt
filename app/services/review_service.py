@@ -9,6 +9,7 @@ from app.core.constants import (
     ROLE_STUDENT,
     TEACHER_RECHECKABLE_STATUSES,
 )
+from app.core.score_rules import SCORE_CATEGORY_RULES
 from app.core.utils import utcnow
 from app.models.application import Application
 from app.models.review_record import ReviewRecord
@@ -18,6 +19,7 @@ from app.services.application_service import get_application_attachments
 from app.services.errors import ServiceError
 from app.services.notification_service import enqueue_reject_email_for_application
 from app.services.reviewer_scope_service import get_active_reviewer_class_ids
+from app.services.score_summary_service import mark_application_score_recorded, recalculate_student_score
 from app.services.serializers import serialize_application, serialize_review_record
 from app.services.system_log_service import write_system_log
 
@@ -68,7 +70,7 @@ def get_pending_category_summary(db: Session, user: User, *, class_id: int | Non
             application.category,
             {
                 "category": application.category,
-                "category_name": application.category,
+                "category_name": SCORE_CATEGORY_RULES.get(application.category, {}).get("name", application.category),
                 "pending_count": 0,
                 "approved_count": 0,
                 "rejected_count": 0,
@@ -156,6 +158,7 @@ def submit_review_decision(db: Session, user: User, application_id: int, payload
     application, student = _get_reviewable_application(db, user, application_id)
     new_status = _resolve_decision_status(db, user, application.status, payload.decision)
     application.status = new_status
+    mark_application_score_recorded(application)
     application.comment = payload.comment
     application.updated_at = utcnow()
     application.version += 1
@@ -169,6 +172,8 @@ def submit_review_decision(db: Session, user: User, application_id: int, payload
         comment=payload.comment,
     )
     db.add(record)
+    db.flush()
+    recalculate_student_score(db, application.applicant_id)
     db.commit()
     db.refresh(record)
     if new_status == "rejected" and student.email:

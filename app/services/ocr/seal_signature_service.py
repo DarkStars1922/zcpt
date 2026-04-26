@@ -1,10 +1,30 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 
 SEAL_HINTS = ("章", "印", "专用章", "公章", "盖章")
-SIGNATURE_HINTS = ("签名", "签字", "落款", "负责人", "审核", "经办", "辅导员", "老师", "日期")
+ORG_SEAL_HINTS = (
+    "大学",
+    "学院",
+    "学校",
+    "委员会",
+    "组委会",
+    "协会",
+    "中心",
+    "办公室",
+    "教务",
+    "学生工作",
+    "竞赛",
+    "公司",
+    "研究院",
+    "实验室",
+    "厅",
+    "局",
+)
+SIGNATURE_HINTS = ("签名", "签字", "落款", "负责人", "审核", "经办", "辅导员", "老师", "日期", "年", "月", "日")
+DATE_PATTERN = re.compile(r"(?:20\d{2}|19\d{2})\s*[年./-]\s*\d{1,2}\s*(?:[月./-]\s*\d{1,2}\s*日?)?")
 
 
 def extract_seal_and_signature(
@@ -43,7 +63,7 @@ def _extract_seal_items(*, ocr_pages: list[dict], layout_pages: list[dict], seal
         ]
         if not seal_boxes:
             keyword_lines = [
-                line["text"] for line in page.get("lines", []) if any(hint in line["text"] for hint in SEAL_HINTS)
+                line["text"] for line in page.get("lines", []) if _looks_like_seal_text(line.get("text") or "")
             ]
             if keyword_lines:
                 results.append(
@@ -52,6 +72,7 @@ def _extract_seal_items(*, ocr_pages: list[dict], layout_pages: list[dict], seal
                         "box": None,
                         "score": None,
                         "texts": keyword_lines[:5],
+                        "source": "text_keyword",
                     }
                 )
             continue
@@ -68,6 +89,7 @@ def _extract_seal_items(*, ocr_pages: list[dict], layout_pages: list[dict], seal
                     "box": coordinate,
                     "score": item.get("score"),
                     "texts": texts[:8],
+                    "source": "layout",
                 }
             )
     return results
@@ -124,13 +146,27 @@ def _looks_like_signature_candidate(
     near_bottom = bottom_ratio is not None and bottom_ratio >= 0.62
     near_seal = any(_line_hits_region(box, seal_box, expand=48.0) for seal_box in seal_boxes)
     has_hint = any(hint in text for hint in SIGNATURE_HINTS)
+    has_date = bool(DATE_PATTERN.search(text))
     has_uploader = bool(uploader_name and uploader_name in text)
     is_short = len(text) <= 24
-    if has_hint:
+    if has_hint and (near_bottom or near_seal or is_short):
+        return True
+    if has_date and (near_bottom or near_seal or is_short):
         return True
     if has_uploader and (near_bottom or near_seal):
         return True
     return near_bottom and is_short
+
+
+def _looks_like_seal_text(text: str) -> bool:
+    stripped = text.strip()
+    if not stripped:
+        return False
+    if any(hint in stripped for hint in SEAL_HINTS):
+        return True
+    if len(stripped) > 40:
+        return False
+    return any(hint in stripped for hint in ORG_SEAL_HINTS)
 
 
 def _box_bottom_ratio(box: Any, page_height: float) -> float | None:

@@ -1,4 +1,5 @@
 from app.core.config import settings
+from app.core.award_catalog import serialize_award_rule
 from app.core.utils import json_loads
 from app.models.ai_audit_report import AIAuditReport
 from app.models.announcement import Announcement
@@ -54,12 +55,15 @@ def serialize_application(
     attachments: list[dict] | None = None,
     include_detail: bool = False,
 ) -> dict:
+    award_rule = serialize_award_rule(application.award_uid)
     payload = {
         "application_id": application.id,
         "id": application.id,
         "category": application.category,
         "sub_type": application.sub_type,
         "award_uid": application.award_uid,
+        "award_rule": award_rule,
+        "award_rule_name": award_rule["rule_name"] if award_rule else None,
         "title": application.title,
         "status": application.status,
         "score": application.item_score,
@@ -169,11 +173,14 @@ def serialize_appeal(appeal: Appeal, *, student: User | None = None, attachments
         "student_id": appeal.student_id,
         "student_name": student.name if student else None,
         "student_email": student.email if student else None,
+        "application_id": appeal.application_id,
         "content": appeal.content,
         "attachments": attachments or [],
         "status": appeal.status,
         "result": appeal.result,
         "result_comment": appeal.result_comment,
+        "score_action": appeal.score_action,
+        "adjusted_score": appeal.adjusted_score,
         "created_at": appeal.created_at.isoformat(),
         "processed_at": appeal.processed_at.isoformat() if appeal.processed_at else None,
     }

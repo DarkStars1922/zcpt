@@ -6,6 +6,7 @@ from sqlmodel import Session, select
 
 from app.core.database import get_engine
 from app.models.ai_audit_report import AIAuditReport
+from app.models.appeal import Appeal
 from app.models.refresh_token import RefreshToken
 
 API_PREFIX = "/api/v1"
@@ -243,8 +244,11 @@ def test_teacher_student_statistics_and_export_summary_archive(client):
                 "rejected_count",
                 "pending_count",
                 "total_score",
+                "raw_total_score",
+                "overflow_score",
                 "average_score",
                 "actual_score",
+                "score_summary",
             }
         )
 
@@ -283,6 +287,8 @@ def test_teacher_student_statistics_and_export_summary_archive(client):
         "rejected_count",
         "pending_count",
         "total_score",
+        "raw_total_score",
+        "overflow_score",
         "average_score",
         "actual_score",
     ]
@@ -580,6 +586,156 @@ def test_total_score_excludes_rejected_status(client):
     stats_by_account = {item["student_account"]: item for item in student_stats["list"]}
     assert stats_by_account["todo_student_score_a"]["total_score"] == 4.0
     assert stats_by_account["todo_student_score_b"]["total_score"] == 0.0
+
+
+def test_approved_score_records_immediately_with_overflow(client):
+    register_user(client, account="todo_teacher_overflow", role="teacher", name="Teacher Overflow")
+    register_user(client, account="todo_student_overflow", class_id=301, name="Student Overflow")
+
+    teacher_login = login_user(client, account="todo_teacher_overflow")
+    teacher_headers = auth_headers(teacher_login["access_token"])
+    student_login = login_user(client, account="todo_student_overflow")
+    student_headers = auth_headers(student_login["access_token"])
+
+    file_a = upload_file(client, student_login["access_token"], filename="overflow-a.png")
+    file_b = upload_file(client, student_login["access_token"], filename="overflow-b.png")
+    app_a = create_application_custom(
+        client,
+        student_login["access_token"],
+        title="overflow-a",
+        file_id=file_a,
+        category="innovation",
+        sub_type="basic",
+        score=4.0,
+    )
+    app_b = create_application_custom(
+        client,
+        student_login["access_token"],
+        title="overflow-b",
+        file_id=file_b,
+        category="innovation",
+        sub_type="basic",
+        score=4.0,
+    )
+
+    for application in (app_a, app_b):
+        assert_ok(
+            client.post(
+                f"{API_PREFIX}/teacher/applications/{application['application_id']}/recheck",
+                headers=teacher_headers,
+                json={"decision": "approved", "comment": "ok"},
+            )
+        )
+
+    summary = assert_ok(client.get(f"{API_PREFIX}/applications/my/category-summary", headers=student_headers))
+    assert summary["raw_total_score"] == 8.0
+    assert summary["overflow_score"] == 0.0
+    assert summary["actual_score"] == 5.0
+    assert summary["score_summary"]["sub_scores"]["innovation_basic"] == 5.0
+    assert summary["score_summary"]["category_scores"]["innovation_score"] == 5.0
+    assert summary["score_summary"]["achievement_overflow_scores"]["innovation_achievement_overflow"] == 0.0
+
+    file_c = upload_file(client, student_login["access_token"], filename="overflow-c.png")
+    file_d = upload_file(client, student_login["access_token"], filename="overflow-d.png")
+    app_c = create_application_custom(
+        client,
+        student_login["access_token"],
+        title="overflow-c",
+        file_id=file_c,
+        category="physical_mental",
+        sub_type="achievement",
+        score=4.0,
+    )
+    app_d = create_application_custom(
+        client,
+        student_login["access_token"],
+        title="overflow-d",
+        file_id=file_d,
+        category="physical_mental",
+        sub_type="achievement",
+        score=4.0,
+    )
+
+    for application in (app_c, app_d):
+        assert_ok(
+            client.post(
+                f"{API_PREFIX}/teacher/applications/{application['application_id']}/recheck",
+                headers=teacher_headers,
+                json={"decision": "approved", "comment": "ok"},
+            )
+        )
+
+    summary = assert_ok(client.get(f"{API_PREFIX}/applications/my/category-summary", headers=student_headers))
+    assert summary["raw_total_score"] == 16.0
+    assert summary["overflow_score"] == 2.0
+    assert summary["actual_score"] == 11.0
+    assert summary["score_summary"]["sub_scores"]["physical_mental_achievement"] == 6.0
+    assert summary["score_summary"]["achievement_overflow_scores"]["physical_mental_achievement_overflow"] == 2.0
+
+
+def test_approved_appeal_can_cancel_archived_score(client):
+    student = register_user(client, account="todo_student_appeal_cancel", class_id=301, name="Appeal Cancel Student")
+    register_user(client, account="todo_teacher_appeal_cancel", role="teacher", name="Appeal Cancel Teacher")
+
+    student_login = login_user(client, account="todo_student_appeal_cancel")
+    student_headers = auth_headers(student_login["access_token"])
+    teacher_login = login_user(client, account="todo_teacher_appeal_cancel")
+    teacher_headers = auth_headers(teacher_login["access_token"])
+
+    application = create_application(
+        client,
+        student_login["access_token"],
+        title="appeal-cancel-score",
+        file_id=upload_file(client, student_login["access_token"]),
+        score=4.0,
+    )
+    application_id = application["application_id"]
+    assert_ok(
+        client.post(
+            f"{API_PREFIX}/teacher/applications/{application_id}/recheck",
+            headers=teacher_headers,
+            json={"decision": "approved", "comment": "ok"},
+        )
+    )
+    assert_ok(
+        client.post(
+            f"{API_PREFIX}/teacher/applications/archive",
+            headers=teacher_headers,
+            json={"application_ids": [application_id]},
+        )
+    )
+    before = assert_ok(client.get(f"{API_PREFIX}/applications/my/category-summary", headers=student_headers))
+    assert before["actual_score"] == 4.0
+
+    with Session(get_engine()) as db:
+        appeal = Appeal(
+            announcement_id=1,
+            student_id=student["id"],
+            application_id=application_id,
+            content="取消该项计分",
+        )
+        db.add(appeal)
+        db.commit()
+        db.refresh(appeal)
+        appeal_id = appeal.id
+
+    processed = assert_ok(
+        client.post(
+            f"{API_PREFIX}/appeals/{appeal_id}/process",
+            headers=teacher_headers,
+            json={
+                "result": "approved",
+                "result_comment": "经核查取消",
+                "application_id": application_id,
+                "score_action": "cancel_application",
+            },
+        )
+    )
+    assert processed["changed_application_id"] == application_id
+
+    after = assert_ok(client.get(f"{API_PREFIX}/applications/my/category-summary", headers=student_headers))
+    assert after["actual_score"] == 0.0
+    assert after["raw_total_score"] == 0.0
 
 
 def test_update_profile_accepts_blank_email_and_phone(client):

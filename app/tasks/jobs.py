@@ -7,14 +7,14 @@ from sqlmodel import Session, select
 from app.core.cache import set_json
 from app.core.celery_app import celery_app
 from app.core.config import settings
-from app.core.constants import CLASS_GRADE_MAP, SCORE_INCLUDED_STATUSES
+from app.core.constants import CLASS_GRADE_MAP
 from app.core.database import get_engine
 from app.core.utils import json_loads, utcnow
 from app.models.application import Application
 from app.models.email_record import EmailRecord
 from app.models.export_task import ExportTask
 from app.models.user import User
-from app.services.score_summary_service import get_student_actual_score_map
+from app.services.score_summary_service import get_student_score_summary_map, serialize_score_summary
 
 PENDING_STATUSES = {"pending_ai", "pending_review", "ai_abnormal"}
 
@@ -180,6 +180,8 @@ def _build_student_statistics_workbook(db: Session, rows: list[tuple[Application
             "rejected_count",
             "pending_count",
             "total_score",
+            "raw_total_score",
+            "overflow_score",
             "average_score",
             "actual_score",
         ]
@@ -196,6 +198,8 @@ def _build_student_statistics_workbook(db: Session, rows: list[tuple[Application
                 row["rejected_count"],
                 row["pending_count"],
                 row["total_score"],
+                row["raw_total_score"],
+                row["overflow_score"],
                 row["average_score"],
                 row["actual_score"],
             ]
@@ -225,24 +229,25 @@ def _aggregate_student_statistics(db: Session, rows: list[tuple[Application, Use
         item["student_account"] = user.account
         item["student_name"] = user.name
         item["total_count"] += 1
-        if application.status in SCORE_INCLUDED_STATUSES:
-            item["total_score"] += float(application.item_score or 0.0)
         if application.status == "rejected":
             item["rejected_count"] += 1
         if application.status in PENDING_STATUSES:
             item["pending_count"] += 1
 
-    actual_score_map = get_student_actual_score_map(db, list(summary.keys()))
+    score_summary_map = get_student_score_summary_map(db, list(summary.keys()))
 
     result = []
     for item in summary.values():
         total_count = int(item["total_count"] or 0)
+        score_summary = serialize_score_summary(score_summary_map.get(item["student_id"]), student_id=item["student_id"])
         result.append(
             {
                 **item,
-                "total_score": round(item["total_score"], 4),
-                "average_score": round(item["total_score"] / total_count, 4) if total_count else 0.0,
-                "actual_score": round(float(actual_score_map.get(item["student_id"], 0.0)), 4),
+                "total_score": score_summary["actual_score"],
+                "raw_total_score": score_summary["raw_total_score"],
+                "overflow_score": score_summary["overflow_score"],
+                "average_score": round(score_summary["actual_score"] / total_count, 4) if total_count else 0.0,
+                "actual_score": score_summary["actual_score"],
             }
         )
     result.sort(key=lambda item: (item["grade"] or 0, item["class_id"] or 0, item["student_account"] or ""))

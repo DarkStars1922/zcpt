@@ -19,7 +19,7 @@ def run_document_ocr(file_path: Path) -> dict:
     if not file_path.exists() or not file_path.is_file():
         raise OCRServiceUnavailableError("file not found")
 
-    os.environ.setdefault("PADDLE_PDX_MODEL_SOURCE", settings.paddle_model_source)
+    _configure_paddlex_env()
     ocr_pages = _predict_general_ocr(file_path)
     try:
         layout_pages = _predict_layout(file_path)
@@ -34,25 +34,16 @@ def run_document_ocr(file_path: Path) -> dict:
 
 @lru_cache(maxsize=1)
 def _get_ocr_model():
+    _configure_paddlex_env()
     try:
         from paddleocr import PaddleOCR
     except Exception as exc:
         raise OCRServiceUnavailableError(f"unable to import PaddleOCR: {exc}") from exc
 
     try:
-        det_model_dir = _resolve_model_dir(
-            settings.paddleocr_text_detection_model_dir,
-            settings.paddleocr_text_detection_model_name,
-        )
-        rec_model_dir = _resolve_model_dir(
-            settings.paddleocr_text_recognition_model_dir,
-            settings.paddleocr_text_recognition_model_name,
-        )
-        return PaddleOCR(
+        model_kwargs = dict(
             text_detection_model_name=settings.paddleocr_text_detection_model_name,
-            text_detection_model_dir=str(det_model_dir),
             text_recognition_model_name=settings.paddleocr_text_recognition_model_name,
-            text_recognition_model_dir=str(rec_model_dir),
             use_doc_orientation_classify=settings.paddleocr_use_doc_orientation_classify,
             use_doc_unwarping=False,
             use_textline_orientation=settings.paddleocr_use_textline_orientation,
@@ -60,29 +51,36 @@ def _get_ocr_model():
             enable_mkldnn=settings.paddleocr_enable_mkldnn,
             cpu_threads=settings.paddleocr_cpu_threads,
         )
+        det_model_dir = _resolve_model_dir(settings.paddleocr_text_detection_model_dir, "text detection")
+        rec_model_dir = _resolve_model_dir(settings.paddleocr_text_recognition_model_dir, "text recognition")
+        if det_model_dir:
+            model_kwargs["text_detection_model_dir"] = str(det_model_dir)
+        if rec_model_dir:
+            model_kwargs["text_recognition_model_dir"] = str(rec_model_dir)
+        return PaddleOCR(**model_kwargs)
     except Exception as exc:
         raise OCRServiceUnavailableError(f"unable to initialize PaddleOCR pipeline: {exc}") from exc
 
 
 @lru_cache(maxsize=1)
 def _get_layout_model():
+    _configure_paddlex_env()
     try:
         from paddleocr import LayoutDetection
     except Exception as exc:
         raise OCRServiceUnavailableError(f"unable to import LayoutDetection: {exc}") from exc
 
     try:
-        layout_model_dir = _resolve_model_dir(
-            settings.paddleocr_layout_detection_model_dir,
-            settings.paddleocr_layout_detection_model_name,
-        )
-        return LayoutDetection(
+        model_kwargs = dict(
             model_name=settings.paddleocr_layout_detection_model_name,
-            model_dir=str(layout_model_dir),
             device=settings.paddleocr_device,
             enable_mkldnn=settings.paddleocr_enable_mkldnn,
             cpu_threads=settings.paddleocr_cpu_threads,
         )
+        layout_model_dir = _resolve_model_dir(settings.paddleocr_layout_detection_model_dir, "layout detection")
+        if layout_model_dir:
+            model_kwargs["model_dir"] = str(layout_model_dir)
+        return LayoutDetection(**model_kwargs)
     except Exception as exc:
         raise OCRServiceUnavailableError(f"unable to initialize layout detector: {exc}") from exc
 
@@ -199,7 +197,16 @@ def _infer_page_size(lines: list[dict], *, axis: int) -> float | None:
     return max(points)
 
 
-def _resolve_model_dir(override_dir: str | None, model_name: str) -> Path:
-    base_dir = Path(override_dir) if override_dir else settings.paddle_model_dir_path / model_name
-    base_dir.mkdir(parents=True, exist_ok=True)
-    return base_dir
+def _resolve_model_dir(override_dir: str | None, label: str) -> Path | None:
+    if not override_dir:
+        return None
+    model_dir = Path(override_dir)
+    config_path = model_dir / "inference.yml"
+    if not config_path.exists():
+        raise OCRServiceUnavailableError(f"{label} model dir is missing inference.yml: {model_dir}")
+    return model_dir
+
+
+def _configure_paddlex_env() -> None:
+    os.environ.setdefault("PADDLE_PDX_MODEL_SOURCE", settings.paddle_model_source)
+    os.environ.setdefault("PADDLE_PDX_CACHE_HOME", str(settings.paddle_model_dir_path))

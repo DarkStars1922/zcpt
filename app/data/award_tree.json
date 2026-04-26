@@ -2,56 +2,68 @@
   {
     "category": "physical_mental",
     "name": "身心素养",
+    "max_score": 15,
     "children": [
       {
         "code": "basic",
-        "name": "基础性评价"
+        "name": "基础性评价",
+        "max_score": 9
       },
       {
         "code": "achievement",
-        "name": "成果性评价"
+        "name": "成果性评价",
+        "max_score": 6
       }
     ]
   },
   {
     "category": "art",
     "name": "文艺素养",
+    "max_score": 15,
     "children": [
       {
         "code": "basic",
-        "name": "基础性评价"
+        "name": "基础性评价",
+        "max_score": 9
       },
       {
         "code": "achievement",
-        "name": "成果性评价"
+        "name": "成果性评价",
+        "max_score": 6
       }
     ]
   },
   {
     "category": "labor",
     "name": "劳动素养",
+    "max_score": 25,
     "children": [
       {
         "code": "basic",
-        "name": "基础性评价"
+        "name": "基础性评价",
+        "max_score": 15
       },
       {
         "code": "achievement",
-        "name": "成果性评价"
+        "name": "成果性评价",
+        "max_score": 10
       }
     ]
   },
   {
     "category": "innovation",
     "name": "创新素养",
+    "max_score": 45,
     "children": [
       {
         "code": "basic",
-        "name": "基础素养"
+        "name": "基础素养",
+        "max_score": 5
       },
       {
         "code": "achievement",
-        "name": "突破提升"
+        "name": "突破提升",
+        "max_score": 40
       }
     ]
   }

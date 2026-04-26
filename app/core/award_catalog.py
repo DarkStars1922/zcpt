@@ -1,5 +1,6 @@
 import ast
 import json
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -32,6 +33,62 @@ def load_award_score_map() -> dict[int, dict[str, float]]:
             "max_score": max(score, max_score),
         }
     return result
+
+
+@lru_cache(maxsize=1)
+def load_award_rule_map() -> dict[int, dict[str, Any]]:
+    rule_map_path = _repo_root() / "app" / "data" / "award_rule_map.json"
+    if not rule_map_path.exists():
+        return {}
+
+    with rule_map_path.open("r", encoding="utf-8") as fp:
+        raw = json.load(fp)
+
+    result: dict[int, dict[str, Any]] = {}
+    for key, value in raw.items():
+        try:
+            uid = int(key)
+        except (TypeError, ValueError):
+            continue
+        if not isinstance(value, dict):
+            continue
+        score = _coerce_score(value.get("score", 0.0))
+        max_score = _coerce_score(value.get("max_score", value.get("maxScore", score)))
+        result[uid] = {
+            "award_uid": uid,
+            "category": value.get("category"),
+            "sub_type": value.get("sub_type"),
+            "rule_name": value.get("rule_name") or value.get("award_name") or f"奖项 {uid}",
+            "rule_path": value.get("rule_path") or value.get("rule_name") or f"奖项 {uid}",
+            "id_path": value.get("id_path") or [],
+            "score": score,
+            "max_score": max(score, max_score),
+        }
+    return result
+
+
+def find_award_rule(award_uid: int | None) -> dict[str, Any] | None:
+    if award_uid is None:
+        return None
+    try:
+        return load_award_rule_map().get(int(award_uid))
+    except (TypeError, ValueError):
+        return None
+
+
+def serialize_award_rule(award_uid: int | None) -> dict[str, Any] | None:
+    rule = find_award_rule(award_uid)
+    if not rule:
+        return None
+    return {
+        "award_uid": rule["award_uid"],
+        "category": rule.get("category"),
+        "sub_type": rule.get("sub_type"),
+        "rule_name": rule.get("rule_name"),
+        "rule_path": rule.get("rule_path"),
+        "score": rule.get("score"),
+        "max_score": rule.get("max_score"),
+    }
 
 
 def load_award_tree() -> list[dict[str, Any]]:

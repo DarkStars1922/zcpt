@@ -3,6 +3,7 @@ from sqlmodel import Session, select
 
 from app.core.award_catalog import load_award_tree
 from app.core.constants import EDITABLE_APPLICATION_STATUSES, REVIEWER_REVIEWABLE_STATUSES, ROLE_STUDENT
+from app.core.score_rules import SCORE_RULE_VERSION, is_valid_score_category
 from app.core.utils import utcnow
 from app.models.ai_audit_report import AIAuditReport
 from app.models.application import Application
@@ -14,7 +15,7 @@ from app.models.user import User
 from app.schemas.application import ApplicationCreateRequest, ApplicationUpdateRequest
 from app.services.errors import ServiceError
 from app.services.reviewer_scope_service import get_active_reviewer_class_ids
-from app.services.score_summary_service import get_student_actual_score_map
+from app.services.score_summary_service import get_student_score_summary, recalculate_student_score, serialize_score_summary
 from app.services.serializers import serialize_application, serialize_file
 from app.services.system_log_service import write_system_log
 from app.tasks.jobs import enqueue_ai_audit
@@ -26,6 +27,7 @@ def list_categories() -> list[dict]:
 
 def create_application(db: Session, user: User, payload: ApplicationCreateRequest) -> dict:
     _require_student(user)
+    _validate_score_category(payload.category, payload.sub_type)
     award = _get_award(db, payload.award_uid)
     item_score = _resolve_score(payload.score, award.max_score, award.score)
 
@@ -40,7 +42,7 @@ def create_application(db: Session, user: User, payload: ApplicationCreateReques
         status="pending_ai",
         item_score=item_score,
         total_score=item_score,
-        score_rule_version="v1",
+        score_rule_version=SCORE_RULE_VERSION,
         updated_at=utcnow(),
     )
     db.add(application)
@@ -109,7 +111,6 @@ def get_my_category_summary(db: Session, user: User, *, term: str | None) -> dic
         select(Application).where(Application.applicant_id == user.id, Application.is_deleted.is_(False))
     ).all()
     categories: dict[tuple[str, str], dict] = {}
-    total_score = 0.0
     for row in rows:
         key = (row.category, row.sub_type)
         entry = categories.setdefault(
@@ -127,21 +128,24 @@ def get_my_category_summary(db: Session, user: User, *, term: str | None) -> dic
         entry["count"] += 1
         is_archived_approved = row.status == "archived" and bool(row.actual_score_recorded)
         is_archived_rejected = row.status == "archived" and not bool(row.actual_score_recorded)
-        if row.status == "approved" or is_archived_approved:
+        if (row.status == "approved" and bool(row.actual_score_recorded)) or is_archived_approved:
             entry["approved"] += 1
-            entry["category_score"] += float(row.item_score or 0.0)
-            total_score += float(row.item_score or 0.0)
         elif row.status == "rejected" or is_archived_rejected:
             entry["rejected"] += 1
         else:
             entry["pending"] += 1
-    actual_score_map = get_student_actual_score_map(db, [user.id])
-    actual_score = float(actual_score_map.get(user.id, 0.0))
+    score_summary = serialize_score_summary(get_student_score_summary(db, user.id), student_id=user.id)
+    sub_scores = score_summary["sub_scores"]
+    for entry in categories.values():
+        entry["category_score"] = sub_scores.get(f"{entry['category']}_{entry['sub_type']}", 0.0)
     return {
         "term": term,
         "categories": list(categories.values()),
-        "total_score": round(total_score, 4),
-        "actual_score": round(actual_score, 4),
+        "total_score": score_summary["actual_score"],
+        "raw_total_score": score_summary["raw_total_score"],
+        "overflow_score": score_summary["overflow_score"],
+        "actual_score": score_summary["actual_score"],
+        "score_summary": score_summary,
     }
 
 
@@ -192,6 +196,7 @@ def update_application(db: Session, user: User, application_id: int, payload: Ap
     if payload.version is not None and payload.version != application.version:
         raise ServiceError("version conflict", 1007)
 
+    _validate_score_category(payload.category, payload.sub_type)
     award = _get_award(db, payload.award_uid)
     item_score = _resolve_score(payload.score, award.max_score, award.score)
 
@@ -270,7 +275,13 @@ def soft_delete_application(db: Session, user: User, application_id: int) -> Non
     application.is_deleted = True
     application.deleted_at = utcnow()
     application.version += 1
+    should_recalculate = bool(application.actual_score_recorded)
+    student_id = application.applicant_id
+    application.actual_score_recorded = False
     db.add(application)
+    if should_recalculate:
+        db.flush()
+        recalculate_student_score(db, student_id)
     db.commit()
     write_system_log(
         db,
@@ -342,6 +353,11 @@ def _resolve_score(score: float | None, max_score: float, default_score: float) 
     if score > max_score:
         raise ServiceError("score exceeds max_score", 1001)
     return float(score)
+
+
+def _validate_score_category(category: str, sub_type: str) -> None:
+    if not is_valid_score_category(category, sub_type):
+        raise ServiceError("invalid category/sub_type", 1001)
 
 
 def _require_student(user: User) -> None:

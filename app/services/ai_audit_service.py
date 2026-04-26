@@ -3,6 +3,7 @@ from pathlib import Path
 
 from sqlmodel import Session, select
 
+from app.core.award_catalog import find_award_rule
 from app.core.config import settings
 from app.core.constants import MANAGE_REVIEW_ROLES, ROLE_STUDENT
 from app.core.utils import json_dumps, utcnow
@@ -18,6 +19,8 @@ from app.services.file_analysis_service import analyze_file, get_file_analysis_p
 from app.services.reviewer_scope_service import get_active_reviewer_class_ids
 from app.services.serializers import serialize_ai_audit
 from app.services.system_log_service import write_system_log
+
+TITLE_HINTS = ("证书", "证明", "获奖", "奖", "竞赛", "荣誉", "表彰", "志愿", "创新", "一等奖", "二等奖", "三等奖")
 
 
 def get_ai_report(db: Session, user: User, application_id: int) -> dict:
@@ -121,11 +124,13 @@ def run_ai_audit(db: Session, application_id: int) -> None:
             combined_ocr_text = f"{application.title} {application.description}".strip()
 
         identity_check = _build_identity_check(applicant, attachment_analysis)
-        consistency_check = _build_consistency_check(application, award, attachment_analysis)
+        consistency_check = _build_consistency_check(application, award, attachment_analysis, applicant=applicant)
         risk_points.extend(consistency_check["critical_risks"])
         warning_points.extend(consistency_check["warning_risks"])
         if identity_check["status"] == "mismatch":
             warning_points.append("附件未识别到申请人姓名")
+            result = "abnormal"
+            next_status = "ai_abnormal"
         if consistency_check["payload"]["title_check"]["status"] == "mismatch":
             result = "abnormal"
             next_status = "ai_abnormal"
@@ -140,16 +145,7 @@ def run_ai_audit(db: Session, application_id: int) -> None:
         report.identity_check_json = json_dumps(identity_check)
         report.consistency_check_json = json_dumps(consistency_check["payload"])
         report.risk_points_json = json_dumps(risk_points + warning_points)
-        report.score_breakdown_json = json_dumps(
-            [
-                {
-                    "rule_code": "R_AWARD_UID",
-                    "rule_name": f"奖项 {application.award_uid}",
-                    "score": application.item_score,
-                    "max_score": award.max_score if award else application.item_score,
-                }
-            ]
-        )
+        report.score_breakdown_json = json_dumps(_build_score_breakdown(application, award))
         report.item_score = application.item_score
         report.total_score = application.total_score
         report.error_message = None
@@ -190,8 +186,10 @@ def run_ai_audit(db: Session, application_id: int) -> None:
 
 def _build_identity_check(applicant: User | None, attachment_analysis: list[dict]) -> dict:
     expected_name = applicant.name if applicant else None
+    expected_candidates = [value for value in (applicant.name if applicant else None, applicant.account if applicant else None) if value]
     file_checks = []
     matched_fields = []
+    recognized_name_candidates = []
     any_completed = False
     any_match = False
     for item in attachment_analysis:
@@ -204,46 +202,88 @@ def _build_identity_check(applicant: User | None, attachment_analysis: list[dict
         if matched:
             any_match = True
             matched_fields.append(item["file_id"])
+        for candidate in name_check.get("recognized_name_candidates", []):
+            if candidate not in recognized_name_candidates:
+                recognized_name_candidates.append(candidate)
         file_checks.append(
             {
                 "file_id": item["file_id"],
                 "filename": item["filename"],
                 "matched": name_check.get("matched"),
                 "matches": name_check.get("matches", []),
+                "expected_candidates": name_check.get("expected_candidates", []),
+                "recognized_name_candidates": name_check.get("recognized_name_candidates", []),
+                "matched_page_indexes": name_check.get("matched_page_indexes", []),
                 "status": analysis.status if analysis else "missing",
             }
         )
     status = "matched" if any_match else "mismatch" if any_completed else "unknown"
     return {
         "expected_name": expected_name,
+        "expected_candidates": expected_candidates,
         "matched": any_match,
         "status": status,
         "matched_fields": matched_fields,
+        "recognized_name_candidates": recognized_name_candidates,
         "files": file_checks,
     }
 
 
-def _build_consistency_check(application: Application, award: AwardDict | None, attachment_analysis: list[dict]) -> dict:
+def _build_consistency_check(
+    application: Application,
+    award: AwardDict | None,
+    attachment_analysis: list[dict],
+    *,
+    applicant: User | None,
+) -> dict:
+    participation_only = _uses_participation_light_check(application, award)
     document_titles = []
+    ocr_texts = []
     recognized_levels = []
     seal_detected = False
     signature_detected = False
     file_checks = []
     any_completed = False
+    applicant_page_indexes_by_file: dict[str, list[int]] = {}
+    located_applicant_page = False
 
     for item in attachment_analysis:
         analysis = item["analysis"]
         payload = item["payload"]
         if analysis and analysis.status == "completed":
             any_completed = True
-        document_title = payload.get("document_title")
-        if document_title:
-            document_titles.append(document_title)
-        for level in payload.get("recognized_levels", []):
-            if level not in recognized_levels:
-                recognized_levels.append(level)
-        seal_detected = seal_detected or bool(payload.get("seal", {}).get("detected"))
-        signature_detected = signature_detected or bool(payload.get("signature", {}).get("detected"))
+        selected_pages = _select_applicant_pages(payload, applicant)
+        selected_page_indexes = [page["page_index"] for page in selected_pages]
+        if selected_page_indexes:
+            located_applicant_page = True
+        applicant_page_indexes_by_file[item["file_id"]] = selected_page_indexes
+
+        content_pages = selected_pages or _all_payload_pages(payload)
+        content_page_index_set = {page["page_index"] for page in content_pages}
+        if content_pages:
+            for page in content_pages:
+                page_text = page["text"]
+                if page_text:
+                    ocr_texts.append(page_text)
+                document_title = _extract_document_title_from_text(page_text, item["filename"])
+                if document_title:
+                    document_titles.append(document_title)
+                for level in _extract_levels(page_text, document_title):
+                    if level not in recognized_levels:
+                        recognized_levels.append(level)
+            seal_detected = seal_detected or _page_item_detected(payload.get("seal", {}), content_page_index_set)
+            signature_detected = signature_detected or _page_item_detected(payload.get("signature", {}), content_page_index_set)
+        else:
+            document_title = payload.get("document_title")
+            if document_title:
+                document_titles.append(document_title)
+            if analysis and analysis.status == "completed" and analysis.ocr_text:
+                ocr_texts.append(analysis.ocr_text)
+            for level in payload.get("recognized_levels", []):
+                if level not in recognized_levels:
+                    recognized_levels.append(level)
+            seal_detected = seal_detected or bool(payload.get("seal", {}).get("detected"))
+            signature_detected = signature_detected or bool(payload.get("signature", {}).get("detected"))
         filename_similarity = _text_similarity(Path(item["filename"]).stem, application.title)
         file_checks.append(
             {
@@ -251,14 +291,21 @@ def _build_consistency_check(application: Application, award: AwardDict | None, 
                 "filename": item["filename"],
                 "matched": filename_similarity >= 0.62,
                 "similarity": filename_similarity,
+                "matched_page_indexes": selected_page_indexes,
             }
         )
 
+    combined_ocr_text = "\n".join(ocr_texts)
+    title_full_text_hit = _contains_normalized(combined_ocr_text, application.title)
     title_score = max((_text_similarity(title, application.title) for title in document_titles), default=0.0)
-    title_status = "matched" if title_score >= 0.72 else "mismatch" if document_titles else "unknown"
+    if title_full_text_hit:
+        title_score = max(title_score, 1.0)
+    title_status = "matched" if title_score >= 0.72 else "mismatch" if document_titles or ocr_texts else "unknown"
 
     expected_levels = _extract_levels(application.title, application.description, award.award_name if award else "")
-    if expected_levels and recognized_levels:
+    if participation_only:
+        level_status = "skipped"
+    elif expected_levels and recognized_levels:
         level_status = "matched" if set(expected_levels) & set(recognized_levels) else "mismatch"
     elif expected_levels:
         level_status = "unknown"
@@ -266,11 +313,15 @@ def _build_consistency_check(application: Application, award: AwardDict | None, 
         level_status = "matched"
 
     filename_status = "matched" if any(item["matched"] for item in file_checks) else "mismatch" if file_checks else "unknown"
-    seal_status = "matched" if seal_detected else "mismatch" if any_completed else "unknown"
-    signature_status = "matched" if signature_detected else "mismatch" if any_completed else "unknown"
+    seal_status = "skipped" if participation_only else "matched" if seal_detected else "mismatch" if any_completed else "unknown"
+    signature_status = (
+        "skipped" if participation_only else "matched" if signature_detected else "mismatch" if any_completed else "unknown"
+    )
 
     critical_risks = []
     warning_risks = []
+    if _has_identity_candidates(applicant) and any_completed and not located_applicant_page:
+        warning_risks.append("未定位到包含申请人的证书页")
     if title_status == "mismatch":
         critical_risks.append("附件 OCR 内容与申报标题不一致")
     if level_status == "mismatch":
@@ -283,6 +334,8 @@ def _build_consistency_check(application: Application, award: AwardDict | None, 
         warning_risks.append("未提取到落款或签字区域")
 
     payload = {
+        "audit_mode": "participation_only" if participation_only else "standard",
+        "applicant_page_indexes_by_file": applicant_page_indexes_by_file,
         "matched": not critical_risks,
         "diff": critical_risks + warning_risks,
         "title_check": {
@@ -290,6 +343,7 @@ def _build_consistency_check(application: Application, award: AwardDict | None, 
             "expected": application.title,
             "recognized_titles": document_titles,
             "best_similarity": title_score,
+            "full_text_hit": title_full_text_hit,
         },
         "level_check": {
             "status": level_status,
@@ -317,6 +371,203 @@ def _build_consistency_check(application: Application, award: AwardDict | None, 
     }
 
 
+def _uses_participation_light_check(application: Application, award: AwardDict | None) -> bool:
+    rule = find_award_rule(application.award_uid)
+    texts = [
+        application.title,
+        application.description,
+        award.award_name if award else "",
+        rule.get("rule_name") if rule else "",
+        rule.get("rule_path") if rule else "",
+    ]
+    haystack = "\n".join(filter(None, texts))
+    return "参与未获奖" in haystack or ("参与" in haystack and "未获奖" in haystack)
+
+
+def _select_applicant_pages(payload: dict, applicant: User | None) -> list[dict]:
+    pages = payload.get("pages") or []
+    if not isinstance(pages, list):
+        return []
+    candidates = _identity_candidates(applicant)
+    selected = []
+    for fallback_index, page in enumerate(pages):
+        if not isinstance(page, dict):
+            continue
+        page_text = _page_text(page)
+        page_index = _page_index(page, fallback_index)
+        if not candidates:
+            selected.append({"page_index": page_index, "text": page_text})
+            continue
+        normalized_page_text = _normalize_text(page_text)
+        if not any(candidate in normalized_page_text for candidate in candidates):
+            continue
+        selected.append(
+            {
+                "page_index": page_index,
+                "text": _applicant_context_text(page, candidates) or page_text,
+            }
+        )
+    return selected
+
+
+def _all_payload_pages(payload: dict) -> list[dict]:
+    pages = payload.get("pages") or []
+    if not isinstance(pages, list):
+        return []
+    selected = []
+    for fallback_index, page in enumerate(pages):
+        if not isinstance(page, dict):
+            continue
+        selected.append({"page_index": _page_index(page, fallback_index), "text": _page_text(page)})
+    return selected
+
+
+def _identity_candidates(applicant: User | None) -> list[str]:
+    if not applicant:
+        return []
+    raw_candidates = [applicant.name, applicant.account]
+    return [normalized for value in raw_candidates if (normalized := _normalize_text(value or ""))]
+
+
+def _has_identity_candidates(applicant: User | None) -> bool:
+    return bool(_identity_candidates(applicant))
+
+
+def _page_text(page: dict) -> str:
+    text = page.get("text")
+    if isinstance(text, str) and text.strip():
+        return text.strip()
+    return "\n".join(line.get("text") or "" for line in page.get("lines", []) if isinstance(line, dict)).strip()
+
+
+def _page_index(page: dict, fallback_index: int) -> int:
+    try:
+        return int(page.get("page_index", fallback_index))
+    except (TypeError, ValueError):
+        return fallback_index
+
+
+def _applicant_context_text(page: dict, normalized_candidates: list[str]) -> str:
+    lines = [line for line in page.get("lines", []) if isinstance(line, dict) and (line.get("text") or "").strip()]
+    matched_rects = []
+    for line in lines:
+        normalized_line = _normalize_text(line.get("text") or "")
+        if any(candidate in normalized_line for candidate in normalized_candidates):
+            rect = _box_to_rect(line.get("box"))
+            if rect:
+                matched_rects.append(rect)
+
+    if matched_rects:
+        page_height = float(page.get("height") or 0.0)
+        if page_height <= 0:
+            page_height = max(((_box_to_rect(line.get("box")) or [0, 0, 0, 0])[3] for line in lines), default=0.0)
+        vertical_band = max(260.0, page_height * 0.28) if page_height > 0 else 320.0
+        selected_lines = []
+        for line in lines:
+            rect = _box_to_rect(line.get("box"))
+            if not rect:
+                continue
+            line_center = (rect[1] + rect[3]) / 2
+            if any(abs(line_center - ((matched[1] + matched[3]) / 2)) <= vertical_band for matched in matched_rects):
+                selected_lines.append(line.get("text") or "")
+        if selected_lines:
+            return "\n".join(selected_lines).strip()
+
+    page_text = _page_text(page)
+    normalized_page = _normalize_text(page_text)
+    for candidate in normalized_candidates:
+        index = normalized_page.find(candidate)
+        if index >= 0:
+            return _text_window_around_candidate(page_text, candidate)
+    return page_text
+
+
+def _text_window_around_candidate(text: str, normalized_candidate: str) -> str:
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    for index, line in enumerate(lines):
+        if normalized_candidate in _normalize_text(line):
+            start = max(0, index - 8)
+            end = min(len(lines), index + 9)
+            return "\n".join(lines[start:end]).strip()
+    return text
+
+
+def _extract_document_title_from_text(text: str, fallback_filename: str) -> str:
+    candidates: list[tuple[int, int, str]] = []
+    for index, line in enumerate([item.strip() for item in text.splitlines() if item.strip()][:10]):
+        if len(line) < 4:
+            continue
+        score = min(len(line), 30)
+        if any(hint in line for hint in TITLE_HINTS):
+            score += 40
+        if any(char.isdigit() for char in line):
+            score -= 18
+        score -= index * 5
+        candidates.append((score, index, line))
+    if candidates:
+        candidates.sort(key=lambda item: (-item[0], item[1]))
+        return candidates[0][2]
+    return Path(fallback_filename).stem
+
+
+def _page_item_detected(payload: dict, page_indexes: set[int]) -> bool:
+    if not page_indexes:
+        return False
+    for item in payload.get("items", []):
+        try:
+            item_page_index = int(item.get("page_index"))
+        except (TypeError, ValueError):
+            continue
+        if item_page_index in page_indexes:
+            return True
+    return False
+
+
+def _box_to_rect(box) -> list[float] | None:
+    if not box:
+        return None
+    if isinstance(box, list) and len(box) == 4 and all(isinstance(item, (int, float)) for item in box):
+        return [float(box[0]), float(box[1]), float(box[2]), float(box[3])]
+    if isinstance(box, list):
+        xs = []
+        ys = []
+        for point in box:
+            if isinstance(point, list) and len(point) >= 2:
+                xs.append(float(point[0]))
+                ys.append(float(point[1]))
+        if xs and ys:
+            return [min(xs), min(ys), max(xs), max(ys)]
+    return None
+
+
+def _build_score_breakdown(application: Application, award: AwardDict | None) -> list[dict]:
+    rule = find_award_rule(application.award_uid)
+    rule_name = None
+    if rule:
+        rule_name = rule.get("rule_name") or rule.get("rule_path")
+    if not rule_name and award:
+        rule_name = award.award_name
+    if not rule_name:
+        rule_name = f"奖项 {application.award_uid}"
+
+    max_score = application.item_score
+    if rule and rule.get("max_score") is not None:
+        max_score = rule["max_score"]
+    elif award:
+        max_score = award.max_score
+
+    return [
+        {
+            "rule_code": f"AWARD_UID_{application.award_uid}",
+            "rule_name": rule_name,
+            "category": rule.get("category") if rule else application.category,
+            "sub_type": rule.get("sub_type") if rule else application.sub_type,
+            "score": application.item_score,
+            "max_score": max_score,
+        }
+    ]
+
+
 def _extract_levels(*texts: str) -> list[str]:
     keywords = []
     haystack = "\n".join(filter(None, texts))
@@ -334,6 +585,12 @@ def _text_similarity(left: str, right: str) -> float:
     if normalized_left in normalized_right or normalized_right in normalized_left:
         return 1.0
     return round(SequenceMatcher(None, normalized_left, normalized_right).ratio(), 4)
+
+
+def _contains_normalized(left: str, right: str) -> bool:
+    normalized_left = _normalize_text(left)
+    normalized_right = _normalize_text(right)
+    return bool(normalized_left and normalized_right and normalized_right in normalized_left)
 
 
 def _normalize_text(value: str) -> str:

@@ -3,10 +3,10 @@ from collections import defaultdict
 from sqlalchemy import func, or_
 from sqlmodel import Session, select
 
+from app.core.award_catalog import serialize_award_rule
 from app.core.constants import (
     CLASS_GRADE_MAP,
     MANAGE_REVIEW_ROLES,
-    SCORE_INCLUDED_STATUSES,
     TEACHER_RECHECKABLE_STATUSES,
 )
 from app.core.utils import utcnow
@@ -16,7 +16,13 @@ from app.models.user import User
 from app.schemas.review import TeacherRecheckRequest
 from app.services.errors import ServiceError
 from app.services.notification_service import enqueue_reject_email_for_application
-from app.services.score_summary_service import add_student_actual_score, get_student_actual_score_map
+from app.services.score_summary_service import (
+    get_student_score_summary_map,
+    mark_application_archived_score_recorded,
+    mark_application_score_recorded,
+    recalculate_student_score,
+    serialize_score_summary,
+)
 from app.services.system_log_service import write_system_log
 
 PENDING_STATUSES = {"pending_ai", "pending_review", "ai_abnormal"}
@@ -57,6 +63,7 @@ def list_teacher_applications(
     rows = db.exec(stmt.order_by(Application.updated_at.desc()).offset((page - 1) * size).limit(size)).all()
     data = []
     for application, student in rows:
+        award_rule = serialize_award_rule(application.award_uid)
         data.append(
             {
                 "application_id": application.id,
@@ -66,9 +73,12 @@ def list_teacher_applications(
                 "student_account": student.account,
                 "student_name": student.name,
                 "title": application.title,
+                "award_uid": application.award_uid,
+                "award_rule": award_rule,
+                "award_rule_name": award_rule["rule_name"] if award_rule else None,
                 "category": application.category,
                 "sub_type": application.sub_type,
-                "project": f"{application.category} / {application.sub_type}",
+                "project": award_rule["rule_name"] if award_rule else f"{application.category} / {application.sub_type}",
                 "description": application.description,
                 "status": application.status,
                 "score": application.item_score,
@@ -90,6 +100,7 @@ def recheck_application(db: Session, user: User, application_id: int, payload: T
 
     student = db.get(User, application.applicant_id)
     application.status = "approved" if payload.decision == "approved" else "rejected"
+    mark_application_score_recorded(application)
     application.comment = payload.comment
     if payload.score is not None:
         application.item_score = payload.score
@@ -107,6 +118,8 @@ def recheck_application(db: Session, user: User, application_id: int, payload: T
         comment=payload.comment,
     )
     db.add(record)
+    db.flush()
+    recalculate_student_score(db, application.applicant_id)
     db.commit()
     if application.status == "rejected" and student and student.email:
         enqueue_reject_email_for_application(db, actor=user, application=application, to_email=student.email)
@@ -143,15 +156,14 @@ def archive_applications(db: Session, user: User, application_ids: list[int]) ->
             skipped.append({"application_id": application_id, "reason": "invalid_status"})
             continue
 
-        # Scheme-2 actual score: only approved items contribute when first archived.
-        if application.status == "approved" and not application.actual_score_recorded:
-            add_student_actual_score(db, application.applicant_id, float(application.item_score or 0.0))
-            application.actual_score_recorded = True
-
+        previous_status = application.status
+        mark_application_archived_score_recorded(application, previous_status)
         application.status = "archived"
         application.updated_at = utcnow()
         application.version += 1
         db.add(application)
+        if previous_status == "approved":
+            recalculate_student_score(db, application.applicant_id)
         archived.append(application_id)
     db.commit()
     write_system_log(
@@ -187,18 +199,21 @@ def get_statistics(db: Session, user: User, *, grade: int | None, class_id: int 
     )["list"]
     by_status = defaultdict(int)
     by_category = defaultdict(int)
-    total_score = 0.0
+    student_ids = []
     for row in rows:
         by_status[row["status"]] += 1
         by_category[row["category"]] += 1
-        if row["status"] in SCORE_INCLUDED_STATUSES:
-            total_score += float(row["score"] or 0.0)
+        student_ids.append(row["student_id"])
+    score_summary_map = get_student_score_summary_map(db, student_ids)
+    unique_student_ids = list(dict.fromkeys(student_ids))
+    total_score = sum(float(score_summary_map.get(student_id).actual_score or 0.0) for student_id in unique_student_ids if score_summary_map.get(student_id))
     return {
         "total_count": len(rows),
+        "student_count": len(unique_student_ids),
         "status_summary": dict(by_status),
         "category_summary": dict(by_category),
         "total_score": round(total_score, 4),
-        "average_score": round(total_score / len(rows), 4) if rows else 0.0,
+        "average_score": round(total_score / len(unique_student_ids), 4) if unique_student_ids else 0.0,
     }
 
 
@@ -217,6 +232,7 @@ def get_class_statistics(db: Session, user: User, *, grade: int | None, class_id
         size=10000,
     )["list"]
     summary: dict[int, dict] = {}
+    class_student_ids: dict[int, set[int]] = defaultdict(set)
     for row in rows:
         cid = row["class_id"]
         if cid not in summary:
@@ -229,22 +245,28 @@ def get_class_statistics(db: Session, user: User, *, grade: int | None, class_id
                 "total_score": 0.0,
             }
         item = summary[cid]
+        class_student_ids[cid].add(row["student_id"])
         item["total_count"] += 1
-        if row["status"] in SCORE_INCLUDED_STATUSES:
-            item["total_score"] += float(row["score"] or 0.0)
         if row["status"] == "rejected":
             item["rejected_count"] += 1
         if row["status"] in PENDING_STATUSES:
             item["pending_count"] += 1
 
+    score_summary_map = get_student_score_summary_map(db, [row["student_id"] for row in rows])
     result = []
     for item in summary.values():
-        count = item["total_count"]
+        student_ids = class_student_ids.get(item["class_id"], set())
+        total_score = sum(
+            float(score_summary_map.get(student_id).actual_score or 0.0)
+            for student_id in student_ids
+            if score_summary_map.get(student_id)
+        )
         result.append(
             {
                 **item,
-                "average_score": round(item["total_score"] / count, 4) if count else 0.0,
-                "total_score": round(item["total_score"], 4),
+                "student_count": len(student_ids),
+                "average_score": round(total_score / len(student_ids), 4) if student_ids else 0.0,
+                "total_score": round(total_score, 4),
             }
         )
     result.sort(key=lambda item: (item["grade"] or 0, item["class_id"] or 0))
@@ -282,24 +304,26 @@ def get_student_statistics(db: Session, user: User, *, grade: int | None, class_
             }
         item = summary[student_id]
         item["total_count"] += 1
-        if row["status"] in SCORE_INCLUDED_STATUSES:
-            item["total_score"] += float(row["score"] or 0.0)
         if row["status"] == "rejected":
             item["rejected_count"] += 1
         if row["status"] in PENDING_STATUSES:
             item["pending_count"] += 1
 
-    actual_score_map = get_student_actual_score_map(db, list(summary.keys()))
+    score_summary_map = get_student_score_summary_map(db, list(summary.keys()))
 
     result = []
     for item in summary.values():
         total_count = int(item["total_count"] or 0)
+        score_summary = serialize_score_summary(score_summary_map.get(item["student_id"]), student_id=item["student_id"])
         result.append(
             {
                 **item,
-                "total_score": round(item["total_score"], 4),
-                "average_score": round(item["total_score"] / total_count, 4) if total_count else 0.0,
-                "actual_score": round(float(actual_score_map.get(item["student_id"], 0.0)), 4),
+                "total_score": score_summary["actual_score"],
+                "raw_total_score": score_summary["raw_total_score"],
+                "overflow_score": score_summary["overflow_score"],
+                "average_score": round(score_summary["actual_score"] / total_count, 4) if total_count else 0.0,
+                "actual_score": score_summary["actual_score"],
+                "score_summary": score_summary,
             }
         )
     result.sort(key=lambda item: (item["grade"] or 0, item["class_id"] or 0, item["student_account"] or ""))

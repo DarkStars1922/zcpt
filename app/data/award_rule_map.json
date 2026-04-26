@@ -1,0 +1,5441 @@
+{
+  "1": {
+    "award_uid": 1,
+    "category": "physical_mental",
+    "sub_type": "basic",
+    "rule_name": "体质测试",
+    "rule_path": "身心素养 / 基础性评价 / 体质测试",
+    "id_path": [
+      "physical_mental",
+      "basic",
+      "1"
+    ],
+    "score": 5,
+    "max_score": 5
+  },
+  "2": {
+    "award_uid": 2,
+    "category": "physical_mental",
+    "sub_type": "basic",
+    "rule_name": "体育类集体活动",
+    "rule_path": "身心素养 / 基础性评价 / 体育类集体活动",
+    "id_path": [
+      "physical_mental",
+      "basic",
+      "2"
+    ],
+    "score": 2,
+    "max_score": 2
+  },
+  "3": {
+    "award_uid": 3,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 个人项目 / 国家级",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 个人项目 / 国家级",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "personal_project",
+      "3"
+    ],
+    "score": 6,
+    "max_score": 6
+  },
+  "4": {
+    "award_uid": 4,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 个人项目 / 省级 / 第一名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 个人项目 / 省级 / 第一名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "personal_project",
+      "provincial",
+      "4"
+    ],
+    "score": 6,
+    "max_score": 6
+  },
+  "5": {
+    "award_uid": 5,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 个人项目 / 省级 / 第二名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 个人项目 / 省级 / 第二名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "personal_project",
+      "provincial",
+      "5"
+    ],
+    "score": 5.25,
+    "max_score": 5.25
+  },
+  "6": {
+    "award_uid": 6,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 个人项目 / 省级 / 第三名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 个人项目 / 省级 / 第三名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "personal_project",
+      "provincial",
+      "6"
+    ],
+    "score": 4.5,
+    "max_score": 4.5
+  },
+  "7": {
+    "award_uid": 7,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 个人项目 / 省级 / 其它名次",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 个人项目 / 省级 / 其它名次",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "personal_project",
+      "provincial",
+      "7"
+    ],
+    "score": 3.75,
+    "max_score": 3.75
+  },
+  "8": {
+    "award_uid": 8,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 个人项目 / 校级/校区级 / 第一名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 个人项目 / 校级/校区级 / 第一名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "personal_project",
+      "university_level",
+      "8"
+    ],
+    "score": 4.5,
+    "max_score": 4.5
+  },
+  "9": {
+    "award_uid": 9,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 个人项目 / 校级/校区级 / 第二名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 个人项目 / 校级/校区级 / 第二名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "personal_project",
+      "university_level",
+      "9"
+    ],
+    "score": 3.75,
+    "max_score": 3.75
+  },
+  "10": {
+    "award_uid": 10,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 个人项目 / 校级/校区级 / 第三名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 个人项目 / 校级/校区级 / 第三名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "personal_project",
+      "university_level",
+      "10"
+    ],
+    "score": 3,
+    "max_score": 3
+  },
+  "11": {
+    "award_uid": 11,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 个人项目 / 校级/校区级 / 其它名次",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 个人项目 / 校级/校区级 / 其它名次",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "personal_project",
+      "university_level",
+      "11"
+    ],
+    "score": 2.25,
+    "max_score": 2.25
+  },
+  "12": {
+    "award_uid": 12,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 个人项目 / 院级/书院级 / 第一名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 个人项目 / 院级/书院级 / 第一名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "personal_project",
+      "department_level",
+      "12"
+    ],
+    "score": 2.25,
+    "max_score": 2.25
+  },
+  "13": {
+    "award_uid": 13,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 个人项目 / 院级/书院级 / 第二名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 个人项目 / 院级/书院级 / 第二名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "personal_project",
+      "department_level",
+      "13"
+    ],
+    "score": 1.5,
+    "max_score": 1.5
+  },
+  "14": {
+    "award_uid": 14,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 个人项目 / 院级/书院级 / 第三名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 个人项目 / 院级/书院级 / 第三名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "personal_project",
+      "department_level",
+      "14"
+    ],
+    "score": 0.75,
+    "max_score": 0.75
+  },
+  "15": {
+    "award_uid": 15,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 个人项目 / 院级/书院级 / 其它名次",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 个人项目 / 院级/书院级 / 其它名次",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "personal_project",
+      "department_level",
+      "15"
+    ],
+    "score": 0.375,
+    "max_score": 0.375
+  },
+  "16": {
+    "award_uid": 16,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 个人项目 / 参与未获奖",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 个人项目 / 参与未获奖",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "personal_project",
+      "16"
+    ],
+    "score": 0.3,
+    "max_score": 0.3
+  },
+  "17": {
+    "award_uid": 17,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 集体项目 / 国家级",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 集体项目 / 国家级",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "group_project",
+      "17"
+    ],
+    "score": 6,
+    "max_score": 6
+  },
+  "18": {
+    "award_uid": 18,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 集体项目 / 省级 / 第一名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 集体项目 / 省级 / 第一名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "group_project",
+      "provincial",
+      "18"
+    ],
+    "score": 6,
+    "max_score": 6
+  },
+  "19": {
+    "award_uid": 19,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 集体项目 / 省级 / 第二名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 集体项目 / 省级 / 第二名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "group_project",
+      "provincial",
+      "19"
+    ],
+    "score": 5.25,
+    "max_score": 5.25
+  },
+  "20": {
+    "award_uid": 20,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 集体项目 / 省级 / 第三名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 集体项目 / 省级 / 第三名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "group_project",
+      "provincial",
+      "20"
+    ],
+    "score": 4.5,
+    "max_score": 4.5
+  },
+  "21": {
+    "award_uid": 21,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 集体项目 / 省级 / 其它名次",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 集体项目 / 省级 / 其它名次",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "group_project",
+      "provincial",
+      "21"
+    ],
+    "score": 3.75,
+    "max_score": 3.75
+  },
+  "22": {
+    "award_uid": 22,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 集体项目 / 校级/校区级 / 第一名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 集体项目 / 校级/校区级 / 第一名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "group_project",
+      "university_level",
+      "22"
+    ],
+    "score": 5.25,
+    "max_score": 5.25
+  },
+  "23": {
+    "award_uid": 23,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 集体项目 / 校级/校区级 / 第二名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 集体项目 / 校级/校区级 / 第二名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "group_project",
+      "university_level",
+      "23"
+    ],
+    "score": 4.5,
+    "max_score": 4.5
+  },
+  "24": {
+    "award_uid": 24,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 集体项目 / 校级/校区级 / 第三名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 集体项目 / 校级/校区级 / 第三名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "group_project",
+      "university_level",
+      "24"
+    ],
+    "score": 3.75,
+    "max_score": 3.75
+  },
+  "25": {
+    "award_uid": 25,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 集体项目 / 校级/校区级 / 其它名次",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 集体项目 / 校级/校区级 / 其它名次",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "group_project",
+      "university_level",
+      "25"
+    ],
+    "score": 3,
+    "max_score": 3
+  },
+  "26": {
+    "award_uid": 26,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 集体项目 / 院级/书院级 / 第一名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 集体项目 / 院级/书院级 / 第一名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "group_project",
+      "department_level",
+      "26"
+    ],
+    "score": 3,
+    "max_score": 3
+  },
+  "27": {
+    "award_uid": 27,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 集体项目 / 院级/书院级 / 第二名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 集体项目 / 院级/书院级 / 第二名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "group_project",
+      "department_level",
+      "27"
+    ],
+    "score": 2.25,
+    "max_score": 2.25
+  },
+  "28": {
+    "award_uid": 28,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 集体项目 / 院级/书院级 / 第三名",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 集体项目 / 院级/书院级 / 第三名",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "group_project",
+      "department_level",
+      "28"
+    ],
+    "score": 1.5,
+    "max_score": 1.5
+  },
+  "29": {
+    "award_uid": 29,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 集体项目 / 院级/书院级 / 其它名次",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 集体项目 / 院级/书院级 / 其它名次",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "group_project",
+      "department_level",
+      "29"
+    ],
+    "score": 0.75,
+    "max_score": 0.75
+  },
+  "30": {
+    "award_uid": 30,
+    "category": "physical_mental",
+    "sub_type": "achievement",
+    "rule_name": "体育竞赛 / 集体项目 / 参与未获奖",
+    "rule_path": "身心素养 / 成果性评价 / 体育竞赛 / 集体项目 / 参与未获奖",
+    "id_path": [
+      "physical_mental",
+      "achievement",
+      "sports_competition",
+      "group_project",
+      "30"
+    ],
+    "score": 0.3,
+    "max_score": 0.3
+  },
+  "31": {
+    "award_uid": 31,
+    "category": "art",
+    "sub_type": "basic",
+    "rule_name": "艺术类活动",
+    "rule_path": "文艺素养 / 基础性评价 / 艺术类活动",
+    "id_path": [
+      "art",
+      "basic",
+      "31"
+    ],
+    "score": 1.5,
+    "max_score": 1.5
+  },
+  "32": {
+    "award_uid": 32,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 个人项目 / 国家级",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 个人项目 / 国家级",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "personal_project",
+      "32"
+    ],
+    "score": 6,
+    "max_score": 6
+  },
+  "33": {
+    "award_uid": 33,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 个人项目 / 省级 / 第一名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 个人项目 / 省级 / 第一名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "personal_project",
+      "provincial",
+      "33"
+    ],
+    "score": 6,
+    "max_score": 6
+  },
+  "34": {
+    "award_uid": 34,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 个人项目 / 省级 / 第二名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 个人项目 / 省级 / 第二名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "personal_project",
+      "provincial",
+      "34"
+    ],
+    "score": 5.25,
+    "max_score": 5.25
+  },
+  "35": {
+    "award_uid": 35,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 个人项目 / 省级 / 第三名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 个人项目 / 省级 / 第三名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "personal_project",
+      "provincial",
+      "35"
+    ],
+    "score": 4.5,
+    "max_score": 4.5
+  },
+  "36": {
+    "award_uid": 36,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 个人项目 / 省级 / 其它名次",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 个人项目 / 省级 / 其它名次",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "personal_project",
+      "provincial",
+      "36"
+    ],
+    "score": 3.75,
+    "max_score": 3.75
+  },
+  "37": {
+    "award_uid": 37,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 个人项目 / 校级/校区级 / 第一名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 个人项目 / 校级/校区级 / 第一名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "personal_project",
+      "university_level",
+      "37"
+    ],
+    "score": 4.5,
+    "max_score": 4.5
+  },
+  "38": {
+    "award_uid": 38,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 个人项目 / 校级/校区级 / 第二名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 个人项目 / 校级/校区级 / 第二名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "personal_project",
+      "university_level",
+      "38"
+    ],
+    "score": 3.75,
+    "max_score": 3.75
+  },
+  "39": {
+    "award_uid": 39,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 个人项目 / 校级/校区级 / 第三名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 个人项目 / 校级/校区级 / 第三名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "personal_project",
+      "university_level",
+      "39"
+    ],
+    "score": 3,
+    "max_score": 3
+  },
+  "40": {
+    "award_uid": 40,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 个人项目 / 校级/校区级 / 其它名次",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 个人项目 / 校级/校区级 / 其它名次",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "personal_project",
+      "university_level",
+      "40"
+    ],
+    "score": 2.25,
+    "max_score": 2.25
+  },
+  "41": {
+    "award_uid": 41,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 个人项目 / 院级/书院级 / 第一名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 个人项目 / 院级/书院级 / 第一名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "personal_project",
+      "department_level",
+      "41"
+    ],
+    "score": 2.25,
+    "max_score": 2.25
+  },
+  "42": {
+    "award_uid": 42,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 个人项目 / 院级/书院级 / 第二名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 个人项目 / 院级/书院级 / 第二名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "personal_project",
+      "department_level",
+      "42"
+    ],
+    "score": 1.5,
+    "max_score": 1.5
+  },
+  "43": {
+    "award_uid": 43,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 个人项目 / 院级/书院级 / 第三名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 个人项目 / 院级/书院级 / 第三名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "personal_project",
+      "department_level",
+      "43"
+    ],
+    "score": 0.75,
+    "max_score": 0.75
+  },
+  "44": {
+    "award_uid": 44,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 个人项目 / 院级/书院级 / 其它名次",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 个人项目 / 院级/书院级 / 其它名次",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "personal_project",
+      "department_level",
+      "44"
+    ],
+    "score": 0.375,
+    "max_score": 0.375
+  },
+  "45": {
+    "award_uid": 45,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 个人项目 / 参与未获奖",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 个人项目 / 参与未获奖",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "personal_project",
+      "45"
+    ],
+    "score": 0.3,
+    "max_score": 0.3
+  },
+  "46": {
+    "award_uid": 46,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 集体项目 / 国家级",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 集体项目 / 国家级",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "group_project",
+      "46"
+    ],
+    "score": 6,
+    "max_score": 6
+  },
+  "47": {
+    "award_uid": 47,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 集体项目 / 省级 / 第一名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 集体项目 / 省级 / 第一名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "group_project",
+      "provincial",
+      "47"
+    ],
+    "score": 6,
+    "max_score": 6
+  },
+  "48": {
+    "award_uid": 48,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 集体项目 / 省级 / 第二名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 集体项目 / 省级 / 第二名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "group_project",
+      "provincial",
+      "48"
+    ],
+    "score": 5.25,
+    "max_score": 5.25
+  },
+  "49": {
+    "award_uid": 49,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 集体项目 / 省级 / 第三名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 集体项目 / 省级 / 第三名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "group_project",
+      "provincial",
+      "49"
+    ],
+    "score": 4.5,
+    "max_score": 4.5
+  },
+  "50": {
+    "award_uid": 50,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 集体项目 / 省级 / 其它名次",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 集体项目 / 省级 / 其它名次",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "group_project",
+      "provincial",
+      "50"
+    ],
+    "score": 3.75,
+    "max_score": 3.75
+  },
+  "51": {
+    "award_uid": 51,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 集体项目 / 校级/校区级 / 第一名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 集体项目 / 校级/校区级 / 第一名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "group_project",
+      "university_level",
+      "51"
+    ],
+    "score": 5.25,
+    "max_score": 5.25
+  },
+  "52": {
+    "award_uid": 52,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 集体项目 / 校级/校区级 / 第二名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 集体项目 / 校级/校区级 / 第二名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "group_project",
+      "university_level",
+      "52"
+    ],
+    "score": 4.5,
+    "max_score": 4.5
+  },
+  "53": {
+    "award_uid": 53,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 集体项目 / 校级/校区级 / 第三名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 集体项目 / 校级/校区级 / 第三名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "group_project",
+      "university_level",
+      "53"
+    ],
+    "score": 3.75,
+    "max_score": 3.75
+  },
+  "54": {
+    "award_uid": 54,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 集体项目 / 校级/校区级 / 其它名次",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 集体项目 / 校级/校区级 / 其它名次",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "group_project",
+      "university_level",
+      "54"
+    ],
+    "score": 3,
+    "max_score": 3
+  },
+  "55": {
+    "award_uid": 55,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 集体项目 / 院级/书院级 / 第一名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 集体项目 / 院级/书院级 / 第一名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "group_project",
+      "department_level",
+      "55"
+    ],
+    "score": 3,
+    "max_score": 3
+  },
+  "56": {
+    "award_uid": 56,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 集体项目 / 院级/书院级 / 第二名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 集体项目 / 院级/书院级 / 第二名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "group_project",
+      "department_level",
+      "56"
+    ],
+    "score": 2.25,
+    "max_score": 2.25
+  },
+  "57": {
+    "award_uid": 57,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 集体项目 / 院级/书院级 / 第三名",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 集体项目 / 院级/书院级 / 第三名",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "group_project",
+      "department_level",
+      "57"
+    ],
+    "score": 1.5,
+    "max_score": 1.5
+  },
+  "58": {
+    "award_uid": 58,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 集体项目 / 院级/书院级 / 其它名次",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 集体项目 / 院级/书院级 / 其它名次",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "group_project",
+      "department_level",
+      "58"
+    ],
+    "score": 0.75,
+    "max_score": 0.75
+  },
+  "59": {
+    "award_uid": 59,
+    "category": "art",
+    "sub_type": "achievement",
+    "rule_name": "艺术竞赛 / 集体项目 / 参与未获奖",
+    "rule_path": "文艺素养 / 成果性评价 / 艺术竞赛 / 集体项目 / 参与未获奖",
+    "id_path": [
+      "art",
+      "achievement",
+      "art_competition",
+      "group_project",
+      "59"
+    ],
+    "score": 0.3,
+    "max_score": 0.3
+  },
+  "60": {
+    "award_uid": 60,
+    "category": "labor",
+    "sub_type": "basic",
+    "rule_name": "志愿时长",
+    "rule_path": "劳动素养 / 基础性评价 / 志愿时长",
+    "id_path": [
+      "labor",
+      "basic",
+      "60"
+    ],
+    "score": 0,
+    "max_score": 5
+  },
+  "61": {
+    "award_uid": 61,
+    "category": "labor",
+    "sub_type": "basic",
+    "rule_name": "社会实践",
+    "rule_path": "劳动素养 / 基础性评价 / 社会实践",
+    "id_path": [
+      "labor",
+      "basic",
+      "61"
+    ],
+    "score": 5,
+    "max_score": 5
+  },
+  "62": {
+    "award_uid": 62,
+    "category": "labor",
+    "sub_type": "basic",
+    "rule_name": "宿舍安全卫生",
+    "rule_path": "劳动素养 / 基础性评价 / 宿舍安全卫生",
+    "id_path": [
+      "labor",
+      "basic",
+      "62"
+    ],
+    "score": 0,
+    "max_score": 5
+  },
+  "63": {
+    "award_uid": 63,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会工作 / 学生组织管理工作",
+    "rule_path": "劳动素养 / 成果性评价 / 社会工作 / 学生组织管理工作",
+    "id_path": [
+      "labor",
+      "achievement",
+      "security_work",
+      "63"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "64": {
+    "award_uid": 64,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会工作 / 任职期间获得个人荣誉 / 国家级",
+    "rule_path": "劳动素养 / 成果性评价 / 社会工作 / 任职期间获得个人荣誉 / 国家级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "security_work",
+      "personal_honors",
+      "64"
+    ],
+    "score": 10,
+    "max_score": 10
+  },
+  "65": {
+    "award_uid": 65,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会工作 / 任职期间获得个人荣誉 / 省级",
+    "rule_path": "劳动素养 / 成果性评价 / 社会工作 / 任职期间获得个人荣誉 / 省级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "security_work",
+      "personal_honors",
+      "65"
+    ],
+    "score": 8.5,
+    "max_score": 8.5
+  },
+  "66": {
+    "award_uid": 66,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会工作 / 任职期间获得个人荣誉 / 市级",
+    "rule_path": "劳动素养 / 成果性评价 / 社会工作 / 任职期间获得个人荣誉 / 市级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "security_work",
+      "personal_honors",
+      "66"
+    ],
+    "score": 7,
+    "max_score": 7
+  },
+  "67": {
+    "award_uid": 67,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会工作 / 任职期间获得个人荣誉 / 校级/校区级",
+    "rule_path": "劳动素养 / 成果性评价 / 社会工作 / 任职期间获得个人荣誉 / 校级/校区级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "security_work",
+      "personal_honors",
+      "67"
+    ],
+    "score": 5.5,
+    "max_score": 5.5
+  },
+  "68": {
+    "award_uid": 68,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会工作 / 任职期间获得个人荣誉 / 院级/书院级",
+    "rule_path": "劳动素养 / 成果性评价 / 社会工作 / 任职期间获得个人荣誉 / 院级/书院级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "security_work",
+      "personal_honors",
+      "68"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "69": {
+    "award_uid": 69,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会工作 / 任职期间获得集体荣誉 / 国家级",
+    "rule_path": "劳动素养 / 成果性评价 / 社会工作 / 任职期间获得集体荣誉 / 国家级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "security_work",
+      "group_honors",
+      "69"
+    ],
+    "score": 0,
+    "max_score": 10
+  },
+  "70": {
+    "award_uid": 70,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会工作 / 任职期间获得集体荣誉 / 省级",
+    "rule_path": "劳动素养 / 成果性评价 / 社会工作 / 任职期间获得集体荣誉 / 省级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "security_work",
+      "group_honors",
+      "70"
+    ],
+    "score": 0,
+    "max_score": 8.5
+  },
+  "71": {
+    "award_uid": 71,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会工作 / 任职期间获得集体荣誉 / 市级",
+    "rule_path": "劳动素养 / 成果性评价 / 社会工作 / 任职期间获得集体荣誉 / 市级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "security_work",
+      "group_honors",
+      "71"
+    ],
+    "score": 0,
+    "max_score": 7
+  },
+  "72": {
+    "award_uid": 72,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会工作 / 任职期间获得集体荣誉 / 校级/校区级",
+    "rule_path": "劳动素养 / 成果性评价 / 社会工作 / 任职期间获得集体荣誉 / 校级/校区级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "security_work",
+      "group_honors",
+      "72"
+    ],
+    "score": 0,
+    "max_score": 5.5
+  },
+  "73": {
+    "award_uid": 73,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会工作 / 任职期间获得集体荣誉 / 院级/书院级",
+    "rule_path": "劳动素养 / 成果性评价 / 社会工作 / 任职期间获得集体荣誉 / 院级/书院级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "security_work",
+      "group_honors",
+      "73"
+    ],
+    "score": 0,
+    "max_score": 4
+  },
+  "74": {
+    "award_uid": 74,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 个人 / 国家级",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 个人 / 国家级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "personal_honors",
+      "74"
+    ],
+    "score": 10,
+    "max_score": 10
+  },
+  "75": {
+    "award_uid": 75,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 个人 / 省级",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 个人 / 省级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "personal_honors",
+      "75"
+    ],
+    "score": 8.5,
+    "max_score": 8.5
+  },
+  "76": {
+    "award_uid": 76,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 个人 / 市级",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 个人 / 市级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "personal_honors",
+      "76"
+    ],
+    "score": 7,
+    "max_score": 7
+  },
+  "77": {
+    "award_uid": 77,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 个人 / 校级/校区级",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 个人 / 校级/校区级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "personal_honors",
+      "77"
+    ],
+    "score": 5.5,
+    "max_score": 5.5
+  },
+  "78": {
+    "award_uid": 78,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 个人 / 院级/书院级",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 个人 / 院级/书院级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "personal_honors",
+      "78"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "79": {
+    "award_uid": 79,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 国家级 / 负责人",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 国家级 / 负责人",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "national",
+      "79"
+    ],
+    "score": 10,
+    "max_score": 10
+  },
+  "80": {
+    "award_uid": 80,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 国家级 / 第二成员",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 国家级 / 第二成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "national",
+      "80"
+    ],
+    "score": 8.5,
+    "max_score": 8.5
+  },
+  "81": {
+    "award_uid": 81,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 国家级 / 第三成员",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 国家级 / 第三成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "national",
+      "81"
+    ],
+    "score": 7,
+    "max_score": 7
+  },
+  "82": {
+    "award_uid": 82,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 国家级 / 其它成员",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 国家级 / 其它成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "national",
+      "82"
+    ],
+    "score": 5.5,
+    "max_score": 5.5
+  },
+  "83": {
+    "award_uid": 83,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 省级 / 负责人",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 省级 / 负责人",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "provincial",
+      "83"
+    ],
+    "score": 8.5,
+    "max_score": 8.5
+  },
+  "84": {
+    "award_uid": 84,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 省级 / 第二成员",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 省级 / 第二成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "provincial",
+      "84"
+    ],
+    "score": 7,
+    "max_score": 7
+  },
+  "85": {
+    "award_uid": 85,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 省级 / 第三成员",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 省级 / 第三成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "provincial",
+      "85"
+    ],
+    "score": 5.5,
+    "max_score": 5.5
+  },
+  "86": {
+    "award_uid": 86,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 省级 / 其它成员",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 省级 / 其它成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "provincial",
+      "86"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "87": {
+    "award_uid": 87,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 市级 / 负责人",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 市级 / 负责人",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "municipal",
+      "87"
+    ],
+    "score": 7,
+    "max_score": 7
+  },
+  "88": {
+    "award_uid": 88,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 市级 / 第二成员",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 市级 / 第二成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "municipal",
+      "88"
+    ],
+    "score": 5.5,
+    "max_score": 5.5
+  },
+  "89": {
+    "award_uid": 89,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 市级 / 第三成员",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 市级 / 第三成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "municipal",
+      "89"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "90": {
+    "award_uid": 90,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 市级 / 其它成员",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 市级 / 其它成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "municipal",
+      "90"
+    ],
+    "score": 2.5,
+    "max_score": 2.5
+  },
+  "91": {
+    "award_uid": 91,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 校级/校区级 / 负责人",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 校级/校区级 / 负责人",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "university_level",
+      "91"
+    ],
+    "score": 5.5,
+    "max_score": 5.5
+  },
+  "92": {
+    "award_uid": 92,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 校级/校区级 / 第二成员",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 校级/校区级 / 第二成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "university_level",
+      "92"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "93": {
+    "award_uid": 93,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 校级/校区级 / 第三成员",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 校级/校区级 / 第三成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "university_level",
+      "93"
+    ],
+    "score": 2.5,
+    "max_score": 2.5
+  },
+  "94": {
+    "award_uid": 94,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 校级/校区级 / 其它成员",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 校级/校区级 / 其它成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "university_level",
+      "94"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "95": {
+    "award_uid": 95,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 院级/书院级 / 负责人",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 院级/书院级 / 负责人",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "department_level",
+      "95"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "96": {
+    "award_uid": 96,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 院级/书院级 / 第二成员",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 院级/书院级 / 第二成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "department_level",
+      "96"
+    ],
+    "score": 2.5,
+    "max_score": 2.5
+  },
+  "97": {
+    "award_uid": 97,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "社会实践 / 集体 / 院级/书院级 / 第三成员",
+    "rule_path": "劳动素养 / 成果性评价 / 社会实践 / 集体 / 院级/书院级 / 第三成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "social_practice",
+      "group_honors",
+      "department_level",
+      "97"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "98": {
+    "award_uid": 98,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 个人 / 国家级",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 个人 / 国家级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "personal_honors",
+      "98"
+    ],
+    "score": 10,
+    "max_score": 10
+  },
+  "99": {
+    "award_uid": 99,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 个人 / 省级",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 个人 / 省级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "personal_honors",
+      "99"
+    ],
+    "score": 8.5,
+    "max_score": 8.5
+  },
+  "100": {
+    "award_uid": 100,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 个人 / 市级",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 个人 / 市级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "personal_honors",
+      "100"
+    ],
+    "score": 7,
+    "max_score": 7
+  },
+  "101": {
+    "award_uid": 101,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 个人 / 校级/校区级",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 个人 / 校级/校区级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "personal_honors",
+      "101"
+    ],
+    "score": 5.5,
+    "max_score": 5.5
+  },
+  "102": {
+    "award_uid": 102,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 个人 / 院级/书院级",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 个人 / 院级/书院级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "personal_honors",
+      "102"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "103": {
+    "award_uid": 103,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 国家级 / 负责人",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 国家级 / 负责人",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "national",
+      "103"
+    ],
+    "score": 10,
+    "max_score": 10
+  },
+  "104": {
+    "award_uid": 104,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 国家级 / 第二成员",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 国家级 / 第二成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "national",
+      "104"
+    ],
+    "score": 8.5,
+    "max_score": 8.5
+  },
+  "105": {
+    "award_uid": 105,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 国家级 / 第三成员",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 国家级 / 第三成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "national",
+      "105"
+    ],
+    "score": 7,
+    "max_score": 7
+  },
+  "106": {
+    "award_uid": 106,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 国家级 / 其它成员",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 国家级 / 其它成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "national",
+      "106"
+    ],
+    "score": 5.5,
+    "max_score": 5.5
+  },
+  "107": {
+    "award_uid": 107,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 省级 / 负责人",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 省级 / 负责人",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "provincial",
+      "107"
+    ],
+    "score": 8.5,
+    "max_score": 8.5
+  },
+  "108": {
+    "award_uid": 108,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 省级 / 第二成员",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 省级 / 第二成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "provincial",
+      "108"
+    ],
+    "score": 7,
+    "max_score": 7
+  },
+  "109": {
+    "award_uid": 109,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 省级 / 第三成员",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 省级 / 第三成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "provincial",
+      "109"
+    ],
+    "score": 5.5,
+    "max_score": 5.5
+  },
+  "110": {
+    "award_uid": 110,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 省级 / 其它成员",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 省级 / 其它成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "provincial",
+      "110"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "111": {
+    "award_uid": 111,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 市级 / 负责人",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 市级 / 负责人",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "municipal",
+      "111"
+    ],
+    "score": 7,
+    "max_score": 7
+  },
+  "112": {
+    "award_uid": 112,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 市级 / 第二成员",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 市级 / 第二成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "municipal",
+      "112"
+    ],
+    "score": 5.5,
+    "max_score": 5.5
+  },
+  "113": {
+    "award_uid": 113,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 市级 / 第三成员",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 市级 / 第三成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "municipal",
+      "113"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "114": {
+    "award_uid": 114,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 市级 / 其它成员",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 市级 / 其它成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "municipal",
+      "114"
+    ],
+    "score": 2.5,
+    "max_score": 2.5
+  },
+  "115": {
+    "award_uid": 115,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 校级/校区级 / 负责人",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 校级/校区级 / 负责人",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "university_level",
+      "115"
+    ],
+    "score": 5.5,
+    "max_score": 5.5
+  },
+  "116": {
+    "award_uid": 116,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 校级/校区级 / 第二成员",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 校级/校区级 / 第二成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "university_level",
+      "116"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "117": {
+    "award_uid": 117,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 校级/校区级 / 第三成员",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 校级/校区级 / 第三成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "university_level",
+      "117"
+    ],
+    "score": 2.5,
+    "max_score": 2.5
+  },
+  "118": {
+    "award_uid": 118,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 校级/校区级 / 其它成员",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 校级/校区级 / 其它成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "university_level",
+      "118"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "119": {
+    "award_uid": 119,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 院级/书院级 / 负责人",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 院级/书院级 / 负责人",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "department_level",
+      "119"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "120": {
+    "award_uid": 120,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 院级/书院级 / 第二成员",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 院级/书院级 / 第二成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "department_level",
+      "120"
+    ],
+    "score": 2.5,
+    "max_score": 2.5
+  },
+  "121": {
+    "award_uid": 121,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "志愿活动 / 集体 / 院级/书院级 / 第三成员",
+    "rule_path": "劳动素养 / 成果性评价 / 志愿活动 / 集体 / 院级/书院级 / 第三成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "volunteer",
+      "group_honors",
+      "department_level",
+      "121"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "122": {
+    "award_uid": 122,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "宿舍劳动 / 个人 / 一等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 宿舍劳动 / 个人 / 一等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "dorm_work",
+      "personal",
+      "122"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "123": {
+    "award_uid": 123,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "宿舍劳动 / 个人 / 二等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 宿舍劳动 / 个人 / 二等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "dorm_work",
+      "personal",
+      "123"
+    ],
+    "score": 3.5,
+    "max_score": 3.5
+  },
+  "124": {
+    "award_uid": 124,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "宿舍劳动 / 个人 / 三等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 宿舍劳动 / 个人 / 三等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "dorm_work",
+      "personal",
+      "124"
+    ],
+    "score": 3,
+    "max_score": 3
+  },
+  "125": {
+    "award_uid": 125,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "宿舍劳动 / 个人 / 参与未获奖",
+    "rule_path": "劳动素养 / 成果性评价 / 宿舍劳动 / 个人 / 参与未获奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "dorm_work",
+      "personal",
+      "125"
+    ],
+    "score": 2,
+    "max_score": 2
+  },
+  "126": {
+    "award_uid": 126,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "宿舍劳动 / 集体 / 一等奖 / 负责人",
+    "rule_path": "劳动素养 / 成果性评价 / 宿舍劳动 / 集体 / 一等奖 / 负责人",
+    "id_path": [
+      "labor",
+      "achievement",
+      "dorm_work",
+      "group",
+      "first_prize",
+      "126"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "127": {
+    "award_uid": 127,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "宿舍劳动 / 集体 / 一等奖 / 其他成员",
+    "rule_path": "劳动素养 / 成果性评价 / 宿舍劳动 / 集体 / 一等奖 / 其他成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "dorm_work",
+      "group",
+      "first_prize",
+      "127"
+    ],
+    "score": 3.5,
+    "max_score": 3.5
+  },
+  "128": {
+    "award_uid": 128,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "宿舍劳动 / 集体 / 二等奖 / 负责人",
+    "rule_path": "劳动素养 / 成果性评价 / 宿舍劳动 / 集体 / 二等奖 / 负责人",
+    "id_path": [
+      "labor",
+      "achievement",
+      "dorm_work",
+      "group",
+      "second_prize",
+      "128"
+    ],
+    "score": 3.5,
+    "max_score": 3.5
+  },
+  "129": {
+    "award_uid": 129,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "宿舍劳动 / 集体 / 二等奖 / 其他成员",
+    "rule_path": "劳动素养 / 成果性评价 / 宿舍劳动 / 集体 / 二等奖 / 其他成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "dorm_work",
+      "group",
+      "second_prize",
+      "129"
+    ],
+    "score": 3,
+    "max_score": 3
+  },
+  "130": {
+    "award_uid": 130,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "宿舍劳动 / 集体 / 三等奖 / 负责人",
+    "rule_path": "劳动素养 / 成果性评价 / 宿舍劳动 / 集体 / 三等奖 / 负责人",
+    "id_path": [
+      "labor",
+      "achievement",
+      "dorm_work",
+      "group",
+      "third_prize",
+      "130"
+    ],
+    "score": 3,
+    "max_score": 3
+  },
+  "131": {
+    "award_uid": 131,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "宿舍劳动 / 集体 / 三等奖 / 其他成员",
+    "rule_path": "劳动素养 / 成果性评价 / 宿舍劳动 / 集体 / 三等奖 / 其他成员",
+    "id_path": [
+      "labor",
+      "achievement",
+      "dorm_work",
+      "group",
+      "third_prize",
+      "131"
+    ],
+    "score": 2.5,
+    "max_score": 2.5
+  },
+  "132": {
+    "award_uid": 132,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "宿舍劳动 / 集体 / 参与未获奖",
+    "rule_path": "劳动素养 / 成果性评价 / 宿舍劳动 / 集体 / 参与未获奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "dorm_work",
+      "group",
+      "132"
+    ],
+    "score": 2,
+    "max_score": 2
+  },
+  "133": {
+    "award_uid": 133,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 个人项目 / 国家级 / 一等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 个人项目 / 国家级 / 一等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "personal_project",
+      "national",
+      "133"
+    ],
+    "score": 10,
+    "max_score": 10
+  },
+  "134": {
+    "award_uid": 134,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 个人项目 / 国家级 / 二等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 个人项目 / 国家级 / 二等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "personal_project",
+      "national",
+      "134"
+    ],
+    "score": 8.5,
+    "max_score": 8.5
+  },
+  "135": {
+    "award_uid": 135,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 个人项目 / 国家级 / 三等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 个人项目 / 国家级 / 三等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "personal_project",
+      "national",
+      "135"
+    ],
+    "score": 7,
+    "max_score": 7
+  },
+  "136": {
+    "award_uid": 136,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 个人项目 / 省级 / 一等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 个人项目 / 省级 / 一等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "personal_project",
+      "provincial",
+      "136"
+    ],
+    "score": 8.5,
+    "max_score": 8.5
+  },
+  "137": {
+    "award_uid": 137,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 个人项目 / 省级 / 二等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 个人项目 / 省级 / 二等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "personal_project",
+      "provincial",
+      "137"
+    ],
+    "score": 7,
+    "max_score": 7
+  },
+  "138": {
+    "award_uid": 138,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 个人项目 / 省级 / 三等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 个人项目 / 省级 / 三等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "personal_project",
+      "provincial",
+      "138"
+    ],
+    "score": 5.5,
+    "max_score": 5.5
+  },
+  "139": {
+    "award_uid": 139,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 个人项目 / 市级 / 一等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 个人项目 / 市级 / 一等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "personal_project",
+      "municipal",
+      "139"
+    ],
+    "score": 7,
+    "max_score": 7
+  },
+  "140": {
+    "award_uid": 140,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 个人项目 / 市级 / 二等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 个人项目 / 市级 / 二等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "personal_project",
+      "municipal",
+      "140"
+    ],
+    "score": 5.5,
+    "max_score": 5.5
+  },
+  "141": {
+    "award_uid": 141,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 个人项目 / 市级 / 三等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 个人项目 / 市级 / 三等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "personal_project",
+      "municipal",
+      "141"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "142": {
+    "award_uid": 142,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 个人项目 / 校级/校区级 / 一等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 个人项目 / 校级/校区级 / 一等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "personal_project",
+      "university_level",
+      "142"
+    ],
+    "score": 5.5,
+    "max_score": 5.5
+  },
+  "143": {
+    "award_uid": 143,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 个人项目 / 校级/校区级 / 二等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 个人项目 / 校级/校区级 / 二等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "personal_project",
+      "university_level",
+      "143"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "144": {
+    "award_uid": 144,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 个人项目 / 校级/校区级 / 三等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 个人项目 / 校级/校区级 / 三等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "personal_project",
+      "university_level",
+      "144"
+    ],
+    "score": 2.5,
+    "max_score": 2.5
+  },
+  "145": {
+    "award_uid": 145,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 个人项目 / 院级/书院级 / 一等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 个人项目 / 院级/书院级 / 一等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "personal_project",
+      "department_level",
+      "145"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "146": {
+    "award_uid": 146,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 个人项目 / 院级/书院级 / 二等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 个人项目 / 院级/书院级 / 二等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "personal_project",
+      "department_level",
+      "146"
+    ],
+    "score": 2.5,
+    "max_score": 2.5
+  },
+  "147": {
+    "award_uid": 147,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 个人项目 / 院级/书院级 / 三等奖",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 个人项目 / 院级/书院级 / 三等奖",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "personal_project",
+      "department_level",
+      "147"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "148": {
+    "award_uid": 148,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 集体项目 / 国家级",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 集体项目 / 国家级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "group_project",
+      "148"
+    ],
+    "score": 0,
+    "max_score": 10
+  },
+  "149": {
+    "award_uid": 149,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 集体项目 / 省级",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 集体项目 / 省级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "group_project",
+      "149"
+    ],
+    "score": 0,
+    "max_score": 8.5
+  },
+  "150": {
+    "award_uid": 150,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 集体项目 / 市级",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 集体项目 / 市级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "group_project",
+      "150"
+    ],
+    "score": 0,
+    "max_score": 7
+  },
+  "151": {
+    "award_uid": 151,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 集体项目 / 校级/校区级",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 集体项目 / 校级/校区级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "group_project",
+      "151"
+    ],
+    "score": 0,
+    "max_score": 5.5
+  },
+  "152": {
+    "award_uid": 152,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "生涯发展 / 集体项目 / 院级/书院级",
+    "rule_path": "劳动素养 / 成果性评价 / 生涯发展 / 集体项目 / 院级/书院级",
+    "id_path": [
+      "labor",
+      "achievement",
+      "career_development",
+      "group_project",
+      "152"
+    ],
+    "score": 0,
+    "max_score": 4
+  },
+  "153": {
+    "award_uid": 153,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "退役复学",
+    "rule_path": "劳动素养 / 成果性评价 / 退役复学",
+    "id_path": [
+      "labor",
+      "achievement",
+      "153"
+    ],
+    "score": 10,
+    "max_score": 10
+  },
+  "154": {
+    "award_uid": 154,
+    "category": "labor",
+    "sub_type": "achievement",
+    "rule_name": "学生农场",
+    "rule_path": "劳动素养 / 成果性评价 / 学生农场",
+    "id_path": [
+      "labor",
+      "achievement",
+      "154"
+    ],
+    "score": 0,
+    "max_score": 5
+  },
+  "155": {
+    "award_uid": 155,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "科创项目赋分 / 国家级 / 主持人",
+    "rule_path": "创新素养 / 基础素养 / 科创项目赋分 / 国家级 / 主持人",
+    "id_path": [
+      "innovation",
+      "basic",
+      "social_and_innovation_project",
+      "national",
+      "155"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "156": {
+    "award_uid": 156,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "科创项目赋分 / 国家级 / 第二成员,第三成员和第四成员",
+    "rule_path": "创新素养 / 基础素养 / 科创项目赋分 / 国家级 / 第二成员,第三成员和第四成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "social_and_innovation_project",
+      "national",
+      "156"
+    ],
+    "score": 0.8,
+    "max_score": 0.8
+  },
+  "157": {
+    "award_uid": 157,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "科创项目赋分 / 国家级 / 其他成员",
+    "rule_path": "创新素养 / 基础素养 / 科创项目赋分 / 国家级 / 其他成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "social_and_innovation_project",
+      "national",
+      "157"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "158": {
+    "award_uid": 158,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "科创项目赋分 / 省级 / 主持人",
+    "rule_path": "创新素养 / 基础素养 / 科创项目赋分 / 省级 / 主持人",
+    "id_path": [
+      "innovation",
+      "basic",
+      "social_and_innovation_project",
+      "provincial",
+      "158"
+    ],
+    "score": 3,
+    "max_score": 3
+  },
+  "159": {
+    "award_uid": 159,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "科创项目赋分 / 省级 / 第二成员,第三成员和第四成员",
+    "rule_path": "创新素养 / 基础素养 / 科创项目赋分 / 省级 / 第二成员,第三成员和第四成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "social_and_innovation_project",
+      "provincial",
+      "159"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "160": {
+    "award_uid": 160,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "科创项目赋分 / 省级 / 其他成员",
+    "rule_path": "创新素养 / 基础素养 / 科创项目赋分 / 省级 / 其他成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "social_and_innovation_project",
+      "provincial",
+      "160"
+    ],
+    "score": 0.3,
+    "max_score": 0.3
+  },
+  "161": {
+    "award_uid": 161,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "科创项目赋分 / 校级 / 主持人",
+    "rule_path": "创新素养 / 基础素养 / 科创项目赋分 / 校级 / 主持人",
+    "id_path": [
+      "innovation",
+      "basic",
+      "social_and_innovation_project",
+      "university_level",
+      "161"
+    ],
+    "score": 2,
+    "max_score": 2
+  },
+  "162": {
+    "award_uid": 162,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "科创项目赋分 / 校级 / 第二成员,第三成员和第四成员",
+    "rule_path": "创新素养 / 基础素养 / 科创项目赋分 / 校级 / 第二成员,第三成员和第四成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "social_and_innovation_project",
+      "university_level",
+      "162"
+    ],
+    "score": 0.3,
+    "max_score": 0.3
+  },
+  "163": {
+    "award_uid": 163,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "科创项目赋分 / 校级 / 其他成员",
+    "rule_path": "创新素养 / 基础素养 / 科创项目赋分 / 校级 / 其他成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "social_and_innovation_project",
+      "university_level",
+      "163"
+    ],
+    "score": 0.2,
+    "max_score": 0.2
+  },
+  "164": {
+    "award_uid": 164,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "科创项目赋分 / 院级 / 主持人",
+    "rule_path": "创新素养 / 基础素养 / 科创项目赋分 / 院级 / 主持人",
+    "id_path": [
+      "innovation",
+      "basic",
+      "social_and_innovation_project",
+      "department_level",
+      "164"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "165": {
+    "award_uid": 165,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "科创项目赋分 / 院级 / 第二成员,第三成员和第四成员",
+    "rule_path": "创新素养 / 基础素养 / 科创项目赋分 / 院级 / 第二成员,第三成员和第四成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "social_and_innovation_project",
+      "department_level",
+      "165"
+    ],
+    "score": 0.2,
+    "max_score": 0.2
+  },
+  "166": {
+    "award_uid": 166,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "科创项目赋分 / 院级 / 其他成员",
+    "rule_path": "创新素养 / 基础素养 / 科创项目赋分 / 院级 / 其他成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "social_and_innovation_project",
+      "department_level",
+      "166"
+    ],
+    "score": 0.1,
+    "max_score": 0.1
+  },
+  "167": {
+    "award_uid": 167,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / CSSCI(文科) / 第一作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / CSSCI(文科) / 第一作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "CSSCI_liberal_arts",
+      "167"
+    ],
+    "score": 5,
+    "max_score": 5
+  },
+  "168": {
+    "award_uid": 168,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / CSSCI(文科) / 第二作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / CSSCI(文科) / 第二作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "CSSCI_liberal_arts",
+      "168"
+    ],
+    "score": 1.5,
+    "max_score": 1.5
+  },
+  "169": {
+    "award_uid": 169,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / CSSCI(文科) / 其他作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / CSSCI(文科) / 其他作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "CSSCI_liberal_arts",
+      "169"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "170": {
+    "award_uid": 170,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / CSSCI_extended(文科) / 第一作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / CSSCI_extended(文科) / 第一作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "CSSCI_extended_liberal_arts",
+      "170"
+    ],
+    "score": 3,
+    "max_score": 3
+  },
+  "171": {
+    "award_uid": 171,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / CSSCI_extended(文科) / 第二作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / CSSCI_extended(文科) / 第二作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "CSSCI_extended_liberal_arts",
+      "171"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "172": {
+    "award_uid": 172,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / CSSCI_extended(文科) / 其他作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / CSSCI_extended(文科) / 其他作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "CSSCI_extended_liberal_arts",
+      "172"
+    ],
+    "score": 0.3,
+    "max_score": 0.3
+  },
+  "173": {
+    "award_uid": 173,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / SCI_EI(理科) / 第一作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / SCI_EI(理科) / 第一作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "SCI_EI_science",
+      "173"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "174": {
+    "award_uid": 174,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / SCI_EI(理科) / 第二作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / SCI_EI(理科) / 第二作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "SCI_EI_science",
+      "174"
+    ],
+    "score": 2.8,
+    "max_score": 2.8
+  },
+  "175": {
+    "award_uid": 175,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / SCI_EI(理科) / 其他作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / SCI_EI(理科) / 其他作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "SCI_EI_science",
+      "175"
+    ],
+    "score": 2.5,
+    "max_score": 2.5
+  },
+  "176": {
+    "award_uid": 176,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / SCI_EI(工科) / 第一作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / SCI_EI(工科) / 第一作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "SCI_EI_engineering",
+      "176"
+    ],
+    "score": 5,
+    "max_score": 5
+  },
+  "177": {
+    "award_uid": 177,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / SCI_EI(工科) / 第二作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / SCI_EI(工科) / 第二作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "SCI_EI_engineering",
+      "177"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "178": {
+    "award_uid": 178,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / SCI_EI(工科) / 其他作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / SCI_EI(工科) / 其他作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "SCI_EI_engineering",
+      "178"
+    ],
+    "score": 0.15,
+    "max_score": 0.15
+  },
+  "179": {
+    "award_uid": 179,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / SCI_EI(医科) / 第一作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / SCI_EI(医科) / 第一作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "SCI_EI_medicine",
+      "179"
+    ],
+    "score": 3.5,
+    "max_score": 33.5
+  },
+  "180": {
+    "award_uid": 180,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / SCI_EI(医科) / 第二作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / SCI_EI(医科) / 第二作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "SCI_EI_medicine",
+      "180"
+    ],
+    "score": 2,
+    "max_score": 32
+  },
+  "181": {
+    "award_uid": 181,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / SCI_EI(医科) / 其他作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / SCI_EI(医科) / 其他作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "SCI_EI_medicine",
+      "181"
+    ],
+    "score": 0.5,
+    "max_score": 30.5
+  },
+  "182": {
+    "award_uid": 182,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / CCF A类会议论文及期刊论文 / 第一作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / CCF A类会议论文及期刊论文 / 第一作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "CCF_A",
+      "182"
+    ],
+    "score": 5,
+    "max_score": 5
+  },
+  "183": {
+    "award_uid": 183,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / CCF A类会议论文及期刊论文 / 第二作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / CCF A类会议论文及期刊论文 / 第二作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "CCF_A",
+      "183"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "184": {
+    "award_uid": 184,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / CCF A类会议论文及期刊论文 / 其他作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / CCF A类会议论文及期刊论文 / 其他作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "CCF_A",
+      "184"
+    ],
+    "score": 0.15,
+    "max_score": 0.15
+  },
+  "185": {
+    "award_uid": 185,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / CCF B类会议论文及期刊论文 / 第一作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / CCF B类会议论文及期刊论文 / 第一作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "CCF_B",
+      "185"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "186": {
+    "award_uid": 186,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / CCF B类会议论文及期刊论文 / 第二作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / CCF B类会议论文及期刊论文 / 第二作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "CCF_B",
+      "186"
+    ],
+    "score": 0.4,
+    "max_score": 0.4
+  },
+  "187": {
+    "award_uid": 187,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / CCF B类会议论文及期刊论文 / 其他作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / CCF B类会议论文及期刊论文 / 其他作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "CCF_B",
+      "187"
+    ],
+    "score": 0.13,
+    "max_score": 0.13
+  },
+  "188": {
+    "award_uid": 188,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / CCF C类会议论文及期刊论文 / 第一作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / CCF C类会议论文及期刊论文 / 第一作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "CCF_C",
+      "188"
+    ],
+    "score": 3,
+    "max_score": 3
+  },
+  "189": {
+    "award_uid": 189,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / CCF C类会议论文及期刊论文 / 第二作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / CCF C类会议论文及期刊论文 / 第二作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "CCF_C",
+      "189"
+    ],
+    "score": 0.3,
+    "max_score": 0.3
+  },
+  "190": {
+    "award_uid": 190,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "论文发表 / CCF C类会议论文及期刊论文 / 其他作者",
+    "rule_path": "创新素养 / 基础素养 / 论文发表 / CCF C类会议论文及期刊论文 / 其他作者",
+    "id_path": [
+      "innovation",
+      "basic",
+      "paper",
+      "CCF_C",
+      "190"
+    ],
+    "score": 0.1,
+    "max_score": 0.1
+  },
+  "191": {
+    "award_uid": 191,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "专利申请 / 国家申请专利 / 第一发明人且成果实施转让",
+    "rule_path": "创新素养 / 基础素养 / 专利申请 / 国家申请专利 / 第一发明人且成果实施转让",
+    "id_path": [
+      "innovation",
+      "basic",
+      "patent",
+      "national_invention",
+      "191"
+    ],
+    "score": 5,
+    "max_score": 5
+  },
+  "192": {
+    "award_uid": 192,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "专利申请 / 国家申请专利 / 第一发明人且未实施转让",
+    "rule_path": "创新素养 / 基础素养 / 专利申请 / 国家申请专利 / 第一发明人且未实施转让",
+    "id_path": [
+      "innovation",
+      "basic",
+      "patent",
+      "national_invention",
+      "192"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "193": {
+    "award_uid": 193,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "专利申请 / 国家申请专利 / 其它发明人且未实施转让",
+    "rule_path": "创新素养 / 基础素养 / 专利申请 / 国家申请专利 / 其它发明人且未实施转让",
+    "id_path": [
+      "innovation",
+      "basic",
+      "patent",
+      "national_invention",
+      "193"
+    ],
+    "score": 2.5,
+    "max_score": 2.5
+  },
+  "194": {
+    "award_uid": 194,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "专利申请 / 实用新型专利 / 第一发明人且成果实施转让",
+    "rule_path": "创新素养 / 基础素养 / 专利申请 / 实用新型专利 / 第一发明人且成果实施转让",
+    "id_path": [
+      "innovation",
+      "basic",
+      "patent",
+      "utility_model",
+      "194"
+    ],
+    "score": 2,
+    "max_score": 2
+  },
+  "195": {
+    "award_uid": 195,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "专利申请 / 实用新型专利 / 第一发明人且未实施转让",
+    "rule_path": "创新素养 / 基础素养 / 专利申请 / 实用新型专利 / 第一发明人且未实施转让",
+    "id_path": [
+      "innovation",
+      "basic",
+      "patent",
+      "utility_model",
+      "195"
+    ],
+    "score": 1.5,
+    "max_score": 1.5
+  },
+  "196": {
+    "award_uid": 196,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "专利申请 / 实用新型专利 / 其它发明人且未实施转让",
+    "rule_path": "创新素养 / 基础素养 / 专利申请 / 实用新型专利 / 其它发明人且未实施转让",
+    "id_path": [
+      "innovation",
+      "basic",
+      "patent",
+      "utility_model",
+      "196"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "197": {
+    "award_uid": 197,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "专利申请 / 外观专利 / 第一发明人且成果实施转让",
+    "rule_path": "创新素养 / 基础素养 / 专利申请 / 外观专利 / 第一发明人且成果实施转让",
+    "id_path": [
+      "innovation",
+      "basic",
+      "patent",
+      "design",
+      "197"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "198": {
+    "award_uid": 198,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "专利申请 / 外观专利 / 第一发明人且未实施转让",
+    "rule_path": "创新素养 / 基础素养 / 专利申请 / 外观专利 / 第一发明人且未实施转让",
+    "id_path": [
+      "innovation",
+      "basic",
+      "patent",
+      "design",
+      "198"
+    ],
+    "score": 0.3,
+    "max_score": 0.3
+  },
+  "199": {
+    "award_uid": 199,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "专利申请 / 外观专利 / 其它发明人且未实施转让",
+    "rule_path": "创新素养 / 基础素养 / 专利申请 / 外观专利 / 其它发明人且未实施转让",
+    "id_path": [
+      "innovation",
+      "basic",
+      "patent",
+      "design",
+      "199"
+    ],
+    "score": 0.25,
+    "max_score": 0.25
+  },
+  "200": {
+    "award_uid": 200,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "national_firstPrize",
+      "more_than_three_undergraduate",
+      "200"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "201": {
+    "award_uid": 201,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "national_firstPrize",
+      "more_than_three_undergraduate",
+      "201"
+    ],
+    "score": 3,
+    "max_score": 3
+  },
+  "202": {
+    "award_uid": 202,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第八成员与第九成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第八成员与第九成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "national_firstPrize",
+      "more_than_three_undergraduate",
+      "202"
+    ],
+    "score": 2,
+    "max_score": 2
+  },
+  "203": {
+    "award_uid": 203,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 其它成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 其它成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "national_firstPrize",
+      "more_than_three_undergraduate",
+      "203"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "204": {
+    "award_uid": 204,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "national_secondPrize",
+      "more_than_three_undergraduate",
+      "204"
+    ],
+    "score": 2,
+    "max_score": 2
+  },
+  "205": {
+    "award_uid": 205,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "national_secondPrize",
+      "more_than_three_undergraduate",
+      "205"
+    ],
+    "score": 1.5,
+    "max_score": 1.5
+  },
+  "206": {
+    "award_uid": 206,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第八成员与第九成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第八成员与第九成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "national_secondPrize",
+      "more_than_three_undergraduate",
+      "206"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "207": {
+    "award_uid": 207,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 其它成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 其它成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "national_secondPrize",
+      "more_than_three_undergraduate",
+      "207"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "208": {
+    "award_uid": 208,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "nationalFirstPrize_provincialFirstPrize",
+      "more_than_three_undergraduate",
+      "208"
+    ],
+    "score": 1.5,
+    "max_score": 1.5
+  },
+  "209": {
+    "award_uid": 209,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "nationalFirstPrize_provincialFirstPrize",
+      "more_than_three_undergraduate",
+      "209"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "210": {
+    "award_uid": 210,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第八成员与第九成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第八成员与第九成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "nationalFirstPrize_provincialFirstPrize",
+      "more_than_three_undergraduate",
+      "210"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "211": {
+    "award_uid": 211,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 其它成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 其它成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "nationalFirstPrize_provincialFirstPrize",
+      "more_than_three_undergraduate",
+      "211"
+    ],
+    "score": 0.35,
+    "max_score": 0.35
+  },
+  "212": {
+    "award_uid": 212,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 省级二等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 省级二等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "provincial_secondPrize",
+      "212"
+    ],
+    "score": 2,
+    "max_score": 2
+  },
+  "213": {
+    "award_uid": 213,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "provincial_secondPrize",
+      "more_than_three_undergraduate",
+      "213"
+    ],
+    "score": 2,
+    "max_score": 2
+  },
+  "214": {
+    "award_uid": 214,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "provincial_secondPrize",
+      "more_than_three_undergraduate",
+      "214"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "215": {
+    "award_uid": 215,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "provincial_secondPrize",
+      "more_than_three_undergraduate",
+      "215"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "216": {
+    "award_uid": 216,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第八成员与第九成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第八成员与第九成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "provincial_secondPrize",
+      "more_than_three_undergraduate",
+      "216"
+    ],
+    "score": 0.35,
+    "max_score": 0.35
+  },
+  "217": {
+    "award_uid": 217,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "provincialThirdPrize_and_universityFirstPrize",
+      "217"
+    ],
+    "score": 1.5,
+    "max_score": 1.5
+  },
+  "218": {
+    "award_uid": 218,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "provincialThirdPrize_and_universityFirstPrize",
+      "more_than_three_undergraduate",
+      "218"
+    ],
+    "score": 1.5,
+    "max_score": 1.5
+  },
+  "219": {
+    "award_uid": 219,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "provincialThirdPrize_and_universityFirstPrize",
+      "more_than_three_undergraduate",
+      "219"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "220": {
+    "award_uid": 220,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "provincialThirdPrize_and_universityFirstPrize",
+      "more_than_three_undergraduate",
+      "220"
+    ],
+    "score": 0.35,
+    "max_score": 0.35
+  },
+  "221": {
+    "award_uid": 221,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 校级二等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 校级二等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "university_secondPrize",
+      "221"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "222": {
+    "award_uid": 222,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 校级二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 校级二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "university_secondPrize",
+      "more_than_three_undergraduate",
+      "222"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "223": {
+    "award_uid": 223,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 校级二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 校级二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "university_secondPrize",
+      "more_than_three_undergraduate",
+      "223"
+    ],
+    "score": 0.35,
+    "max_score": 0.35
+  },
+  "224": {
+    "award_uid": 224,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "universityThirdPrize_and_departmentFirstPrize",
+      "224"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "225": {
+    "award_uid": 225,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "universityThirdPrize_and_departmentFirstPrize",
+      "more_than_three_undergraduate",
+      "225"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "226": {
+    "award_uid": 226,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A_A*_competition",
+      "universityThirdPrize_and_departmentFirstPrize",
+      "more_than_three_undergraduate",
+      "226"
+    ],
+    "score": 0.2,
+    "max_score": 0.2
+  },
+  "227": {
+    "award_uid": 227,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "national_firstPrize",
+      "more_than_three_undergraduate",
+      "227"
+    ],
+    "score": 2,
+    "max_score": 2
+  },
+  "228": {
+    "award_uid": 228,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "national_firstPrize",
+      "more_than_three_undergraduate",
+      "228"
+    ],
+    "score": 1.5,
+    "max_score": 1.5
+  },
+  "229": {
+    "award_uid": 229,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第八成员与第九成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第八成员与第九成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "national_firstPrize",
+      "more_than_three_undergraduate",
+      "229"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "230": {
+    "award_uid": 230,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "national_secondPrize",
+      "more_than_three_undergraduate",
+      "230"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "231": {
+    "award_uid": 231,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "national_secondPrize",
+      "more_than_three_undergraduate",
+      "231"
+    ],
+    "score": 0.75,
+    "max_score": 0.75
+  },
+  "232": {
+    "award_uid": 232,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第八成员与第九成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第八成员与第九成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "national_secondPrize",
+      "more_than_three_undergraduate",
+      "232"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "233": {
+    "award_uid": 233,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "nationalFirstPrize_provincialFirstPrize",
+      "233"
+    ],
+    "score": 1.25,
+    "max_score": 1.25
+  },
+  "234": {
+    "award_uid": 234,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "nationalFirstPrize_provincialFirstPrize",
+      "more_than_three_undergraduate",
+      "234"
+    ],
+    "score": 1.25,
+    "max_score": 1.25
+  },
+  "235": {
+    "award_uid": 235,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "nationalFirstPrize_provincialFirstPrize",
+      "more_than_three_undergraduate",
+      "235"
+    ],
+    "score": 0.75,
+    "max_score": 0.75
+  },
+  "236": {
+    "award_uid": 236,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "nationalFirstPrize_provincialFirstPrize",
+      "more_than_three_undergraduate",
+      "236"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "237": {
+    "award_uid": 237,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第八成员与第九成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第八成员与第九成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "nationalFirstPrize_provincialFirstPrize",
+      "more_than_three_undergraduate",
+      "237"
+    ],
+    "score": 0.25,
+    "max_score": 0.25
+  },
+  "238": {
+    "award_uid": 238,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级二等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级二等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "provincial_secondPrize",
+      "238"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "239": {
+    "award_uid": 239,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "provincial_secondPrize",
+      "more_than_three_undergraduate",
+      "239"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "240": {
+    "award_uid": 240,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "provincial_secondPrize",
+      "more_than_three_undergraduate",
+      "240"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "241": {
+    "award_uid": 241,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "provincial_secondPrize",
+      "more_than_three_undergraduate",
+      "241"
+    ],
+    "score": 0.25,
+    "max_score": 0.25
+  },
+  "242": {
+    "award_uid": 242,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第八成员与第九成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第八成员与第九成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "provincial_secondPrize",
+      "more_than_three_undergraduate",
+      "242"
+    ],
+    "score": 0.175,
+    "max_score": 0.175
+  },
+  "243": {
+    "award_uid": 243,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "provincialThirdPrize_and_universityFirstPrize",
+      "243"
+    ],
+    "score": 0.75,
+    "max_score": 0.75
+  },
+  "244": {
+    "award_uid": 244,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "provincialThirdPrize_and_universityFirstPrize",
+      "more_than_three_undergraduate",
+      "244"
+    ],
+    "score": 0.75,
+    "max_score": 0.75
+  },
+  "245": {
+    "award_uid": 245,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "provincialThirdPrize_and_universityFirstPrize",
+      "more_than_three_undergraduate",
+      "245"
+    ],
+    "score": 0.25,
+    "max_score": 0.25
+  },
+  "246": {
+    "award_uid": 246,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "provincialThirdPrize_and_universityFirstPrize",
+      "more_than_three_undergraduate",
+      "246"
+    ],
+    "score": 0.175,
+    "max_score": 0.175
+  },
+  "247": {
+    "award_uid": 247,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 校级二等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 校级二等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "university_secondPrize",
+      "247"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "248": {
+    "award_uid": 248,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 校级二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 校级二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "university_secondPrize",
+      "more_than_three_undergraduate",
+      "248"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "249": {
+    "award_uid": 249,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 校级二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 校级二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "university_secondPrize",
+      "more_than_three_undergraduate",
+      "249"
+    ],
+    "score": 0.175,
+    "max_score": 0.175
+  },
+  "250": {
+    "award_uid": 250,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "universityThirdPrize_and_departmentFirstPrize",
+      "250"
+    ],
+    "score": 0.25,
+    "max_score": 0.25
+  },
+  "251": {
+    "award_uid": 251,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "universityThirdPrize_and_departmentFirstPrize",
+      "more_than_three_undergraduate",
+      "251"
+    ],
+    "score": 0.25,
+    "max_score": 0.25
+  },
+  "252": {
+    "award_uid": 252,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "A-_A-*_competition",
+      "universityThirdPrize_and_departmentFirstPrize",
+      "more_than_three_undergraduate",
+      "252"
+    ],
+    "score": 0.1,
+    "max_score": 0.1
+  },
+  "253": {
+    "award_uid": 253,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 国家一等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 国家一等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "national_firstPrize",
+      "253"
+    ],
+    "score": 1.5,
+    "max_score": 1.5
+  },
+  "254": {
+    "award_uid": 254,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "national_firstPrize",
+      "more_than_three_undergraduate",
+      "254"
+    ],
+    "score": 1.5,
+    "max_score": 1.5
+  },
+  "255": {
+    "award_uid": 255,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "national_firstPrize",
+      "more_than_three_undergraduate",
+      "255"
+    ],
+    "score": 1.3333,
+    "max_score": 1.3333
+  },
+  "256": {
+    "award_uid": 256,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "national_firstPrize",
+      "more_than_three_undergraduate",
+      "256"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "257": {
+    "award_uid": 257,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 国家二等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 国家二等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "national_secondPrize",
+      "257"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "258": {
+    "award_uid": 258,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "national_secondPrize",
+      "more_than_three_undergraduate",
+      "258"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "259": {
+    "award_uid": 259,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "national_secondPrize",
+      "more_than_three_undergraduate",
+      "259"
+    ],
+    "score": 1.3333,
+    "max_score": 1.3333
+  },
+  "260": {
+    "award_uid": 260,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "national_secondPrize",
+      "more_than_three_undergraduate",
+      "260"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "261": {
+    "award_uid": 261,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "nationalFirstPrize_provincialFirstPrize",
+      "261"
+    ],
+    "score": 0.8333,
+    "max_score": 0.8333
+  },
+  "262": {
+    "award_uid": 262,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "nationalFirstPrize_provincialFirstPrize",
+      "more_than_three_undergraduate",
+      "262"
+    ],
+    "score": 0.8333,
+    "max_score": 0.8333
+  },
+  "263": {
+    "award_uid": 263,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "nationalFirstPrize_provincialFirstPrize",
+      "more_than_three_undergraduate",
+      "263"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "264": {
+    "award_uid": 264,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "nationalFirstPrize_provincialFirstPrize",
+      "more_than_three_undergraduate",
+      "264"
+    ],
+    "score": 0.3333,
+    "max_score": 0.3333
+  },
+  "265": {
+    "award_uid": 265,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 省级二等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 省级二等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "provincial_secondPrize",
+      "265"
+    ],
+    "score": 0.6667,
+    "max_score": 0.6667
+  },
+  "266": {
+    "award_uid": 266,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "provincial_secondPrize",
+      "more_than_three_undergraduate",
+      "266"
+    ],
+    "score": 0.6667,
+    "max_score": 0.6667
+  },
+  "267": {
+    "award_uid": 267,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "provincial_secondPrize",
+      "more_than_three_undergraduate",
+      "267"
+    ],
+    "score": 0.3333,
+    "max_score": 0.3333
+  },
+  "268": {
+    "award_uid": 268,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "provincial_secondPrize",
+      "more_than_three_undergraduate",
+      "268"
+    ],
+    "score": 0.1667,
+    "max_score": 0.1667
+  },
+  "269": {
+    "award_uid": 269,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "provincialThirdPrize_and_universityFirstPrize",
+      "269"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "270": {
+    "award_uid": 270,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "provincialThirdPrize_and_universityFirstPrize",
+      "more_than_three_undergraduate",
+      "270"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "271": {
+    "award_uid": 271,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "provincialThirdPrize_and_universityFirstPrize",
+      "more_than_three_undergraduate",
+      "271"
+    ],
+    "score": 0.1667,
+    "max_score": 0.1667
+  },
+  "272": {
+    "award_uid": 272,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 第六成员与第七成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "provincialThirdPrize_and_universityFirstPrize",
+      "more_than_three_undergraduate",
+      "272"
+    ],
+    "score": 0.1167,
+    "max_score": 0.1167
+  },
+  "273": {
+    "award_uid": 273,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 校级二等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 校级二等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "university_secondPrize",
+      "273"
+    ],
+    "score": 0.3333,
+    "max_score": 0.3333
+  },
+  "274": {
+    "award_uid": 274,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 校级二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 校级二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "university_secondPrize",
+      "more_than_three_undergraduate",
+      "274"
+    ],
+    "score": 0.3333,
+    "max_score": 0.3333
+  },
+  "275": {
+    "award_uid": 275,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 校级二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 校级二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "university_secondPrize",
+      "more_than_three_undergraduate",
+      "275"
+    ],
+    "score": 0.1167,
+    "max_score": 0.1167
+  },
+  "276": {
+    "award_uid": 276,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "universityThirdPrize_and_departmentFirstPrize",
+      "276"
+    ],
+    "score": 0.1667,
+    "max_score": 0.1667
+  },
+  "277": {
+    "award_uid": 277,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "universityThirdPrize_and_departmentFirstPrize",
+      "more_than_three_undergraduate",
+      "277"
+    ],
+    "score": 0.1667,
+    "max_score": 0.1667
+  },
+  "278": {
+    "award_uid": 278,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / B(B*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / B(B*)级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "B_B*_competition",
+      "universityThirdPrize_and_departmentFirstPrize",
+      "more_than_three_undergraduate",
+      "278"
+    ],
+    "score": 0.0667,
+    "max_score": 0.0667
+  },
+  "279": {
+    "award_uid": 279,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 国家一等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 国家一等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "national_firstPrize",
+      "279"
+    ],
+    "score": 1.125,
+    "max_score": 1.125
+  },
+  "280": {
+    "award_uid": 280,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "national_firstPrize",
+      "more_than_three_undergraduate",
+      "280"
+    ],
+    "score": 1.125,
+    "max_score": 1.125
+  },
+  "281": {
+    "award_uid": 281,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 国家一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "national_firstPrize",
+      "more_than_three_undergraduate",
+      "281"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "282": {
+    "award_uid": 282,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 国家二等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 国家二等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "national_secondtPrize",
+      "282"
+    ],
+    "score": 0.75,
+    "max_score": 0.75
+  },
+  "283": {
+    "award_uid": 283,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "national_secondtPrize",
+      "more_than_three_undergraduate",
+      "283"
+    ],
+    "score": 0.75,
+    "max_score": 0.75
+  },
+  "284": {
+    "award_uid": 284,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 国家二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "national_secondtPrize",
+      "more_than_three_undergraduate",
+      "284"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "285": {
+    "award_uid": 285,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "nationalFirstPrize_provincialFirstPrize",
+      "more_than_three_undergraduate",
+      "285"
+    ],
+    "score": 0.625,
+    "max_score": 0.625
+  },
+  "286": {
+    "award_uid": 286,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "nationalFirstPrize_provincialFirstPrize",
+      "more_than_three_undergraduate",
+      "286"
+    ],
+    "score": 0.375,
+    "max_score": 0.375
+  },
+  "287": {
+    "award_uid": 287,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 省级二等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 省级二等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "provincial_secondPrize",
+      "287"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "288": {
+    "award_uid": 288,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "provincial_secondPrize",
+      "more_than_three_undergraduate",
+      "288"
+    ],
+    "score": 0.5,
+    "max_score": 0.5
+  },
+  "289": {
+    "award_uid": 289,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 省级二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "provincial_secondPrize",
+      "more_than_three_undergraduate",
+      "289"
+    ],
+    "score": 0.25,
+    "max_score": 0.25
+  },
+  "290": {
+    "award_uid": 290,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "provincialThirdPrize_and_universityFirstPrize",
+      "290"
+    ],
+    "score": 0.375,
+    "max_score": 0.375
+  },
+  "291": {
+    "award_uid": 291,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "provincialThirdPrize_and_universityFirstPrize",
+      "more_than_three_undergraduate",
+      "291"
+    ],
+    "score": 0.375,
+    "max_score": 0.375
+  },
+  "292": {
+    "award_uid": 292,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "provincialThirdPrize_and_universityFirstPrize",
+      "more_than_three_undergraduate",
+      "292"
+    ],
+    "score": 0.125,
+    "max_score": 0.125
+  },
+  "293": {
+    "award_uid": 293,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 校级二等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 校级二等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "university_secondPrize",
+      "293"
+    ],
+    "score": 0.25,
+    "max_score": 0.25
+  },
+  "294": {
+    "award_uid": 294,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 校级二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 校级二等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "university_secondPrize",
+      "more_than_three_undergraduate",
+      "294"
+    ],
+    "score": 0.25,
+    "max_score": 0.25
+  },
+  "295": {
+    "award_uid": 295,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 校级二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 校级二等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "university_secondPrize",
+      "more_than_three_undergraduate",
+      "295"
+    ],
+    "score": 0.0875,
+    "max_score": 0.0875
+  },
+  "296": {
+    "award_uid": 296,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员少于等于三名本科生",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员少于等于三名本科生",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "universityThirdPrize_and_departmentFirstPrize",
+      "296"
+    ],
+    "score": 0.125,
+    "max_score": 0.125
+  },
+  "297": {
+    "award_uid": 297,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员多于三名本科生 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "universityThirdPrize_and_departmentFirstPrize",
+      "more_than_three_undergraduate",
+      "297"
+    ],
+    "score": 0.125,
+    "max_score": 0.125
+  },
+  "298": {
+    "award_uid": 298,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / C级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / C级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 成员多于三名本科生 / 第四成员与第五成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "C_competition",
+      "universityThirdPrize_and_departmentFirstPrize",
+      "more_than_three_undergraduate",
+      "298"
+    ],
+    "score": 0.05,
+    "max_score": 0.05
+  },
+  "299": {
+    "award_uid": 299,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / D级创新创业竞赛 / 国家一等奖项目 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / D级创新创业竞赛 / 国家一等奖项目 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "D_competition",
+      "national_firstPrize",
+      "299"
+    ],
+    "score": 0.5625,
+    "max_score": 0.5625
+  },
+  "300": {
+    "award_uid": 300,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / D级创新创业竞赛 / 国家二等奖项目 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / D级创新创业竞赛 / 国家二等奖项目 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "D_competition",
+      "national_secondPrize",
+      "300"
+    ],
+    "score": 0.375,
+    "max_score": 0.375
+  },
+  "301": {
+    "award_uid": 301,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / D级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / D级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "D_competition",
+      "nationalThirdPrize_provincialFirstPrize",
+      "301"
+    ],
+    "score": 0.3125,
+    "max_score": 0.3125
+  },
+  "302": {
+    "award_uid": 302,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / D级创新创业竞赛 / 省级二等奖项目 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / D级创新创业竞赛 / 省级二等奖项目 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "D_competition",
+      "provincial_secondPrize",
+      "302"
+    ],
+    "score": 0.25,
+    "max_score": 0.25
+  },
+  "303": {
+    "award_uid": 303,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / D级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / D级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "D_competition",
+      "provincialThirdPrize_and_universityFirstPrize",
+      "303"
+    ],
+    "score": 0.1875,
+    "max_score": 0.1875
+  },
+  "304": {
+    "award_uid": 304,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / D级创新创业竞赛 / 校级二等奖项目 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / D级创新创业竞赛 / 校级二等奖项目 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "D_competition",
+      "university_secondPrize",
+      "304"
+    ],
+    "score": 0.125,
+    "max_score": 0.125
+  },
+  "305": {
+    "award_uid": 305,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / D级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 前三位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / D级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 前三位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "D_competition",
+      "universityThirdPrize_and_departmentFirstPrize",
+      "305"
+    ],
+    "score": 0.0625,
+    "max_score": 0.0625
+  },
+  "306": {
+    "award_uid": 306,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / E级创新创业竞赛 / 国家一等奖项目 / 第一位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / E级创新创业竞赛 / 国家一等奖项目 / 第一位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "E_competition",
+      "national_firstPrize",
+      "306"
+    ],
+    "score": 0.2813,
+    "max_score": 0.2813
+  },
+  "307": {
+    "award_uid": 307,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / E级创新创业竞赛 / 国家二等奖项目 / 第一位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / E级创新创业竞赛 / 国家二等奖项目 / 第一位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "E_competition",
+      "national_secondPrize",
+      "307"
+    ],
+    "score": 0.1875,
+    "max_score": 0.1875
+  },
+  "308": {
+    "award_uid": 308,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / E级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 第一位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / E级创新创业竞赛 / 国家三等奖项目与省级一等奖项目 / 第一位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "E_competition",
+      "nationalThirdPrize_provincialFirstPrize",
+      "308"
+    ],
+    "score": 0.1563,
+    "max_score": 0.1563
+  },
+  "309": {
+    "award_uid": 309,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / E级创新创业竞赛 / 省级二等奖项目 / 第一位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / E级创新创业竞赛 / 省级二等奖项目 / 第一位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "E_competition",
+      "provincial_secondPrize",
+      "309"
+    ],
+    "score": 0.125,
+    "max_score": 0.125
+  },
+  "310": {
+    "award_uid": 310,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / E级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 第一位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / E级创新创业竞赛 / 省级三等奖项目和校级一等奖项目 / 第一位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "E_competition",
+      "provincialThirdPrize_and_universityFirstPrize",
+      "310"
+    ],
+    "score": 0.0938,
+    "max_score": 0.0938
+  },
+  "311": {
+    "award_uid": 311,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / E级创新创业竞赛 / 校级二等奖项目 / 第一位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / E级创新创业竞赛 / 校级二等奖项目 / 第一位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "E_competition",
+      "university_secondPrize",
+      "311"
+    ],
+    "score": 0.0625,
+    "max_score": 0.0625
+  },
+  "312": {
+    "award_uid": 312,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业竞赛 / E级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 第一位成员",
+    "rule_path": "创新素养 / 基础素养 / 创新创业竞赛 / E级创新创业竞赛 / 校级三等奖项目和院级一等奖项目 / 第一位成员",
+    "id_path": [
+      "innovation",
+      "basic",
+      "competition",
+      "E_competition",
+      "universityThirdPrize_and_departmentFirstPrize",
+      "312"
+    ],
+    "score": 0.0313,
+    "max_score": 0.0313
+  },
+  "313": {
+    "award_uid": 313,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业实践 / 法人，盈利不少于一年",
+    "rule_path": "创新素养 / 基础素养 / 创新创业实践 / 法人，盈利不少于一年",
+    "id_path": [
+      "innovation",
+      "basic",
+      "entrepreneurship_practice",
+      "313"
+    ],
+    "score": 4,
+    "max_score": 4
+  },
+  "314": {
+    "award_uid": 314,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业实践 / 法人，盈利超过六个月但少于一年",
+    "rule_path": "创新素养 / 基础素养 / 创新创业实践 / 法人，盈利超过六个月但少于一年",
+    "id_path": [
+      "innovation",
+      "basic",
+      "entrepreneurship_practice",
+      "314"
+    ],
+    "score": 2,
+    "max_score": 2
+  },
+  "315": {
+    "award_uid": 315,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "创新创业实践 / 担任主要股东不少于一年",
+    "rule_path": "创新素养 / 基础素养 / 创新创业实践 / 担任主要股东不少于一年",
+    "id_path": [
+      "innovation",
+      "basic",
+      "entrepreneurship_practice",
+      "315"
+    ],
+    "score": 1,
+    "max_score": 1
+  },
+  "316": {
+    "award_uid": 316,
+    "category": "innovation",
+    "sub_type": "basic",
+    "rule_name": "境外学术交流活动",
+    "rule_path": "创新素养 / 基础素养 / 境外学术交流活动",
+    "id_path": [
+      "innovation",
+      "basic",
+      "316"
+    ],
+    "score": 0,
+    "max_score": 5
+  },
+  "317": {
+    "award_uid": 317,
+    "category": "innovation",
+    "sub_type": "achievement",
+    "rule_name": "科研成果",
+    "rule_path": "创新素养 / 突破提升 / 科研成果",
+    "id_path": [
+      "innovation",
+      "achievement",
+      "317"
+    ],
+    "score": 0,
+    "max_score": 40
+  },
+  "318": {
+    "award_uid": 318,
+    "category": "innovation",
+    "sub_type": "achievement",
+    "rule_name": "国际组织实习",
+    "rule_path": "创新素养 / 突破提升 / 国际组织实习",
+    "id_path": [
+      "innovation",
+      "achievement",
+      "318"
+    ],
+    "score": 0,
+    "max_score": 40
+  },
+  "319": {
+    "award_uid": 319,
+    "category": "innovation",
+    "sub_type": "achievement",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 国家一等奖",
+    "rule_path": "创新素养 / 突破提升 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 国家一等奖",
+    "id_path": [
+      "innovation",
+      "achievement",
+      "competition",
+      "A_A*_competition",
+      "319"
+    ],
+    "score": 40,
+    "max_score": 40
+  },
+  "320": {
+    "award_uid": 320,
+    "category": "innovation",
+    "sub_type": "achievement",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 国家二等奖",
+    "rule_path": "创新素养 / 突破提升 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 国家二等奖",
+    "id_path": [
+      "innovation",
+      "achievement",
+      "competition",
+      "A_A*_competition",
+      "320"
+    ],
+    "score": 30,
+    "max_score": 30
+  },
+  "321": {
+    "award_uid": 321,
+    "category": "innovation",
+    "sub_type": "achievement",
+    "rule_name": "创新创业竞赛 / A(A*)级创新创业竞赛 / 国家三等奖",
+    "rule_path": "创新素养 / 突破提升 / 创新创业竞赛 / A(A*)级创新创业竞赛 / 国家三等奖",
+    "id_path": [
+      "innovation",
+      "achievement",
+      "competition",
+      "A_A*_competition",
+      "321"
+    ],
+    "score": 10,
+    "max_score": 10
+  },
+  "322": {
+    "award_uid": 322,
+    "category": "innovation",
+    "sub_type": "achievement",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家一等奖",
+    "rule_path": "创新素养 / 突破提升 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家一等奖",
+    "id_path": [
+      "innovation",
+      "achievement",
+      "competition",
+      "A-_A-*_competition",
+      "322"
+    ],
+    "score": 20,
+    "max_score": 20
+  },
+  "323": {
+    "award_uid": 323,
+    "category": "innovation",
+    "sub_type": "achievement",
+    "rule_name": "创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家二等奖",
+    "rule_path": "创新素养 / 突破提升 / 创新创业竞赛 / A-(A-*)级创新创业竞赛 / 国家二等奖",
+    "id_path": [
+      "innovation",
+      "achievement",
+      "competition",
+      "A-_A-*_competition",
+      "323"
+    ],
+    "score": 10,
+    "max_score": 10
+  }
+}

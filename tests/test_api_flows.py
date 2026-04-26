@@ -159,6 +159,242 @@ def test_upload_analysis_and_ai_audit_use_real_summary(client, monkeypatch):
     assert ai_report["consistency_check"]["signature_check"]["detected"] is True
 
 
+def test_participation_award_ai_audit_uses_light_check(client, monkeypatch):
+    from app.core.config import settings
+
+    settings.file_analysis_enabled = True
+
+    def fake_run_document_ocr(_):
+        return {
+            "ocr_text": "国家级参与未获奖证明 Applicant Lite",
+            "ocr_pages": [
+                {
+                    "page_index": 0,
+                    "text": "国家级参与未获奖证明\nApplicant Lite",
+                    "width": 600,
+                    "height": 800,
+                    "lines": [
+                        {"text": "国家级参与未获奖证明", "score": 0.99, "box": [10, 20, 320, 80]},
+                        {"text": "Applicant Lite", "score": 0.98, "box": [10, 120, 220, 170]},
+                    ],
+                }
+            ],
+            "layout_pages": [{"page_index": 0, "boxes": []}],
+        }
+
+    monkeypatch.setattr("app.services.file_analysis_service.run_document_ocr", fake_run_document_ocr)
+
+    register_user(
+        client,
+        account="stud4002",
+        name="Applicant Lite",
+        class_id=301,
+        email="stud4002@example.com",
+    )
+    student_login = login_user(client, account="stud4002")
+    student_headers = auth_headers(student_login["access_token"])
+
+    upload_resp = assert_ok(
+        client.post(
+            f"{API_PREFIX}/files/upload",
+            headers=student_headers,
+            files={"file": ("省级参与未获奖证明.png", b"mock", "image/png")},
+        )
+    )
+
+    application = assert_ok(
+        client.post(
+            f"{API_PREFIX}/applications",
+            headers=student_headers,
+            json={
+                "award_uid": 16,
+                "title": "省级参与未获奖证明",
+                "description": "参与未获奖证明",
+                "occurred_at": date.today().isoformat(),
+                "attachments": [{"file_id": upload_resp["file_id"]}],
+                "category": "physical_mental",
+                "sub_type": "achievement",
+                "score": 0.3,
+            },
+        )
+    )
+
+    ai_report = assert_ok(client.get(f"{API_PREFIX}/ai-audits/{application['application_id']}/report", headers=student_headers))
+    assert ai_report["result"] == "pass"
+    assert ai_report["identity_check"]["status"] == "matched"
+    assert ai_report["consistency_check"]["audit_mode"] == "participation_only"
+    assert ai_report["consistency_check"]["level_check"]["status"] == "skipped"
+    assert ai_report["consistency_check"]["seal_check"]["status"] == "skipped"
+    assert ai_report["consistency_check"]["signature_check"]["status"] == "skipped"
+
+
+def test_ai_audit_uses_only_applicant_page_in_merged_certificate_pdf(client, monkeypatch):
+    from app.core.config import settings
+
+    settings.file_analysis_enabled = True
+
+    def fake_run_document_ocr(_):
+        return {
+            "ocr_text": "\n".join(
+                [
+                    "省级二等奖证书 Other Student 学生工作处 2026年04月01日",
+                    "校级三等奖证书 Applicant Page 学生工作处 2026年04月02日",
+                ]
+            ),
+            "ocr_pages": [
+                {
+                    "page_index": 0,
+                    "text": "省级二等奖证书\nOther Student\n学生工作处\n2026年04月01日",
+                    "width": 600,
+                    "height": 800,
+                    "lines": [
+                        {"text": "省级二等奖证书", "score": 0.99, "box": [10, 20, 320, 80]},
+                        {"text": "Other Student", "score": 0.98, "box": [10, 120, 220, 170]},
+                        {"text": "学生工作处", "score": 0.97, "box": [360, 600, 520, 680]},
+                        {"text": "2026年04月01日", "score": 0.95, "box": [280, 700, 560, 760]},
+                    ],
+                },
+                {
+                    "page_index": 1,
+                    "text": "校级三等奖证书\nApplicant Page\n学生工作处\n2026年04月02日",
+                    "width": 600,
+                    "height": 800,
+                    "lines": [
+                        {"text": "校级三等奖证书", "score": 0.99, "box": [10, 20, 320, 80]},
+                        {"text": "Applicant Page", "score": 0.98, "box": [10, 120, 220, 170]},
+                        {"text": "学生工作处", "score": 0.97, "box": [360, 600, 520, 680]},
+                        {"text": "2026年04月02日", "score": 0.95, "box": [280, 700, 560, 760]},
+                    ],
+                },
+            ],
+            "layout_pages": [
+                {"page_index": 0, "boxes": [{"label": "seal", "score": 0.99, "coordinate": [330, 560, 560, 720]}]},
+                {"page_index": 1, "boxes": [{"label": "seal", "score": 0.99, "coordinate": [330, 560, 560, 720]}]},
+            ],
+        }
+
+    monkeypatch.setattr("app.services.file_analysis_service.run_document_ocr", fake_run_document_ocr)
+
+    register_user(
+        client,
+        account="stud4003",
+        name="Applicant Page",
+        class_id=301,
+        email="stud4003@example.com",
+    )
+    student_login = login_user(client, account="stud4003")
+    student_headers = auth_headers(student_login["access_token"])
+
+    upload_resp = assert_ok(
+        client.post(
+            f"{API_PREFIX}/files/upload",
+            headers=student_headers,
+            files={"file": ("合并证书.pdf", b"mock", "application/pdf")},
+        )
+    )
+
+    application = assert_ok(
+        client.post(
+            f"{API_PREFIX}/applications",
+            headers=student_headers,
+            json={
+                "award_uid": 1,
+                "title": "省级二等奖证书",
+                "description": "Applicant Page 省级二等奖材料",
+                "occurred_at": date.today().isoformat(),
+                "attachments": [{"file_id": upload_resp["file_id"]}],
+                "category": "innovation",
+                "sub_type": "achievement",
+                "score": 4.0,
+            },
+        )
+    )
+
+    ai_report = assert_ok(client.get(f"{API_PREFIX}/ai-audits/{application['application_id']}/report", headers=student_headers))
+    assert ai_report["result"] == "abnormal"
+    assert ai_report["identity_check"]["status"] == "matched"
+    assert ai_report["identity_check"]["files"][0]["matched_page_indexes"] == [1]
+    assert ai_report["consistency_check"]["applicant_page_indexes_by_file"][upload_resp["file_id"]] == [1]
+    assert ai_report["consistency_check"]["title_check"]["status"] == "mismatch"
+    assert ai_report["consistency_check"]["title_check"]["recognized_titles"] == ["校级三等奖证书"]
+
+
+def test_ai_audit_falls_back_to_whole_document_when_applicant_page_not_found(client, monkeypatch):
+    from app.core.config import settings
+
+    settings.file_analysis_enabled = True
+
+    def fake_run_document_ocr(_):
+        return {
+            "ocr_text": "全国大学生计算机系统能力大赛\n国家级一等奖证书\n学生工作处\n2026年04月01日",
+            "ocr_pages": [
+                {
+                    "page_index": 0,
+                    "text": "全国大学生计算机系统能力大赛\n国家级一等奖证书\n学生工作处\n2026年04月01日",
+                    "width": 600,
+                    "height": 800,
+                    "lines": [
+                        {"text": "全国大学生计算机系统能力大赛", "score": 0.99, "box": [10, 20, 420, 80]},
+                        {"text": "国家级一等奖证书", "score": 0.98, "box": [10, 120, 260, 170]},
+                        {"text": "学生工作处", "score": 0.97, "box": [360, 600, 520, 680]},
+                        {"text": "2026年04月01日", "score": 0.95, "box": [280, 700, 560, 760]},
+                    ],
+                }
+            ],
+            "layout_pages": [
+                {
+                    "page_index": 0,
+                    "boxes": [{"label": "seal", "score": 0.99, "coordinate": [330, 560, 560, 720]}],
+                }
+            ],
+        }
+
+    monkeypatch.setattr("app.services.file_analysis_service.run_document_ocr", fake_run_document_ocr)
+
+    register_user(
+        client,
+        account="stud4004",
+        name="Student Normal",
+        class_id=301,
+        email="stud4004@example.com",
+    )
+    student_login = login_user(client, account="stud4004")
+    student_headers = auth_headers(student_login["access_token"])
+
+    upload_resp = assert_ok(
+        client.post(
+            f"{API_PREFIX}/files/upload",
+            headers=student_headers,
+            files={"file": ("全国大学生计算机系统能力大赛.png", b"mock", "image/png")},
+        )
+    )
+
+    application = assert_ok(
+        client.post(
+            f"{API_PREFIX}/applications",
+            headers=student_headers,
+            json={
+                "award_uid": 1,
+                "title": "全国大学生计算机系统能力大赛国家级一等奖",
+                "description": "国家级一等奖材料",
+                "occurred_at": date.today().isoformat(),
+                "attachments": [{"file_id": upload_resp["file_id"]}],
+                "category": "innovation",
+                "sub_type": "achievement",
+                "score": 4.0,
+            },
+        )
+    )
+
+    ai_report = assert_ok(client.get(f"{API_PREFIX}/ai-audits/{application['application_id']}/report", headers=student_headers))
+    assert ai_report["result"] == "abnormal"
+    assert ai_report["identity_check"]["status"] == "mismatch"
+    assert ai_report["consistency_check"]["applicant_page_indexes_by_file"][upload_resp["file_id"]] == []
+    assert ai_report["consistency_check"]["title_check"]["status"] == "matched"
+    assert ai_report["consistency_check"]["level_check"]["status"] == "matched"
+    assert "附件未识别到申请人姓名" in ai_report["risk_points"]
+
+
 def test_auth_and_profile_flow(client):
     user = register_user(
         client,

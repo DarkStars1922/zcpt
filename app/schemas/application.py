@@ -2,6 +2,8 @@ from datetime import date
 
 from pydantic import BaseModel, Field, model_validator
 
+from app.core.score_rules import is_valid_score_category
+
 
 class AttachmentPayload(BaseModel):
     file_id: str | None = Field(default=None, min_length=1, max_length=128)
@@ -22,6 +24,12 @@ class ApplicationCreateRequest(BaseModel):
     category: str = Field(min_length=1, max_length=32)
     sub_type: str = Field(min_length=1, max_length=64)
     score: float | None = Field(default=None, ge=0)
+
+    @model_validator(mode="after")
+    def validate_score_category(self):
+        if not is_valid_score_category(self.category, self.sub_type):
+            raise ValueError("category/sub_type must be one of the configured score categories")
+        return self
 
 
 class ApplicationUpdateRequest(ApplicationCreateRequest):
