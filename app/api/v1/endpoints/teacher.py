@@ -8,6 +8,7 @@ from app.dependencies.auth import get_current_user
 from app.models.user import User
 from app.schemas.archive import ArchiveExportCreateRequest
 from app.schemas.review import TeacherRecheckRequest
+from app.schemas.teacher_insight import TeacherInsightAnalyzeRequest
 from app.services.archive_service import create_teacher_export_task, get_export_file_path, get_export_task
 from app.services.errors import ServiceError
 from app.services.teacher_service import (
@@ -18,6 +19,7 @@ from app.services.teacher_service import (
     list_teacher_applications,
     recheck_application,
 )
+from app.services.teacher_insight_service import analyze_teacher_insights
 
 router = APIRouter(prefix="/teacher", tags=["teacher"])
 
@@ -126,6 +128,27 @@ def get_student_statistics_api(
     except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
     return success_response(request=request, message="fetch success", data=data)
+
+
+@router.post("/insights/analyze")
+def analyze_teacher_insights_api(
+    request: Request,
+    payload: TeacherInsightAnalyzeRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        data = analyze_teacher_insights(
+            db,
+            user,
+            grade=payload.grade,
+            class_id=payload.class_id,
+            class_ids=payload.class_ids,
+            max_risk_students=payload.max_risk_students,
+        )
+    except ServiceError as exc:
+        return error_response(request=request, code=exc.code, message=exc.message)
+    return success_response(request=request, message="analysis success", data=data)
 
 
 @router.post("/exports")

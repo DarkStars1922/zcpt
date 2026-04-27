@@ -86,9 +86,21 @@ class Settings(BaseSettings):
     evaluation_llm_api_url: str | None = None
     evaluation_llm_api_key: str | None = None
     evaluation_llm_model: str = "gpt-4o-mini"
-    evaluation_llm_timeout_seconds: float = 20.0
+    evaluation_llm_timeout_seconds: float = 60.0
     evaluation_llm_temperature: float = 0.7
     evaluation_llm_max_tokens: int = 320
+    report_story_llm_api_url: str | None = None
+    report_story_llm_api_key: str | None = None
+    report_story_llm_model: str | None = None
+    report_story_llm_timeout_seconds: float = 120.0
+    report_story_llm_temperature: float = 0.85
+    report_story_llm_max_tokens: int = 1200
+    teacher_analysis_llm_api_url: str | None = None
+    teacher_analysis_llm_api_key: str | None = None
+    teacher_analysis_llm_model: str | None = None
+    teacher_analysis_llm_timeout_seconds: float = 120.0
+    teacher_analysis_llm_temperature: float = 0.35
+    teacher_analysis_llm_max_tokens: int = 1800
 
     @property
     def upload_dir_path(self) -> Path:

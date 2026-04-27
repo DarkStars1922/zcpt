@@ -193,6 +193,8 @@ def _run_external_detector(record: FileInfo, path: Path, file_kind: str) -> dict
                 "tampering_probability": "0.0-1.0",
                 "watermark": {"detected": False, "provider": "synthid|c2pa|other"},
                 "tampering_regions": [{"page": 1, "bbox": [0, 0, 100, 100], "score": 0.9}],
+                "page_results": [{"page": 1, "risk_level": "low", "score": 0.12}],
+                "model_versions": {"trufor": "checkpoint-name", "ai_detector": "checkpoint-name"},
             },
         }
 
@@ -253,6 +255,8 @@ def _run_external_detector(record: FileInfo, path: Path, file_kind: str) -> dict
             "tampering_probability": tampering_probability,
             "watermark": payload.get("watermark"),
             "tampering_regions": payload.get("tampering_regions") or [],
+            "page_results": payload.get("page_results") or [],
+            "model_versions": payload.get("model_versions") or {},
             "provider_result": payload.get("result"),
         },
         "raw": _trim_payload(payload),
@@ -431,4 +435,3 @@ def _trim_payload(payload: dict) -> dict:
     if len(text) <= 4000:
         return payload
     return {"truncated": True, "preview": text[:4000]}
-

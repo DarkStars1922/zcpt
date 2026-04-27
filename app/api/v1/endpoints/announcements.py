@@ -11,6 +11,7 @@ from app.services.announcement_service import (
     close_announcement,
     create_announcement,
     delete_announcement,
+    generate_my_announcement_story_copy,
     get_announcement_download_path,
     get_my_announcement_report,
     list_announcements,
@@ -57,6 +58,20 @@ def get_my_announcement_report_api(
     except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
     return success_response(request=request, message="获取成功", data=data)
+
+
+@router.post("/{announcement_id}/my-report/story-copy")
+def generate_my_announcement_story_copy_api(
+    request: Request,
+    announcement_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        data = generate_my_announcement_story_copy(db, user, announcement_id)
+    except ServiceError as exc:
+        return error_response(request=request, code=exc.code, message=exc.message)
+    return success_response(request=request, message="生成成功", data=data)
 
 
 @router.get("/{announcement_id}/download")

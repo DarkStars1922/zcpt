@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from openpyxl import Workbook
@@ -7,7 +8,7 @@ from app.core.award_catalog import serialize_award_rule
 from app.core.constants import ANNOUNCEMENT_STATUS_ACTIVE, ANNOUNCEMENT_STATUS_CLOSED
 from app.core.score_rules import SCORE_CATEGORY_KEYS, SCORE_CATEGORY_RULES, SCORE_SUB_TYPE_KEYS
 from app.core.config import settings
-from app.core.term_utils import datetime_in_term
+from app.core.term_utils import datetime_in_term, format_term_label
 from app.core.utils import ensure_utc_datetime, json_dumps, json_loads, utcnow
 from app.models.announcement import Announcement
 from app.models.announcement_scope import AnnouncementScopeBinding
@@ -16,7 +17,7 @@ from app.models.archive_record import ArchiveRecord
 from app.models.user import User
 from app.schemas.announcement import AnnouncementCreateRequest, AnnouncementUpdateRequest
 from app.services.class_service import get_class_grade, get_class_ids_by_grade, is_graduating_class
-from app.services.evaluation_service import build_report_evaluation
+from app.services.evaluation_service import build_report_evaluation, build_report_story_copy
 from app.services.errors import ServiceError
 from app.services.export_workbook_utils import EXPORT_SCORE_COLUMNS, autosize_workbook_columns, build_score_export_columns
 from app.services.score_summary_service import get_student_score_summary, get_student_score_summary_map, serialize_score_summary
@@ -87,15 +88,59 @@ def get_my_announcement_report(db: Session, user: User, announcement_id: int) ->
     archive = db.get(ArchiveRecord, announcement.archive_record_id)
     score_summary = serialize_score_summary(get_student_score_summary(db, user.id), student_id=user.id)
     radar = _build_radar_payload(score_summary)
+    public_applications = [
+        application
+        for application, student in _query_public_applications(db, announcement)
+        if student.id == user.id
+    ]
+    story_payload = _build_story_payload(public_applications, radar=radar, archive=archive)
     return {
         "student": serialize_user(user),
         "announcement": _serialize_announcement_with_scopes(db, announcement, fallback_archive=archive),
         "score_summary": score_summary,
         "radar": radar,
+        "constellation_items": _build_constellation_items(public_applications),
         "award_history": _build_award_history(db, user, announcement=announcement),
-        "evaluation": build_report_evaluation(radar=radar),
+        "story_metrics": story_payload["metrics"],
+        "story_cards": story_payload["cards"],
+        "evaluation": build_report_evaluation(radar=radar, allow_llm=False),
         "generated_at": utcnow().isoformat(),
     }
+
+
+def generate_my_announcement_story_copy(db: Session, user: User, announcement_id: int) -> dict:
+    if user.role != "student":
+        raise ServiceError("permission denied", 1003)
+    announcement = db.get(Announcement, announcement_id)
+    if not announcement:
+        raise ServiceError("announcement not found", 1002)
+    if not can_student_view_announcement(announcement, user, db=db):
+        raise ServiceError("permission denied", 1003)
+
+    archive = db.get(ArchiveRecord, announcement.archive_record_id)
+    score_summary = serialize_score_summary(get_student_score_summary(db, user.id), student_id=user.id)
+    radar = _build_radar_payload(score_summary)
+    public_applications = [
+        application
+        for application, student in _query_public_applications(db, announcement)
+        if student.id == user.id
+    ]
+    story_payload = _build_story_payload(public_applications, radar=radar, archive=archive)
+    award_history = _build_award_history(db, user, announcement=announcement)
+    student_payload = serialize_user(user)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        story_future = executor.submit(
+            build_report_story_copy,
+            student=student_payload,
+            radar=radar,
+            story_metrics=story_payload["metrics"],
+            story_cards=story_payload["cards"],
+            award_history=award_history,
+        )
+        evaluation_future = executor.submit(build_report_evaluation, radar=radar, allow_llm=True)
+        story_copy = story_future.result()
+        evaluation = evaluation_future.result()
+    return {**story_copy, "evaluation": evaluation}
 
 
 def update_announcement(db: Session, user: User, announcement_id: int, payload: AnnouncementUpdateRequest) -> dict:
@@ -619,6 +664,245 @@ def _build_award_history(db: Session, user: User, *, announcement: Announcement 
             }
         )
     return history
+
+
+def _build_constellation_items(applications: list[Application]) -> list[dict]:
+    result = []
+    for application in sorted(applications, key=lambda item: (item.occurred_at, item.created_at, item.id or 0)):
+        category_rule = SCORE_CATEGORY_RULES.get(application.category, {})
+        sub_rule = (category_rule.get("sub_types") or {}).get(application.sub_type, {})
+        award_rule = serialize_award_rule(application.award_uid)
+        result.append(
+            {
+                "application_id": application.id,
+                "title": application.title,
+                "occurred_at": application.occurred_at.isoformat() if application.occurred_at else None,
+                "status": application.status,
+                "score": _round_score(application.item_score or 0.0),
+                "category": application.category,
+                "category_name": category_rule.get("name") or application.category,
+                "sub_type": application.sub_type,
+                "sub_type_name": sub_rule.get("name") or application.sub_type,
+                "award_uid": application.award_uid,
+                "award_rule": award_rule,
+                "award_rule_name": (award_rule or {}).get("rule_name") or (award_rule or {}).get("rule_path"),
+                "color": CATEGORY_COLORS.get(application.category, "#9c0c13"),
+            }
+        )
+    return result
+
+
+def _build_story_payload(applications: list[Application], *, radar: dict, archive: ArchiveRecord | None) -> dict:
+    category_scores = {item.get("key"): item for item in radar.get("categories") or []}
+    category_counts = {key: 0 for key in SCORE_CATEGORY_KEYS}
+    sub_type_counts = {sub_type: 0 for sub_type in SCORE_SUB_TYPE_KEYS}
+    for application in applications:
+        if application.category in category_counts:
+            category_counts[application.category] += 1
+        if application.sub_type in sub_type_counts:
+            sub_type_counts[application.sub_type] += 1
+
+    top_category = _pick_top_category(category_scores)
+    growth_category = _pick_growth_category(category_scores)
+    physical_apps = [item for item in applications if item.category == "physical_mental"]
+    art_apps = [item for item in applications if item.category == "art"]
+    innovation_apps = [item for item in applications if item.category == "innovation"]
+    achievement_apps = [item for item in applications if item.sub_type == "achievement"]
+    favorite_season = _favorite_activity_season(physical_apps)
+    first_date, last_date = _activity_date_range(applications)
+    total_score = sum(float((item.get("score") or 0.0)) for item in category_scores.values())
+
+    metrics = {
+        "term": archive.term if archive else None,
+        "term_label": format_term_label(archive.term if archive else None),
+        "total_applications": len(applications),
+        "achievement_applications": len(achievement_apps),
+        "art_event_count": len(art_apps),
+        "physical_activity_count": len(physical_apps),
+        "innovation_count": len(innovation_apps),
+        "favorite_sport_season": favorite_season,
+        "category_counts": category_counts,
+        "sub_type_counts": sub_type_counts,
+        "top_category": top_category,
+        "growth_category": growth_category,
+        "first_activity_date": first_date.isoformat() if first_date else None,
+        "last_activity_date": last_date.isoformat() if last_date else None,
+    }
+    cards = [
+        {
+            "key": "journey",
+            "theme": "overview",
+            "eyebrow": metrics["term_label"] or "本次公示",
+            "title": "这一学期，你留下了自己的综测足迹",
+            "value": len(applications),
+            "unit": "条记录",
+            "description": _journey_description(applications),
+            "color": "#b91c1c",
+        },
+        {
+            "key": "spotlight",
+            "theme": "score",
+            "eyebrow": "最闪光的方向",
+            "title": top_category["name"],
+            "value": _round_score(top_category["score"]),
+            "unit": "分",
+            "description": f"{top_category['name']}是你当前最亮的一束光，已经拿到{_score_text(top_category['score'])}/{_score_text(top_category['max_score'])}分。",
+            "color": top_category["color"],
+        },
+        {
+            "key": "art",
+            "theme": "art",
+            "eyebrow": "文艺片段",
+            "title": _art_story_title(len(art_apps)),
+            "value": len(art_apps),
+            "unit": "次",
+            "description": _art_story_description(len(art_apps)),
+            "color": CATEGORY_COLORS["art"],
+        },
+        {
+            "key": "sport",
+            "theme": "physical",
+            "eyebrow": "运动季节",
+            "title": _sport_story_title(favorite_season),
+            "value": len(physical_apps),
+            "unit": "次",
+            "description": _sport_story_description(favorite_season, len(physical_apps)),
+            "color": CATEGORY_COLORS["physical_mental"],
+        },
+        {
+            "key": "achievement",
+            "theme": "achievement",
+            "eyebrow": "成果星光",
+            "title": "成果与突破把经历连成星轨",
+            "value": len(achievement_apps),
+            "unit": "项",
+            "description": _achievement_story_description(len(achievement_apps), len(innovation_apps)),
+            "color": CATEGORY_COLORS["innovation"],
+        },
+        {
+            "key": "growth",
+            "theme": "growth",
+            "eyebrow": "新的学期",
+            "title": f"下一站，试着点亮{growth_category['name']}",
+            "value": _round_score(total_score),
+            "unit": "总分",
+            "description": f"{growth_category['name']}还有继续舒展的空间。新的学期，可以从一个小目标开始，把下一张报告写得更漂亮。",
+            "color": growth_category["color"],
+        },
+    ]
+    return {"metrics": metrics, "cards": cards}
+
+
+def _pick_top_category(category_scores: dict[str, dict]) -> dict:
+    fallback = _category_story_item("physical_mental")
+    if not category_scores:
+        return fallback
+    return max(
+        (_category_story_item(key, value) for key, value in category_scores.items()),
+        key=lambda item: (float(item["score"] or 0.0), float(item["max_score"] or 0.0)),
+        default=fallback,
+    )
+
+
+def _pick_growth_category(category_scores: dict[str, dict]) -> dict:
+    fallback = _category_story_item("innovation")
+    if not category_scores:
+        return fallback
+    return min(
+        (_category_story_item(key, value) for key, value in category_scores.items()),
+        key=lambda item: (float(item["score"] or 0.0) / max(float(item["max_score"] or 1.0), 1.0), -float(item["max_score"] or 0.0)),
+        default=fallback,
+    )
+
+
+def _category_story_item(category: str, payload: dict | None = None) -> dict:
+    rule = SCORE_CATEGORY_RULES.get(category, {})
+    payload = payload or {}
+    return {
+        "key": category,
+        "name": payload.get("name") or rule.get("name") or category,
+        "score": _round_score(payload.get("score", 0.0)),
+        "max_score": _round_score(payload.get("max_score", rule.get("max_score", 0.0))),
+        "color": payload.get("color") or CATEGORY_COLORS.get(category, "#9c0c13"),
+    }
+
+
+def _favorite_activity_season(applications: list[Application]) -> str | None:
+    counts: dict[str, int] = {}
+    for application in applications:
+        if not application.occurred_at:
+            continue
+        season = _season_name(application.occurred_at.month)
+        counts[season] = counts.get(season, 0) + 1
+    if not counts:
+        return None
+    order = {"春天": 0, "夏天": 1, "秋天": 2, "冬天": 3}
+    return sorted(counts.items(), key=lambda item: (-item[1], order.get(item[0], 99)))[0][0]
+
+
+def _season_name(month: int) -> str:
+    if month in {3, 4, 5}:
+        return "春天"
+    if month in {6, 7, 8}:
+        return "夏天"
+    if month in {9, 10, 11}:
+        return "秋天"
+    return "冬天"
+
+
+def _activity_date_range(applications: list[Application]):
+    dates = sorted(application.occurred_at for application in applications if application.occurred_at)
+    if not dates:
+        return None, None
+    return dates[0], dates[-1]
+
+
+def _journey_description(applications: list[Application]) -> str:
+    if not applications:
+        return "这份报告暂时很安静，新的学期可以从第一条申报开始。"
+    first_date, last_date = _activity_date_range(applications)
+    if first_date and last_date and first_date != last_date:
+        return f"从{first_date.month}月到{last_date.month}月，你把学习、活动和探索写进了同一个学期。"
+    return "这些记录像一组坐标，标记了你认真参与校园生活的瞬间。"
+
+
+def _art_story_title(count: int) -> str:
+    if count <= 0:
+        return "艺术现场还等你打开下一扇门"
+    return f"你走过了{count}场文艺现场"
+
+
+def _art_story_description(count: int) -> str:
+    if count <= 0:
+        return "下一次讲座、展览、演出或社团活动，都可能成为报告里新的颜色。"
+    return "每一次观看、演出、创作或参与，都在训练你发现美、表达美的能力。"
+
+
+def _sport_story_title(season: str | None) -> str:
+    if not season:
+        return "你最喜欢的运动季节，等待被记录"
+    return f"你最常在{season}运动"
+
+
+def _sport_story_description(season: str | None, count: int) -> str:
+    if count <= 0:
+        return "身体的能量会慢慢点亮生活，新的学期可以给自己安排一次轻松的开始。"
+    return f"{season or '这个学期'}里的运动记录，说明你正在把健康感和节奏感带进日常。"
+
+
+def _achievement_story_description(achievement_count: int, innovation_count: int) -> str:
+    if achievement_count <= 0:
+        return "成果和突破暂时还在路上，先把一次尝试做好，也是一种很好的开始。"
+    if innovation_count > 0:
+        return f"其中有{innovation_count}项与创新素养有关，说明你已经把想法推进到更远处。"
+    return "这些成果记录让努力有了形状，也让下一次尝试看起来更近。"
+
+
+def _score_text(value) -> str:
+    number = float(value or 0.0)
+    if number.is_integer():
+        return str(int(number))
+    return f"{number:.2f}".rstrip("0").rstrip(".")
 
 
 def _is_participation_award(application: Application, award_rule: dict | None) -> bool:
