@@ -12,6 +12,7 @@ services:
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
+      - --max-connections=300
     volumes:
       - mysql_data:/var/lib/mysql
 
@@ -39,6 +40,7 @@ services:
       REDIS_URL: redis://redis:6379/0
       CELERY_TASK_ALWAYS_EAGER: "false"
       AUTO_CREATE_TABLES: "false"
+      WEB_CONCURRENCY: "4"
     ports:
       - "8000:8000"
     volumes:
@@ -60,7 +62,8 @@ services:
       REDIS_URL: redis://redis:6379/0
       CELERY_TASK_ALWAYS_EAGER: "false"
       AUTO_CREATE_TABLES: "false"
-    command: ["celery", "-A", "app.core.celery_app:celery_app", "worker", "--loglevel=INFO"]
+      CELERY_WORKER_CONCURRENCY: "2"
+    command: ["sh", "-c", "celery -A app.core.celery_app:celery_app worker --loglevel=INFO --concurrency=$${CELERY_WORKER_CONCURRENCY:-2}"]
     volumes:
       - .:/app
 

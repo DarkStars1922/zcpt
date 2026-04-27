@@ -9,12 +9,22 @@ engine = None
 
 
 def _build_engine(database_url: str):
-    connect_args = {"check_same_thread": False} if database_url.startswith("sqlite") else {}
+    is_sqlite = database_url.startswith("sqlite")
+    connect_args = {"check_same_thread": False} if is_sqlite else {}
+    pool_options = {}
+    if not is_sqlite:
+        pool_options = {
+            "pool_size": settings.db_pool_size,
+            "max_overflow": settings.db_max_overflow,
+            "pool_recycle": settings.db_pool_recycle_seconds,
+            "pool_timeout": settings.db_pool_timeout_seconds,
+        }
     return create_engine(
         database_url,
         connect_args=connect_args,
         echo=settings.sql_echo,
         pool_pre_ping=True,
+        **pool_options,
     )
 
 

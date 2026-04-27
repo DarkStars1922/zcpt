@@ -32,6 +32,7 @@ LEVEL_KEYWORDS = (
     "优秀奖",
 )
 TITLE_HINTS = ("证书", "证明", "获奖", "奖", "竞赛", "荣誉", "表彰", "志愿", "创新", "一等奖", "二等奖", "三等奖")
+FILE_ANALYSIS_VERSION = "paddleocr_pdf_render_v2"
 
 
 def analyze_file(db: Session, file: FileInfo, *, uploader: User | None = None, force: bool = False) -> FileAnalysisResult:
@@ -43,7 +44,9 @@ def analyze_file(db: Session, file: FileInfo, *, uploader: User | None = None, f
         db.refresh(record)
 
     if record.status == "completed" and not force:
-        return record
+        payload = json_loads(record.analysis_json, {})
+        if isinstance(payload, dict) and payload.get("analysis_version") == FILE_ANALYSIS_VERSION:
+            return record
 
     record.provider = settings.ai_audit_provider
     record.status = "running"
@@ -104,7 +107,9 @@ def _build_summary(*, file: FileInfo, uploader: User | None, raw_result: dict) -
         seal_score_threshold=settings.paddleocr_seal_score_threshold,
     )
     return {
+        "analysis_version": FILE_ANALYSIS_VERSION,
         "document_title": document_title,
+        "ocr_text_length": len(full_text),
         "recognized_levels": _extract_levels(full_text, document_title, file.original_name),
         "uploader_name_match": _match_name(
             full_text,

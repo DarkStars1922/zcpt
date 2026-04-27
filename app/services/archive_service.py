@@ -118,6 +118,10 @@ def get_archive_download_path(db: Session, user: User, archive_id: str) -> Path:
 
 
 def create_archive_record_from_task(db: Session, task: ExportTask) -> ArchiveRecord:
+    existing = db.exec(select(ArchiveRecord).where(ArchiveRecord.export_task_id == task.task_id)).first()
+    if existing:
+        return existing
+
     filters = json_loads(task.filters_json, {})
     archive = ArchiveRecord(
         archive_id=f"arc_{uuid4().hex[:12]}",

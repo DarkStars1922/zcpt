@@ -6,6 +6,9 @@ from sqlmodel import Session, select
 from app.core.config import settings
 from app.core.constants import (
     MANAGE_REVIEW_ROLES,
+    APPLICATION_STATUS_ARCHIVED,
+    APPLICATION_STATUS_PENDING_AI,
+    APPLICATION_STATUS_REJECTED,
     REVIEWER_REVIEWABLE_STATUSES,
     ROLE_STUDENT,
     TEACHER_RECHECKABLE_STATUSES,
@@ -27,6 +30,12 @@ from app.services.serializers import serialize_application, serialize_review_rec
 from app.services.system_log_service import write_system_log
 
 
+TEACHER_CATEGORY_VISIBLE_STATUSES = set(TEACHER_RECHECKABLE_STATUSES) | {
+    APPLICATION_STATUS_PENDING_AI,
+    APPLICATION_STATUS_ARCHIVED,
+}
+
+
 def get_pending_list(
     db: Session,
     user: User,
@@ -34,6 +43,7 @@ def get_pending_list(
     class_id: int | None,
     category: str | None,
     sub_type: str | None,
+    status: str | None,
     keyword: str | None,
     page: int,
     size: int,
@@ -44,6 +54,7 @@ def get_pending_list(
         class_id=class_id,
         category=category,
         sub_type=sub_type,
+        status=status,
         keyword=keyword,
         page=page,
         size=size,
@@ -63,6 +74,7 @@ def get_pending_category_summary(db: Session, user: User, *, class_id: int | Non
         class_id=class_id,
         category=None,
         sub_type=None,
+        status=None,
         keyword=None,
         page=1,
         size=1000,
@@ -94,6 +106,7 @@ def get_pending_by_category(
     class_id: int | None,
     category: str,
     sub_type: str | None,
+    status: str | None,
     term: str | None,
     page: int,
     size: int,
@@ -104,6 +117,7 @@ def get_pending_by_category(
         class_id=class_id,
         category=category,
         sub_type=sub_type,
+        status=status,
         keyword=None,
         page=page,
         size=size,
@@ -126,6 +140,7 @@ def get_pending_count(
     class_id: int | None,
     category: str | None,
     sub_type: str | None,
+    status: str | None,
 ) -> dict:
     _, total = _query_pending_applications(
         db,
@@ -133,6 +148,7 @@ def get_pending_count(
         class_id=class_id,
         category=category,
         sub_type=sub_type,
+        status=status,
         keyword=None,
         page=1,
         size=1,
@@ -264,6 +280,7 @@ def _query_pending_applications(
     class_id: int | None,
     category: str | None,
     sub_type: str | None,
+    status: str | None,
     keyword: str | None,
     page: int,
     size: int,
@@ -273,12 +290,22 @@ def _query_pending_applications(
     stmt = apply_datetime_term_filter(stmt, Application.created_at, settings.default_term)
     stmt = stmt.where(User.is_deleted.is_(False))
     if role == "teacher":
-        stmt = stmt.where(Application.status.in_(tuple(REVIEWER_REVIEWABLE_STATUSES)))
+        if status:
+            if status not in TEACHER_CATEGORY_VISIBLE_STATUSES:
+                return [], 0
+            stmt = stmt.where(Application.status == status)
+        else:
+            stmt = stmt.where(Application.status.in_(tuple(TEACHER_CATEGORY_VISIBLE_STATUSES)))
     else:
         class_ids = get_active_reviewer_class_ids(db, user)
         if not class_ids:
             return [], 0
-        stmt = stmt.where(Application.status.in_(tuple(REVIEWER_REVIEWABLE_STATUSES)))
+        if status:
+            if status not in REVIEWER_REVIEWABLE_STATUSES:
+                return [], 0
+            stmt = stmt.where(Application.status == status)
+        else:
+            stmt = stmt.where(Application.status.in_(tuple(REVIEWER_REVIEWABLE_STATUSES)))
         stmt = stmt.where(User.class_id.in_(class_ids))
         stmt = stmt.where(Application.applicant_id != user.id)
     if class_id:
@@ -309,8 +336,8 @@ def _get_reviewable_application(db: Session, user: User, application_id: int) ->
     application, student = row
     role = _resolve_reviewer_role(db, user)
     if role == "teacher":
-        if application.status not in TEACHER_RECHECKABLE_STATUSES:
-            raise ServiceError("teacher cannot review this status", 1000)
+        if application.status not in TEACHER_CATEGORY_VISIBLE_STATUSES:
+            raise ServiceError("teacher cannot view this status", 1000)
     else:
         class_ids = get_active_reviewer_class_ids(db, user)
         if student.class_id not in class_ids:
@@ -325,6 +352,10 @@ def _get_reviewable_application(db: Session, user: User, application_id: int) ->
 def _resolve_decision_status(db: Session, user: User, current_status: str, decision: str) -> str:
     role = _resolve_reviewer_role(db, user)
     if role == "teacher":
+        if current_status == APPLICATION_STATUS_ARCHIVED:
+            if decision == "rejected":
+                return APPLICATION_STATUS_REJECTED
+            raise ServiceError("archived application cannot be approved again", 1000)
         if current_status not in TEACHER_RECHECKABLE_STATUSES:
             raise ServiceError("teacher cannot review this status", 1000)
         return "approved" if decision == "approved" else "rejected"

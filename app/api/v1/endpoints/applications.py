@@ -3,7 +3,7 @@ from sqlmodel import Session
 
 from app.core.database import get_db
 from app.core.responses import error_response, success_response
-from app.dependencies.auth import get_current_user
+from app.dependencies.auth import get_current_user, require_valid_access_token
 from app.models.user import User
 from app.schemas.application import ApplicationCreateRequest, ApplicationUpdateRequest
 from app.services.application_service import (
@@ -23,7 +23,7 @@ router = APIRouter(prefix="/applications", tags=["applications"])
 
 
 @router.get("/categories")
-def list_categories_api(request: Request, _: User = Depends(get_current_user)):
+def list_categories_api(request: Request, _: dict = Depends(require_valid_access_token)):
     return success_response(request=request, message="获取成功", data=list_categories())
 
 

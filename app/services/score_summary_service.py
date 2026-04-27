@@ -165,6 +165,9 @@ def serialize_score_summary(summary: StudentScoreSummary | None, *, student_id: 
     if summary is None:
         return _empty_serialized_summary(student_id)
     breakdown = json_loads(summary.score_breakdown_json, {})
+    categories = breakdown.get("categories")
+    if not categories:
+        categories = _build_serialized_categories_from_summary(summary)
     return {
         "student_id": summary.student_id,
         "raw_total_score": _round_score(summary.raw_total_score),
@@ -183,7 +186,7 @@ def serialize_score_summary(summary: StudentScoreSummary | None, *, student_id: 
             field: _round_score(getattr(summary, field, 0.0))
             for field in SCORE_ACHIEVEMENT_OVERFLOW_FIELD_KEYS
         },
-        "categories": breakdown.get("categories", []),
+        "categories": categories,
         "updated_at": summary.updated_at.isoformat() if summary.updated_at else None,
     }
 
@@ -269,6 +272,44 @@ def _empty_serialized_summary(student_id: int | None) -> dict:
         )["categories"],
         "updated_at": None,
     }
+
+
+def _build_serialized_categories_from_summary(summary: StudentScoreSummary) -> list[dict]:
+    raw_sub_scores = {}
+    sub_scores = {}
+    category_scores = {}
+    category_raw_scores = {}
+    category_overflow_scores = {}
+    achievement_overflow_scores = {}
+
+    for category in SCORE_CATEGORY_KEYS:
+        achievement_overflow_field = f"{category}_achievement_overflow"
+        achievement_overflow = _round_score(getattr(summary, achievement_overflow_field, 0.0))
+        achievement_overflow_scores[achievement_overflow_field] = achievement_overflow
+        category_overflow_scores[category] = achievement_overflow
+
+        raw_subtotal = 0.0
+        for sub_type in SCORE_SUB_TYPE_KEYS:
+            sub_field = _sub_score_field(category, sub_type)
+            score = _round_score(getattr(summary, sub_field, 0.0))
+            raw_score = score + achievement_overflow if sub_type == "achievement" else score
+            raw_sub_scores[sub_field] = _round_score(raw_score)
+            sub_scores[sub_field] = score
+            raw_subtotal += raw_score
+
+        category_score_field = f"{category}_score"
+        category_scores[category_score_field] = _round_score(getattr(summary, category_score_field, 0.0))
+        category_raw_scores[category] = _round_score(raw_subtotal)
+
+    return _build_score_breakdown(
+        raw_sub_scores=raw_sub_scores,
+        sub_scores=sub_scores,
+        category_scores=category_scores,
+        category_raw_scores=category_raw_scores,
+        category_overflow_scores=category_overflow_scores,
+        achievement_overflow_scores=achievement_overflow_scores,
+        ignored_applications=[],
+    )["categories"]
 
 
 def _sub_score_field(category: str, sub_type: str) -> str:

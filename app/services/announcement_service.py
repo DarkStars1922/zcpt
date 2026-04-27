@@ -18,6 +18,7 @@ from app.schemas.announcement import AnnouncementCreateRequest, AnnouncementUpda
 from app.services.class_service import get_class_grade, get_class_ids_by_grade, is_graduating_class
 from app.services.evaluation_service import build_report_evaluation
 from app.services.errors import ServiceError
+from app.services.export_workbook_utils import EXPORT_SCORE_COLUMNS, autosize_workbook_columns, build_score_export_columns
 from app.services.score_summary_service import get_student_score_summary, get_student_score_summary_map, serialize_score_summary
 from app.services.serializers import serialize_announcement, serialize_user
 from app.services.system_log_service import write_system_log
@@ -187,8 +188,12 @@ def get_announcement_download_path(db: Session, user: User, announcement_id: int
         raise ServiceError("permission denied", 1003)
 
     settings.export_dir_path.mkdir(parents=True, exist_ok=True)
-    file_path = settings.export_dir_path / f"announcement_{announcement.id}_public.xlsx"
-    _build_public_announcement_workbook(db, announcement, file_path)
+    if user.role in {"teacher", "admin"}:
+        file_path = settings.export_dir_path / f"announcement_{announcement.id}_full.xlsx"
+        _build_full_announcement_workbook(db, announcement, file_path)
+    else:
+        file_path = settings.export_dir_path / f"announcement_{announcement.id}_public.xlsx"
+        _build_public_announcement_workbook(db, announcement, file_path)
     return file_path
 
 
@@ -373,6 +378,77 @@ def _build_public_announcement_workbook(db: Session, announcement: Announcement,
                 application.occurred_at.isoformat() if application.occurred_at else "",
             ]
         )
+    autosize_workbook_columns(wb)
+    wb.save(file_path)
+
+
+def _build_full_announcement_workbook(db: Session, announcement: Announcement, file_path: Path) -> None:
+    students = _query_public_students(db, announcement)
+    student_ids = [student.id for student in students if student.id is not None]
+    score_map = get_student_score_summary_map(db, student_ids)
+
+    wb = Workbook()
+    total_ws = wb.active
+    total_ws.title = "完整分数"
+    total_ws.append(
+        [
+            "年级",
+            "班级",
+            "学号",
+            "姓名",
+            "官方总分",
+            "原始总分",
+            *[label for label, _ in EXPORT_SCORE_COLUMNS],
+        ]
+    )
+    for student in students:
+        score_summary = serialize_score_summary(score_map.get(student.id), student_id=student.id)
+        score_columns = build_score_export_columns(score_summary)
+        total_ws.append(
+            [
+                _resolve_user_grade(db, student.class_id),
+                student.class_id,
+                student.account,
+                student.name,
+                score_summary["actual_score"],
+                score_summary["raw_total_score"],
+                *[score_columns[key] for _, key in EXPORT_SCORE_COLUMNS],
+            ]
+        )
+
+    application_ws = wb.create_sheet("范围内申报")
+    application_ws.append(
+        [
+            "年级",
+            "班级",
+            "学号",
+            "姓名",
+            "申报名称",
+            "分类",
+            "小类",
+            "分数",
+            "状态",
+            "发生日期",
+        ]
+    )
+    for application, student in _query_public_applications(db, announcement):
+        category_rule = SCORE_CATEGORY_RULES.get(application.category, {})
+        sub_rule = (category_rule.get("sub_types") or {}).get(application.sub_type, {})
+        application_ws.append(
+            [
+                _resolve_user_grade(db, student.class_id),
+                student.class_id,
+                student.account,
+                student.name,
+                application.title,
+                category_rule.get("name") or application.category,
+                sub_rule.get("name") or application.sub_type,
+                application.item_score,
+                application.status,
+                application.occurred_at.isoformat() if application.occurred_at else "",
+            ]
+        )
+    autosize_workbook_columns(wb)
     wb.save(file_path)
 
 
@@ -407,6 +483,7 @@ def _query_public_applications(db: Session, announcement: Announcement) -> list[
             Application.applicant_id.in_(student_ids),
             Application.is_deleted.is_(False),
             Application.status.in_(("approved", "archived")),
+            Application.actual_score_recorded.is_(True),
         )
         .order_by(User.class_id.asc(), User.account.asc(), Application.occurred_at.asc(), Application.id.asc())
     ).all()
@@ -503,6 +580,7 @@ def _build_award_history(db: Session, user: User, *, announcement: Announcement 
         select(Application).where(
             Application.applicant_id == user.id,
             Application.status.in_(("approved", "archived")),
+            Application.actual_score_recorded.is_(True),
             Application.is_deleted.is_(False),
         ).order_by(Application.occurred_at.asc(), Application.created_at.asc(), Application.id.asc())
     ).all()
@@ -519,6 +597,8 @@ def _build_award_history(db: Session, user: User, *, announcement: Announcement 
             continue
         award_rule = serialize_award_rule(application.award_uid)
         if _is_participation_award(application, award_rule):
+            continue
+        if _is_hidden_basic_history(application):
             continue
         category_rule = SCORE_CATEGORY_RULES.get(application.category, {})
         sub_rule = (category_rule.get("sub_types") or {}).get(application.sub_type, {})
@@ -549,6 +629,10 @@ def _is_participation_award(application: Application, award_rule: dict | None) -
         (award_rule or {}).get("rule_path"),
     ]
     return any("参与未获奖" in str(item) for item in haystacks if item)
+
+
+def _is_hidden_basic_history(application: Application) -> bool:
+    return application.sub_type == "basic" and application.category in {"physical_mental", "art", "labor"}
 
 
 def _round_score(value) -> float:

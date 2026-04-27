@@ -8,7 +8,7 @@ from app.models.user import User
 from app.schemas.image_authenticity import ImageAuthenticityRequest
 from app.services.ai_audit_service import get_ai_logs, get_ai_report
 from app.services.errors import ServiceError
-from app.services.image_authenticity_service import plan_image_authenticity_check
+from app.services.image_authenticity_service import check_image_authenticity
 
 router = APIRouter(prefix="/ai-audits", tags=["ai-audits"])
 
@@ -21,10 +21,16 @@ def plan_image_authenticity_api(
     db: Session = Depends(get_db),
 ):
     try:
-        data = plan_image_authenticity_check(db, user, file_id=payload.file_id)
+        data = check_image_authenticity(
+            db,
+            user,
+            file_id=payload.file_id,
+            run_c2pa=payload.run_c2pa,
+            run_external=payload.run_external,
+        )
     except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
-    return success_response(request=request, message="接口已预留", data=data)
+    return success_response(request=request, message="鉴别完成", data=data)
 
 
 @router.get("/{application_id}/report")

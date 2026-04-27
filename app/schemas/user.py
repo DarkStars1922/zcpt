@@ -16,10 +16,11 @@ class UserInfo(BaseModel):
 
 
 class UserUpdateRequest(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=64)
     email: str | None = Field(default=None, max_length=128)
     phone: str | None = Field(default=None, max_length=20)
 
-    @field_validator("email", "phone", mode="before")
+    @field_validator("name", "email", "phone", mode="before")
     @classmethod
     def normalize_blank_to_none(cls, value):
         if value is None:

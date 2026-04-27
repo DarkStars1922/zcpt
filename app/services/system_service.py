@@ -265,12 +265,13 @@ def list_classes(
 
 def create_class(db: Session, user: User, payload: ClassCreateRequest) -> dict:
     _require_class_manage(user)
-    existing = db.exec(select(ClassInfo).where(ClassInfo.class_id == payload.class_id)).first()
+    class_id = payload.class_id or _next_available_class_id(db)
+    existing = db.exec(select(ClassInfo).where(ClassInfo.class_id == class_id)).first()
     if existing and not existing.is_deleted:
         raise ServiceError("班级编号已存在", 1007)
     if existing and existing.is_deleted:
         existing.grade = payload.grade
-        existing.name = payload.name or f"{payload.grade}级 {payload.class_id}班"
+        existing.name = payload.name or f"{payload.grade}级 {class_id}班"
         existing.is_active = payload.is_active
         existing.is_deleted = False
         existing.deleted_at = None
@@ -278,9 +279,9 @@ def create_class(db: Session, user: User, payload: ClassCreateRequest) -> dict:
         row = existing
     else:
         row = ClassInfo(
-            class_id=payload.class_id,
+            class_id=class_id,
             grade=payload.grade,
-            name=payload.name or f"{payload.grade}级 {payload.class_id}班",
+            name=payload.name or f"{payload.grade}级 {class_id}班",
             is_active=payload.is_active,
             updated_at=utcnow(),
         )
@@ -296,6 +297,15 @@ def create_class(db: Session, user: User, payload: ClassCreateRequest) -> dict:
         detail={"grade": row.grade},
     )
     return serialize_class_info(row)
+
+
+def _next_available_class_id(db: Session) -> int:
+    rows = db.exec(select(ClassInfo.class_id)).all()
+    used = {int(value) for value in rows if value is not None}
+    next_id = 1
+    while next_id in used:
+        next_id += 1
+    return next_id
 
 
 def update_class(db: Session, user: User, class_id: int, payload: ClassUpdateRequest) -> dict:

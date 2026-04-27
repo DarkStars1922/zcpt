@@ -25,6 +25,8 @@ def get_me(db: Session, user: User) -> dict:
 
 
 def update_me(db: Session, user: User, payload: UserUpdateRequest) -> dict:
+    if "name" in payload.model_fields_set and payload.name:
+        user.name = payload.name
     if "email" in payload.model_fields_set:
         user.email = payload.email
     if "phone" in payload.model_fields_set:

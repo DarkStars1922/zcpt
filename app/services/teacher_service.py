@@ -104,10 +104,12 @@ def recheck_application(db: Session, user: User, application_id: int, payload: T
     application = db.get(Application, application_id)
     if not application or application.is_deleted:
         raise ServiceError("application not found", 1002)
-    if application.status not in TEACHER_RECHECKABLE_STATUSES:
-        raise ServiceError("teacher cannot review this status", 1000)
-
     student = db.get(User, application.applicant_id)
+    if application.status == "archived":
+        if payload.decision != "rejected":
+            raise ServiceError("archived application cannot be approved again", 1000)
+    elif application.status not in TEACHER_RECHECKABLE_STATUSES:
+        raise ServiceError("teacher cannot review this status", 1000)
     application.status = "approved" if payload.decision == "approved" else "rejected"
     mark_application_score_recorded(application)
     application.comment = payload.comment
@@ -284,6 +286,22 @@ def get_class_statistics(db: Session, user: User, *, grade: int | None, class_id
 
 def get_student_statistics(db: Session, user: User, *, grade: int | None, class_id: int | None) -> dict:
     _require_teacher(user)
+    students = _query_students_for_statistics(db, grade=grade, class_id=class_id)
+    summary: dict[int, dict] = {
+        student.id: {
+            "grade": get_class_grade(db, student.class_id),
+            "class_id": student.class_id,
+            "student_id": student.id,
+            "student_account": student.account,
+            "student_name": student.name,
+            "total_count": 0,
+            "rejected_count": 0,
+            "pending_count": 0,
+            "total_score": 0.0,
+        }
+        for student in students
+        if student.id is not None
+    }
     rows = list_teacher_applications(
         db,
         user,
@@ -296,7 +314,6 @@ def get_student_statistics(db: Session, user: User, *, grade: int | None, class_
         page=1,
         size=10000,
     )["list"]
-    summary: dict[int, dict] = {}
     for row in rows:
         student_id = row["student_id"]
         if student_id not in summary:
@@ -337,6 +354,23 @@ def get_student_statistics(db: Session, user: User, *, grade: int | None, class_
         )
     result.sort(key=lambda item: (item["grade"] or 0, item["class_id"] or 0, item["student_account"] or ""))
     return {"list": result}
+
+
+def _query_students_for_statistics(db: Session, *, grade: int | None, class_id: int | None) -> list[User]:
+    stmt = select(User).where(User.role == "student", User.is_deleted.is_(False))
+    if class_id:
+        stmt = stmt.where(User.class_id == class_id)
+    if grade:
+        class_ids = get_class_ids_by_grade(db, grade, include_graduating=False)
+        stmt = stmt.where(User.class_id.in_(class_ids) if class_ids else User.class_id == -1)
+    graduating_class_ids = [
+        row.class_id
+        for row in db.exec(select(User.class_id).where(User.role == "student")).all()
+        if is_graduating_class(db, row)
+    ]
+    if graduating_class_ids:
+        stmt = stmt.where(User.class_id.notin_(list(dict.fromkeys(graduating_class_ids))))
+    return db.exec(stmt.order_by(User.class_id.asc(), User.account.asc())).all()
 
 
 def _require_teacher(user: User) -> None:

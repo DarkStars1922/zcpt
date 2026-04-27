@@ -78,7 +78,7 @@ class AdminUserUpdateRequest(BaseModel):
 
 
 class ClassCreateRequest(BaseModel):
-    class_id: int = Field(gt=0)
+    class_id: int | None = Field(default=None, gt=0)
     grade: int = Field(ge=2000, le=2100)
     name: str | None = Field(default=None, max_length=64)
     is_active: bool = True

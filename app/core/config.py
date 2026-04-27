@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./platform.db"
     sql_echo: bool = False
     auto_create_tables: bool = True
+    db_pool_size: int = 8
+    db_max_overflow: int = 8
+    db_pool_recycle_seconds: int = 1800
+    db_pool_timeout_seconds: int = 30
 
     redis_url: str = "redis://127.0.0.1:6379/0"
     redis_enabled: bool = True
@@ -31,10 +35,13 @@ class Settings(BaseSettings):
     celery_task_always_eager: bool = True
     celery_task_eager_propagates: bool = True
     celery_result_expires_seconds: int = 86400
+    celery_worker_prefetch_multiplier: int = 1
+    celery_task_acks_late: bool = True
+    celery_task_reject_on_worker_lost: bool = True
 
     upload_dir: str = "./uploads"
     export_dir: str = "./exports"
-    upload_max_file_size: int = 10485760
+    upload_max_file_size: int = 26214400
     allowed_upload_content_types: list[str] = Field(
         default_factory=lambda: [
             "application/pdf",
@@ -51,10 +58,12 @@ class Settings(BaseSettings):
 
     ai_audit_provider: str = "paddleocr"
     ai_audit_fallback_to_manual: bool = True
-    image_authenticity_provider: str = "reserved"
+    image_authenticity_provider: str = "hybrid"
     image_authenticity_api_url: str | None = None
     image_authenticity_api_key: str | None = None
-    image_authenticity_model: str = "reserved"
+    image_authenticity_model: str = "c2pa+synthid+trufor+universal_fake_detect"
+    image_authenticity_timeout_seconds: float = 30.0
+    image_authenticity_c2patool_path: str = "c2patool"
     file_analysis_enabled: bool = True
     paddle_model_source: str = "BOS"
     paddle_model_dir: str = "./models/paddleocr"
@@ -68,7 +77,7 @@ class Settings(BaseSettings):
     paddleocr_layout_detection_model_name: str = "PP-DocLayout-S"
     paddleocr_layout_detection_model_dir: str | None = None
     paddleocr_cpu_threads: int = 4
-    paddleocr_enable_mkldnn: bool = True
+    paddleocr_enable_mkldnn: bool = False
     paddleocr_seal_score_threshold: float = 0.4
 
     default_term: str = Field(default_factory=current_fill_term_label)

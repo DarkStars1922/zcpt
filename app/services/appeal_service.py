@@ -238,6 +238,32 @@ def process_appeal(db: Session, user: User, appeal_id: int, payload: AppealProce
     }
 
 
+def delete_appeal(db: Session, user: User, appeal_id: int) -> None:
+    appeal = db.get(Appeal, appeal_id)
+    if not appeal:
+        raise ServiceError("appeal not found", 1002)
+    if user.role == "student":
+        if appeal.student_id != user.id:
+            raise ServiceError("permission denied", 1003)
+    elif user.role not in {"teacher", "admin"}:
+        raise ServiceError("permission denied", 1003)
+    if appeal.status != "pending":
+        raise ServiceError("已处理申诉需要保留处理记录，不能删除", 1000)
+
+    attachments = db.exec(select(AppealAttachment).where(AppealAttachment.appeal_id == appeal.id)).all()
+    for attachment in attachments:
+        db.delete(attachment)
+    db.delete(appeal)
+    db.commit()
+    write_system_log(
+        db,
+        action="appeal.delete",
+        actor_id=user.id,
+        target_type="appeal",
+        target_id=str(appeal_id),
+    )
+
+
 def _apply_approved_appeal_score_action(
     db: Session,
     appeal: Appeal,
@@ -261,8 +287,7 @@ def _apply_approved_appeal_score_action(
         raise ServiceError("application status cannot be changed by appeal", 1000)
 
     if payload.score_action == "cancel_application":
-        if application.status == "approved":
-            application.status = "rejected"
+        application.status = "rejected"
         application.actual_score_recorded = False
         application.comment = payload.result_comment or application.comment
     elif payload.score_action == "adjust_score":

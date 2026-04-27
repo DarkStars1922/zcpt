@@ -27,6 +27,7 @@ def get_pending_api(
     class_id: int | None = Query(default=None),
     category: str | None = Query(default=None),
     sub_type: str | None = Query(default=None),
+    status: str | None = Query(default=None),
     keyword: str | None = Query(default=None),
     page: int = Query(default=1, ge=1),
     size: int = Query(default=10, ge=1, le=100),
@@ -40,6 +41,7 @@ def get_pending_api(
             class_id=class_id,
             category=category,
             sub_type=sub_type,
+            status=status,
             keyword=keyword,
             page=page,
             size=size,
@@ -70,6 +72,7 @@ def get_pending_by_category_api(
     category: str = Query(...),
     class_id: int | None = Query(default=None),
     sub_type: str | None = Query(default=None),
+    status: str | None = Query(default=None),
     term: str | None = Query(default=None),
     page: int = Query(default=1, ge=1),
     size: int = Query(default=10, ge=1, le=100),
@@ -83,6 +86,7 @@ def get_pending_by_category_api(
             class_id=class_id,
             category=category,
             sub_type=sub_type,
+            status=status,
             term=term,
             page=page,
             size=size,
@@ -98,11 +102,12 @@ def get_pending_count_api(
     class_id: int | None = Query(default=None),
     category: str | None = Query(default=None),
     sub_type: str | None = Query(default=None),
+    status: str | None = Query(default=None),
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
     try:
-        data = get_pending_count(db, user, class_id=class_id, category=category, sub_type=sub_type)
+        data = get_pending_count(db, user, class_id=class_id, category=category, sub_type=sub_type, status=status)
     except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
     return success_response(request=request, message="获取成功", data=data)

@@ -120,8 +120,6 @@ def run_ai_audit(db: Session, application_id: int) -> None:
             for item in attachment_analysis
             if item["analysis"] and item["analysis"].status == "completed" and item["analysis"].ocr_text
         ).strip()
-        if not combined_ocr_text:
-            combined_ocr_text = f"{application.title} {application.description}".strip()
 
         identity_check = _build_identity_check(applicant, attachment_analysis)
         consistency_check = _build_consistency_check(application, award, attachment_analysis, applicant=applicant)

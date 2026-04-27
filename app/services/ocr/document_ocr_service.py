@@ -13,6 +13,9 @@ class OCRServiceUnavailableError(RuntimeError):
     pass
 
 
+PDF_RENDER_SCALE = 3.0
+
+
 def run_document_ocr(file_path: Path) -> dict:
     if not settings.file_analysis_enabled:
         raise OCRServiceUnavailableError("file analysis is disabled")
@@ -20,9 +23,10 @@ def run_document_ocr(file_path: Path) -> dict:
         raise OCRServiceUnavailableError("file not found")
 
     _configure_paddlex_env()
-    ocr_pages = _predict_general_ocr(file_path)
+    page_inputs = _build_page_inputs(file_path)
+    ocr_pages = _predict_general_ocr(page_inputs)
     try:
-        layout_pages = _predict_layout(file_path)
+        layout_pages = _predict_layout(page_inputs)
     except OCRServiceUnavailableError:
         layout_pages = []
     return {
@@ -85,32 +89,23 @@ def _get_layout_model():
         raise OCRServiceUnavailableError(f"unable to initialize layout detector: {exc}") from exc
 
 
-def _predict_general_ocr(file_path: Path) -> list[dict]:
+def _predict_general_ocr(page_inputs: list[dict]) -> list[dict]:
     model = _get_ocr_model()
     pages = []
     try:
-        for index, res in enumerate(model.predict(str(file_path))):
-            payload = _extract_payload(res)
-            lines = []
-            texts = payload.get("rec_texts") or []
-            scores = payload.get("rec_scores") or []
-            boxes = payload.get("rec_boxes") or payload.get("rec_polys") or []
-            for line_index, text in enumerate(texts):
-                normalized_text = str(text).strip()
-                if not normalized_text:
-                    continue
-                score = _safe_float(scores[line_index] if line_index < len(scores) else None)
-                box = _to_plain(boxes[line_index]) if line_index < len(boxes) else None
-                lines.append({"text": normalized_text, "score": score, "box": box})
-            pages.append(
-                {
-                    "page_index": payload.get("page_index", index),
-                    "text": "\n".join(item["text"] for item in lines).strip(),
-                    "lines": lines,
-                    "width": _infer_page_size(lines, axis=0),
-                    "height": _infer_page_size(lines, axis=1),
-                }
-            )
+        for fallback_index, page_input in enumerate(page_inputs):
+            for res in model.predict(page_input["input"]):
+                payload = _extract_payload(res)
+                lines = _extract_ocr_lines(payload)
+                pages.append(
+                    {
+                        "page_index": payload.get("page_index", page_input.get("page_index", fallback_index)),
+                        "text": "\n".join(item["text"] for item in lines).strip(),
+                        "lines": lines,
+                        "width": _infer_page_size(lines, axis=0) or page_input.get("width"),
+                        "height": _infer_page_size(lines, axis=1) or page_input.get("height"),
+                    }
+                )
     except OCRServiceUnavailableError:
         raise
     except Exception as exc:
@@ -118,27 +113,72 @@ def _predict_general_ocr(file_path: Path) -> list[dict]:
     return pages
 
 
-def _predict_layout(file_path: Path) -> list[dict]:
+def _predict_layout(page_inputs: list[dict]) -> list[dict]:
     model = _get_layout_model()
     pages = []
     try:
-        for index, res in enumerate(model.predict(str(file_path), batch_size=1, layout_nms=True)):
-            payload = _extract_payload(res)
-            boxes = []
-            for item in payload.get("boxes") or []:
-                boxes.append(
-                    {
-                        "label": item.get("label"),
-                        "score": _safe_float(item.get("score")),
-                        "coordinate": _to_plain(item.get("coordinate")),
-                    }
-                )
-            pages.append({"page_index": payload.get("page_index", index), "boxes": boxes})
+        for fallback_index, page_input in enumerate(page_inputs):
+            for res in model.predict(page_input["input"], batch_size=1, layout_nms=True):
+                payload = _extract_payload(res)
+                boxes = []
+                for item in payload.get("boxes") or []:
+                    boxes.append(
+                        {
+                            "label": item.get("label"),
+                            "score": _safe_float(item.get("score")),
+                            "coordinate": _to_plain(item.get("coordinate")),
+                        }
+                    )
+                pages.append({"page_index": payload.get("page_index", page_input.get("page_index", fallback_index)), "boxes": boxes})
     except OCRServiceUnavailableError:
         raise
     except Exception as exc:
         raise OCRServiceUnavailableError(f"layout detection failed: {exc}") from exc
     return pages
+
+
+def _build_page_inputs(file_path: Path) -> list[dict]:
+    if file_path.suffix.casefold() != ".pdf":
+        return [{"page_index": 0, "input": str(file_path), "width": None, "height": None}]
+    try:
+        import numpy as np
+        import pypdfium2 as pdfium
+    except Exception as exc:
+        raise OCRServiceUnavailableError(f"unable to render PDF before OCR: {exc}") from exc
+
+    try:
+        pdf = pdfium.PdfDocument(str(file_path))
+        page_inputs = []
+        for page_index in range(len(pdf)):
+            page = pdf[page_index]
+            bitmap = page.render(scale=PDF_RENDER_SCALE, rotation=0)
+            image = bitmap.to_pil().convert("RGB")
+            page_inputs.append(
+                {
+                    "page_index": page_index,
+                    "input": np.array(image),
+                    "width": image.width,
+                    "height": image.height,
+                }
+            )
+        return page_inputs
+    except Exception as exc:
+        raise OCRServiceUnavailableError(f"PDF rendering failed: {exc}") from exc
+
+
+def _extract_ocr_lines(payload: dict) -> list[dict]:
+    lines = []
+    texts = payload.get("rec_texts") or []
+    scores = payload.get("rec_scores") or []
+    boxes = payload.get("rec_boxes") or payload.get("rec_polys") or []
+    for line_index, text in enumerate(texts):
+        normalized_text = str(text).strip()
+        if not normalized_text:
+            continue
+        score = _safe_float(scores[line_index] if line_index < len(scores) else None)
+        box = _to_plain(boxes[line_index]) if line_index < len(boxes) else None
+        lines.append({"text": normalized_text, "score": score, "box": box})
+    return lines
 
 
 def _extract_payload(result: Any) -> dict:
@@ -210,3 +250,4 @@ def _resolve_model_dir(override_dir: str | None, label: str) -> Path | None:
 def _configure_paddlex_env() -> None:
     os.environ.setdefault("PADDLE_PDX_MODEL_SOURCE", settings.paddle_model_source)
     os.environ.setdefault("PADDLE_PDX_CACHE_HOME", str(settings.paddle_model_dir_path))
+    os.environ.setdefault("PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK", "True")

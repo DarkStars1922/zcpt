@@ -7,40 +7,27 @@ from sqlmodel import Session, select
 from app.core.cache import set_json
 from app.core.celery_app import celery_app
 from app.core.config import settings
-from app.core.score_rules import SCORE_CATEGORY_KEYS
 from app.core.database import get_engine
 from app.core.term_utils import apply_datetime_term_filter
 from app.core.utils import json_loads, utcnow
 from app.models.application import Application
 from app.models.email_record import EmailRecord
 from app.models.export_task import ExportTask
+from app.models.file_info import FileInfo
 from app.models.user import User
 from app.services.class_service import get_class_grade, get_class_ids_by_grade, is_graduating_class
+from app.services.export_workbook_utils import EXPORT_SCORE_COLUMNS, autosize_workbook_columns, build_score_export_columns
 from app.services.score_summary_service import get_student_score_summary_map, serialize_score_summary
 
 PENDING_STATUSES = {"pending_ai", "pending_review", "ai_abnormal"}
-EXPORT_SCORE_COLUMNS = [
-    ("身心素养总分", "physical_mental_score"),
-    ("身心素养基础分", "physical_mental_basic"),
-    ("身心素养成果分", "physical_mental_achievement"),
-    ("身心素养成果分+溢出分", "physical_mental_achievement_with_overflow"),
-    ("文艺素养总分", "art_score"),
-    ("文艺素养基础分", "art_basic"),
-    ("文艺素养成果分", "art_achievement"),
-    ("文艺素养成果分+溢出分", "art_achievement_with_overflow"),
-    ("劳动素养总分", "labor_score"),
-    ("劳动素养基础分", "labor_basic"),
-    ("劳动素养成果分", "labor_achievement"),
-    ("劳动素养成果分+溢出分", "labor_achievement_with_overflow"),
-    ("创新素养总分", "innovation_score"),
-    ("创新素养基础分", "innovation_basic"),
-    ("创新素养突破分", "innovation_achievement"),
-    ("创新素养突破分+溢出分", "innovation_achievement_with_overflow"),
-]
 
 
 def enqueue_ai_audit(application_id: int) -> None:
     run_ai_audit_task.delay(application_id)
+
+
+def enqueue_file_analysis(file_id: str, uploader_id: int | None = None) -> None:
+    run_file_analysis_task.delay(file_id, uploader_id)
 
 
 def enqueue_email_job(email_id: int) -> None:
@@ -57,6 +44,18 @@ def run_ai_audit_task(application_id: int) -> None:
 
     with Session(get_engine()) as db:
         run_ai_audit(db, application_id)
+
+
+@celery_app.task(name="app.tasks.jobs.run_file_analysis_task")
+def run_file_analysis_task(file_id: str, uploader_id: int | None = None) -> None:
+    from app.services.file_analysis_service import analyze_file
+
+    with Session(get_engine()) as db:
+        file = db.get(FileInfo, file_id)
+        if not file or file.status == "deleted":
+            return
+        uploader = db.get(User, uploader_id) if uploader_id else None
+        analyze_file(db, file, uploader=uploader)
 
 
 @celery_app.task(name="app.tasks.jobs.send_email_task")
@@ -98,24 +97,24 @@ def generate_export_task(task_id: str) -> None:
             file_path = settings.export_dir_path / file_name
 
             if task.scope == "teacher_statistics":
-                _build_student_statistics_workbook(db, rows, file_path)
+                _build_student_statistics_workbook(db, rows, file_path, filters)
             else:
                 _build_application_workbook(rows, file_path)
 
+            options = json_loads(task.options_json, {})
             task.file_name = file_name
             task.file_path = str(file_path)
             task.status = "completed"
             task.completed_at = utcnow()
             task.error_message = None
             db.add(task)
-            db.commit()
-            _write_export_cache(task)
-
-            options = json_loads(task.options_json, {})
             if options.get("store_to_archive"):
                 from app.services.archive_service import create_archive_record_from_task
 
                 create_archive_record_from_task(db, task)
+            else:
+                db.commit()
+            _write_export_cache(task)
         except Exception as exc:
             task.status = "failed"
             task.error_message = str(exc)
@@ -151,7 +150,9 @@ def _build_export_file_name(task: ExportTask, filters: dict) -> str:
         suffix = "xlsx"
     if task.scope == "teacher_statistics":
         term = str(filters.get("term") or "all")
-        return f"teacher_statistics_{term}.xlsx"
+        grade = str(filters.get("grade") or "all")
+        class_id = str(filters.get("class_id") or "all")
+        return f"teacher_statistics_{term}_{grade}_{class_id}_{task.task_id}.xlsx"
     return f"{task.task_id}.{suffix}"
 
 
@@ -186,11 +187,17 @@ def _build_application_workbook(rows: list[tuple[Application, User]], file_path:
                 application.item_score,
             ]
         )
+    autosize_workbook_columns(wb)
     wb.save(file_path)
 
 
-def _build_student_statistics_workbook(db: Session, rows: list[tuple[Application, User]], file_path: Path) -> None:
-    summary = _aggregate_student_statistics(db, rows)
+def _build_student_statistics_workbook(
+    db: Session,
+    rows: list[tuple[Application, User]],
+    file_path: Path,
+    filters: dict,
+) -> None:
+    summary = _aggregate_student_statistics(db, rows, filters)
 
     wb = Workbook()
     ws = wb.active
@@ -228,12 +235,27 @@ def _build_student_statistics_workbook(db: Session, rows: list[tuple[Application
                 row["average_score"],
             ]
         )
+    autosize_workbook_columns(wb)
     wb.save(file_path)
 
 
-def _aggregate_student_statistics(db: Session, rows: list[tuple[Application, User]]) -> list[dict]:
-    summary: dict[int, dict] = defaultdict(
-        lambda: {
+def _aggregate_student_statistics(db: Session, rows: list[tuple[Application, User]], filters: dict) -> list[dict]:
+    summary: dict[int, dict] = {
+        student.id: {
+            "grade": get_class_grade(db, student.class_id),
+            "class_id": student.class_id,
+            "student_id": student.id,
+            "student_account": student.account,
+            "student_name": student.name,
+            "total_count": 0,
+            "rejected_count": 0,
+            "pending_count": 0,
+            "total_score": 0.0,
+        }
+        for student in _query_export_students(db, filters)
+        if student.id is not None
+    }
+    fallback_factory = lambda: {
             "grade": None,
             "class_id": None,
             "student_id": None,
@@ -244,9 +266,8 @@ def _aggregate_student_statistics(db: Session, rows: list[tuple[Application, Use
             "pending_count": 0,
             "total_score": 0.0,
         }
-    )
     for application, user in rows:
-        item = summary[user.id]
+        item = summary.setdefault(user.id, fallback_factory())
         item["grade"] = get_class_grade(db, user.class_id)
         item["class_id"] = user.class_id
         item["student_id"] = user.id
@@ -264,22 +285,7 @@ def _aggregate_student_statistics(db: Session, rows: list[tuple[Application, Use
     for item in summary.values():
         total_count = int(item["total_count"] or 0)
         score_summary = serialize_score_summary(score_summary_map.get(item["student_id"]), student_id=item["student_id"])
-        category_scores = score_summary.get("category_scores") or {}
-        sub_scores = score_summary.get("sub_scores") or {}
-        achievement_overflow_scores = score_summary.get("achievement_overflow_scores") or {}
-        score_columns = {}
-        for category in SCORE_CATEGORY_KEYS:
-            score_columns[f"{category}_score"] = category_scores.get(f"{category}_score", 0.0)
-            score_columns[f"{category}_basic"] = sub_scores.get(f"{category}_basic", 0.0)
-            score_columns[f"{category}_achievement"] = sub_scores.get(f"{category}_achievement", 0.0)
-            achievement_overflow = achievement_overflow_scores.get(
-                f"{category}_achievement_overflow",
-                0.0,
-            )
-            score_columns[f"{category}_achievement_with_overflow"] = round(
-                score_columns[f"{category}_achievement"] + achievement_overflow,
-                4,
-            )
+        score_columns = build_score_export_columns(score_summary)
         result.append(
             {
                 **item,
@@ -292,6 +298,23 @@ def _aggregate_student_statistics(db: Session, rows: list[tuple[Application, Use
         )
     result.sort(key=lambda item: (item["grade"] or 0, item["class_id"] or 0, item["student_account"] or ""))
     return result
+
+
+def _query_export_students(db: Session, filters: dict) -> list[User]:
+    stmt = select(User).where(User.role == "student", User.is_deleted.is_(False))
+    if filters.get("class_id"):
+        stmt = stmt.where(User.class_id == int(filters["class_id"]))
+    if filters.get("grade"):
+        class_ids = get_class_ids_by_grade(db, int(filters["grade"]), include_graduating=False)
+        stmt = stmt.where(User.class_id.in_(class_ids) if class_ids else User.class_id == -1)
+    graduating_class_ids = [
+        row.class_id
+        for row in db.exec(select(User.class_id).where(User.role == "student")).all()
+        if is_graduating_class(db, row)
+    ]
+    if graduating_class_ids:
+        stmt = stmt.where(User.class_id.notin_(list(dict.fromkeys(graduating_class_ids))))
+    return db.exec(stmt.order_by(User.class_id.asc(), User.account.asc())).all()
 
 
 def _write_export_cache(task: ExportTask) -> None:

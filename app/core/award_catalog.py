@@ -91,6 +91,7 @@ def serialize_award_rule(award_uid: int | None) -> dict[str, Any] | None:
     }
 
 
+@lru_cache(maxsize=1)
 def load_award_tree() -> list[dict[str, Any]]:
     tree_path = _repo_root() / "app" / "data" / "award_tree.json"
     if not tree_path.exists():

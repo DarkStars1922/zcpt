@@ -6,7 +6,13 @@ from app.core.responses import error_response, success_response
 from app.dependencies.auth import get_current_user
 from app.models.user import User
 from app.schemas.appeal import AppealCreateRequest, AppealProcessRequest
-from app.services.appeal_service import create_appeal, list_appeals, process_appeal, search_appeal_target_applications
+from app.services.appeal_service import (
+    create_appeal,
+    delete_appeal,
+    list_appeals,
+    process_appeal,
+    search_appeal_target_applications,
+)
 from app.services.errors import ServiceError
 
 router = APIRouter(prefix="/appeals", tags=["appeals"])
@@ -97,3 +103,17 @@ def process_appeal_api(
     except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
     return success_response(request=request, message="处理成功", data=data)
+
+
+@router.delete("/{appeal_id}")
+def delete_appeal_api(
+    request: Request,
+    appeal_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        delete_appeal(db, user, appeal_id)
+    except ServiceError as exc:
+        return error_response(request=request, code=exc.code, message=exc.message)
+    return success_response(request=request, message="删除成功", data={})

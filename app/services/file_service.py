@@ -9,12 +9,14 @@ from app.core.config import settings
 from app.core.constants import REVIEWER_REVIEWABLE_STATUSES
 from app.models.application import Application
 from app.models.application_attachment import ApplicationAttachment
+from app.models.file_analysis_result import FileAnalysisResult
 from app.models.file_info import FileInfo
-from app.services.file_analysis_service import analyze_file, get_file_analysis_record
+from app.services.file_analysis_service import get_file_analysis_record
 from app.models.user import User
 from app.services.errors import ServiceError
 from app.services.reviewer_scope_service import get_active_reviewer_class_ids
 from app.services.serializers import serialize_file
+from app.tasks.jobs import enqueue_file_analysis
 
 CONTENT_TYPE_EXT_MAP = {
     "application/pdf": ".pdf",
@@ -64,9 +66,13 @@ async def save_upload_file(db: Session, user: User, file: UploadFile) -> dict:
         md5=digest.hexdigest(),
     )
     db.add(record)
+    db.flush()
+    analysis = FileAnalysisResult(file_id=file_id, provider=settings.ai_audit_provider, status="queued")
+    db.add(analysis)
     db.commit()
     db.refresh(record)
-    analysis = analyze_file(db, record, uploader=user)
+    db.refresh(analysis)
+    enqueue_file_analysis(record.id, user.id)
     return serialize_file(record, analysis=analysis)
 
 

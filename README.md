@@ -58,6 +58,9 @@
   - `Idempotency-Key` 去重
   - 导出状态缓存
   - 本地无 Redis 时自动回退到进程内缓存，便于 SQLite 调试
+- 异步能力
+  - 文件上传后的 OCR 分析、申报 AI 审核、邮件通知、Excel 导出均走 Celery worker
+  - API 进程只处理轻量请求与任务入队，避免 OCR/导出阻塞学生访问
 
 ## 目录结构
 
@@ -138,6 +141,9 @@ REDIS_ENABLED=true
 REDIS_URL=redis://127.0.0.1:6379/0
 CELERY_TASK_ALWAYS_EAGER=false
 AUTO_CREATE_TABLES=false
+DB_POOL_SIZE=8
+DB_MAX_OVERFLOW=8
+CELERY_WORKER_PREFETCH_MULTIPLIER=1
 ```
 
 2. 执行迁移
@@ -149,14 +155,36 @@ py -3 -m alembic upgrade head
 3. 启动 API
 
 ```bash
-py -3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+py -3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
 4. 启动 Worker
 
 ```bash
-py -3 -m celery -A app.core.celery_app:celery_app worker --loglevel=INFO
+py -3 -m celery -A app.core.celery_app:celery_app worker --loglevel=INFO --concurrency=2
 ```
+
+几千学生集中访问时，建议至少拆成：
+
+- `api`：2-4 个 Uvicorn worker 起步，根据 CPU 与响应时间扩容。
+- `worker-ocr`：单独跑 OCR/AI 审核 worker，PaddleOCR 很吃 CPU/内存，通常从 `--concurrency=1-2` 起步。
+- `worker-export`：导出任务可单独 worker，避免大 Excel 抢 OCR 资源。
+- `redis`：用于 Celery broker/result、token 黑名单、幂等键和导出状态缓存。
+- `mysql`：开启连接池配置，按 `WEB_CONCURRENCY * (DB_POOL_SIZE + DB_MAX_OVERFLOW) + worker 并发 * (DB_POOL_SIZE + DB_MAX_OVERFLOW)` 估算 `max_connections`；本地 MySQL 默认常见为 151，建议先用 `DB_POOL_SIZE=8`、`DB_MAX_OVERFLOW=8`，需要更高吞吐时同步提高 MySQL `max_connections`。
+
+本机压测口径可以使用仓库脚本：
+
+```bash
+PYTHONPATH=.runtime-deps:. python3 scripts/load_test.py \
+  --base-url http://127.0.0.1:8000 \
+  --mode read \
+  --generated-users 1000 \
+  --clients 250 \
+  --concurrency 250 \
+  --iterations 5
+```
+
+在 MySQL 默认 `max_connections=151` 的机器上，250 并发建议 API 使用 `DB_POOL_SIZE=20`、`DB_MAX_OVERFLOW=15`，Celery worker 使用较小池如 `4+4`；如果继续增加 Uvicorn worker、Celery 并发或部署多台 API，需要同步提高 MySQL `max_connections`。`/api/v1/applications/categories` 是静态评分规则树，接口只做 access token 与黑名单校验，不占用数据库连接。
 
 ### 3. Docker Compose
 
