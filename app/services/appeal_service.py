@@ -157,7 +157,14 @@ def search_appeal_target_applications(
         stmt = stmt.where(or_(User.name.like(like), User.account.like(like)))
     if keyword:
         like = f"%{keyword.strip()}%"
-        stmt = stmt.where(or_(Application.title.like(like), User.name.like(like), User.account.like(like)))
+        keyword_filters = [Application.title.like(like), User.name.like(like), User.account.like(like)]
+        try:
+            keyword_id = int(keyword)
+        except (TypeError, ValueError):
+            keyword_id = None
+        if keyword_id is not None:
+            keyword_filters.append(Application.id == keyword_id)
+        stmt = stmt.where(or_(*keyword_filters))
     if announcement_id:
         announcement = db.get(Announcement, announcement_id)
         if announcement:

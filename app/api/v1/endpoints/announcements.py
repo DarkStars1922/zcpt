@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import FileResponse
 from sqlmodel import Session
 
@@ -13,7 +13,10 @@ from app.services.announcement_service import (
     delete_announcement,
     generate_my_announcement_story_copy,
     get_announcement_download_path,
+    get_announcement_public_application_detail,
+    get_announcement_public_application_file_path,
     get_my_announcement_report,
+    list_announcement_public_applications,
     list_announcements,
     reopen_announcement,
     update_announcement,
@@ -72,6 +75,67 @@ def generate_my_announcement_story_copy_api(
     except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
     return success_response(request=request, message="生成成功", data=data)
+
+
+@router.get("/{announcement_id}/applications")
+def list_announcement_public_applications_api(
+    request: Request,
+    announcement_id: int,
+    keyword: str | None = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    size: int = Query(default=20, ge=1, le=100),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        data = list_announcement_public_applications(
+            db,
+            user,
+            announcement_id,
+            keyword=keyword,
+            page=page,
+            size=size,
+        )
+    except ServiceError as exc:
+        return error_response(request=request, code=exc.code, message=exc.message)
+    return success_response(request=request, message="获取成功", data=data)
+
+
+@router.get("/{announcement_id}/applications/{application_id}")
+def get_announcement_public_application_detail_api(
+    request: Request,
+    announcement_id: int,
+    application_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        data = get_announcement_public_application_detail(db, user, announcement_id, application_id)
+    except ServiceError as exc:
+        return error_response(request=request, code=exc.code, message=exc.message)
+    return success_response(request=request, message="获取成功", data=data)
+
+
+@router.get("/{announcement_id}/applications/{application_id}/files/{file_id}")
+def get_announcement_public_application_file_api(
+    request: Request,
+    announcement_id: int,
+    application_id: int,
+    file_id: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        file_path, filename = get_announcement_public_application_file_path(
+            db,
+            user,
+            announcement_id,
+            application_id,
+            file_id,
+        )
+    except ServiceError as exc:
+        return error_response(request=request, code=exc.code, message=exc.message)
+    return FileResponse(path=file_path, filename=filename or file_path.name)
 
 
 @router.get("/{announcement_id}/download")

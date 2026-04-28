@@ -6,3 +6,4 @@ class TeacherInsightAnalyzeRequest(BaseModel):
     class_id: int | None = Field(default=None)
     class_ids: list[int] = Field(default_factory=list)
     max_risk_students: int = Field(default=12, ge=3, le=30)
+    force_refresh: bool = Field(default=False)

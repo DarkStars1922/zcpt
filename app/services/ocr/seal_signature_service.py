@@ -89,7 +89,7 @@ def _extract_seal_items(*, ocr_pages: list[dict], layout_pages: list[dict], seal
                     "box": coordinate,
                     "score": item.get("score"),
                     "texts": texts[:8],
-                    "source": "layout",
+                    "source": item.get("source") or "layout",
                 }
             )
     return results

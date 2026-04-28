@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from openpyxl import Workbook
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
 from app.core.award_catalog import serialize_award_rule
@@ -12,16 +13,21 @@ from app.core.term_utils import datetime_in_term, format_term_label
 from app.core.utils import ensure_utc_datetime, json_dumps, json_loads, utcnow
 from app.models.announcement import Announcement
 from app.models.announcement_scope import AnnouncementScopeBinding
+from app.models.ai_audit_report import AIAuditReport
 from app.models.application import Application
+from app.models.application_attachment import ApplicationAttachment
 from app.models.archive_record import ArchiveRecord
+from app.models.file_info import FileInfo
+from app.models.student_report_cache import StudentReportCache
 from app.models.user import User
 from app.schemas.announcement import AnnouncementCreateRequest, AnnouncementUpdateRequest
 from app.services.class_service import get_class_grade, get_class_ids_by_grade, is_graduating_class
 from app.services.evaluation_service import build_report_evaluation, build_report_story_copy
 from app.services.errors import ServiceError
 from app.services.export_workbook_utils import EXPORT_SCORE_COLUMNS, autosize_workbook_columns, build_score_export_columns
+from app.services.application_service import get_application_attachments
 from app.services.score_summary_service import get_student_score_summary, get_student_score_summary_map, serialize_score_summary
-from app.services.serializers import serialize_announcement, serialize_user
+from app.services.serializers import serialize_ai_audit, serialize_announcement, serialize_application, serialize_user
 from app.services.system_log_service import write_system_log
 
 CATEGORY_COLORS = {
@@ -77,38 +83,25 @@ def list_announcements(db: Session, user: User) -> list[dict]:
 
 
 def get_my_announcement_report(db: Session, user: User, announcement_id: int) -> dict:
-    if user.role != "student":
-        raise ServiceError("permission denied", 1003)
-    announcement = db.get(Announcement, announcement_id)
-    if not announcement:
-        raise ServiceError("announcement not found", 1002)
-    if not can_student_view_announcement(announcement, user, db=db):
-        raise ServiceError("permission denied", 1003)
-
-    archive = db.get(ArchiveRecord, announcement.archive_record_id)
-    score_summary = serialize_score_summary(get_student_score_summary(db, user.id), student_id=user.id)
-    radar = _build_radar_payload(score_summary)
-    public_applications = [
-        application
-        for application, student in _query_public_applications(db, announcement)
-        if student.id == user.id
-    ]
-    story_payload = _build_story_payload(public_applications, radar=radar, archive=archive)
-    return {
-        "student": serialize_user(user),
-        "announcement": _serialize_announcement_with_scopes(db, announcement, fallback_archive=archive),
-        "score_summary": score_summary,
-        "radar": radar,
-        "constellation_items": _build_constellation_items(public_applications),
-        "award_history": _build_award_history(db, user, announcement=announcement),
-        "story_metrics": story_payload["metrics"],
-        "story_cards": story_payload["cards"],
-        "evaluation": build_report_evaluation(radar=radar, allow_llm=False),
-        "generated_at": utcnow().isoformat(),
-    }
+    announcement = _get_visible_student_announcement(db, user, announcement_id)
+    return _get_or_create_student_report_cache(db, user, announcement)
 
 
 def generate_my_announcement_story_copy(db: Session, user: User, announcement_id: int) -> dict:
+    report = get_my_announcement_report(db, user, announcement_id)
+    story_copy = report.get("story_copy")
+    if not isinstance(story_copy, dict):
+        story_copy = {
+            "source": "cache",
+            "status": "completed",
+            "hero_quote": report.get("hero_quote") or "",
+            "ending_text": report.get("ending_text") or "",
+            "story_cards": report.get("story_cards") or [],
+        }
+    return {**story_copy, "evaluation": report.get("evaluation"), "cache": report.get("cache")}
+
+
+def _get_visible_student_announcement(db: Session, user: User, announcement_id: int) -> Announcement:
     if user.role != "student":
         raise ServiceError("permission denied", 1003)
     announcement = db.get(Announcement, announcement_id)
@@ -116,8 +109,63 @@ def generate_my_announcement_story_copy(db: Session, user: User, announcement_id
         raise ServiceError("announcement not found", 1002)
     if not can_student_view_announcement(announcement, user, db=db):
         raise ServiceError("permission denied", 1003)
+    return announcement
+
+
+def _get_or_create_student_report_cache(db: Session, user: User, announcement: Announcement) -> dict:
+    cached = _find_student_report_cache(db, announcement.id, user.id)
+    if cached:
+        payload = json_loads(cached.report_json, {})
+        if isinstance(payload, dict) and payload:
+            return _attach_report_cache_meta(payload, cached, hit=True)
 
     archive = db.get(ArchiveRecord, announcement.archive_record_id)
+    generated_at = utcnow()
+    report = _build_my_announcement_report_payload(db, user, announcement, archive=archive, generated_at=generated_at)
+    cache = StudentReportCache(
+        announcement_id=announcement.id,
+        student_id=user.id,
+        term=archive.term if archive else settings.default_term,
+        status="completed",
+        report_json=json_dumps(report),
+        generated_at=generated_at,
+        updated_at=generated_at,
+    )
+    try:
+        db.add(cache)
+        db.commit()
+        db.refresh(cache)
+    except IntegrityError:
+        db.rollback()
+        cached = _find_student_report_cache(db, announcement.id, user.id)
+        if cached:
+            payload = json_loads(cached.report_json, {})
+            if isinstance(payload, dict) and payload:
+                return _attach_report_cache_meta(payload, cached, hit=True)
+        raise
+    return _attach_report_cache_meta(report, cache, hit=False)
+
+
+def _find_student_report_cache(db: Session, announcement_id: int | None, student_id: int | None) -> StudentReportCache | None:
+    if announcement_id is None or student_id is None:
+        return None
+    return db.exec(
+        select(StudentReportCache).where(
+            StudentReportCache.announcement_id == announcement_id,
+            StudentReportCache.student_id == student_id,
+            StudentReportCache.status == "completed",
+        )
+    ).first()
+
+
+def _build_my_announcement_report_payload(
+    db: Session,
+    user: User,
+    announcement: Announcement,
+    *,
+    archive: ArchiveRecord | None,
+    generated_at,
+) -> dict:
     score_summary = serialize_score_summary(get_student_score_summary(db, user.id), student_id=user.id)
     radar = _build_radar_payload(score_summary)
     public_applications = [
@@ -140,7 +188,133 @@ def generate_my_announcement_story_copy(db: Session, user: User, announcement_id
         evaluation_future = executor.submit(build_report_evaluation, radar=radar, allow_llm=True)
         story_copy = story_future.result()
         evaluation = evaluation_future.result()
-    return {**story_copy, "evaluation": evaluation}
+    story_cards = story_copy.get("story_cards") if isinstance(story_copy, dict) else None
+    report = {
+        "student": student_payload,
+        "announcement": _serialize_announcement_with_scopes(db, announcement, fallback_archive=archive),
+        "score_summary": score_summary,
+        "radar": radar,
+        "constellation_items": _build_constellation_items(public_applications),
+        "award_history": award_history,
+        "story_metrics": story_payload["metrics"],
+        "story_cards": story_cards if isinstance(story_cards, list) and story_cards else story_payload["cards"],
+        "story_copy": story_copy,
+        "hero_quote": story_copy.get("hero_quote") if isinstance(story_copy, dict) else "",
+        "ending_text": story_copy.get("ending_text") if isinstance(story_copy, dict) else "",
+        "evaluation": evaluation,
+        "generated_at": generated_at.isoformat(),
+    }
+    return report
+
+
+def _attach_report_cache_meta(report: dict, cache: StudentReportCache, *, hit: bool) -> dict:
+    payload = {**report}
+    payload["cache"] = {
+        "hit": hit,
+        "cache_id": cache.id,
+        "generated_at": cache.generated_at.isoformat() if cache.generated_at else payload.get("generated_at"),
+        "term": cache.term,
+        "status": cache.status,
+    }
+    return payload
+
+
+def list_announcement_public_applications(
+    db: Session,
+    user: User,
+    announcement_id: int,
+    *,
+    keyword: str | None = None,
+    page: int = 1,
+    size: int = 20,
+) -> dict:
+    if user.role != "student":
+        raise ServiceError("permission denied", 1003)
+    announcement = db.get(Announcement, announcement_id)
+    if not announcement:
+        raise ServiceError("announcement not found", 1002)
+    if not can_student_view_announcement(announcement, user, db=db):
+        raise ServiceError("permission denied", 1003)
+
+    archive = db.get(ArchiveRecord, announcement.archive_record_id)
+    normalized_keyword = (keyword or "").strip().lower()
+    rows = []
+    for application, student in _query_public_applications(db, announcement):
+        item = _serialize_public_application(db, application, student)
+        if normalized_keyword and not _public_application_matches_keyword(item, normalized_keyword):
+            continue
+        rows.append(item)
+
+    safe_page = max(int(page or 1), 1)
+    safe_size = min(max(int(size or 20), 1), 100)
+    start = (safe_page - 1) * safe_size
+    return {
+        "announcement": _serialize_announcement_with_scopes(db, announcement, fallback_archive=archive),
+        "page": safe_page,
+        "size": safe_size,
+        "total": len(rows),
+        "list": rows[start : start + safe_size],
+    }
+
+
+def get_announcement_public_application_detail(
+    db: Session,
+    user: User,
+    announcement_id: int,
+    application_id: int,
+) -> dict:
+    announcement = _get_visible_student_announcement(db, user, announcement_id)
+    application, student = _get_public_application_in_announcement(db, announcement, application_id)
+    attachments = get_application_attachments(db, application.id)
+    for item in attachments:
+        if not item.get("file_id"):
+            continue
+        public_url = (
+            f"/api/v1/announcements/{announcement.id}/applications/{application.id}/files/{item['file_id']}"
+        )
+        item["public_url"] = public_url
+        item["url"] = public_url
+    payload = serialize_application(application, attachments=attachments, include_detail=True)
+    payload["student"] = {
+        "id": student.id,
+        "name": student.name,
+        "account": student.account,
+        "class_id": student.class_id,
+    }
+    payload["student_id"] = student.id
+    payload["student_name"] = student.name
+    payload["student_account"] = student.account
+    payload["class_id"] = student.class_id
+    report = db.exec(select(AIAuditReport).where(AIAuditReport.application_id == application.id)).first()
+    payload["ai_report"] = serialize_ai_audit(report) if report else None
+    return payload
+
+
+def get_announcement_public_application_file_path(
+    db: Session,
+    user: User,
+    announcement_id: int,
+    application_id: int,
+    file_id: str,
+) -> tuple[Path, str | None]:
+    announcement = _get_visible_student_announcement(db, user, announcement_id)
+    application, _student = _get_public_application_in_announcement(db, announcement, application_id)
+    row = db.exec(
+        select(ApplicationAttachment, FileInfo)
+        .join(FileInfo, ApplicationAttachment.file_id == FileInfo.id)
+        .where(
+            ApplicationAttachment.application_id == application.id,
+            ApplicationAttachment.file_id == file_id,
+            FileInfo.status != "deleted",
+        )
+    ).first()
+    if not row:
+        raise ServiceError("file not found", 1002)
+    _attachment, file = row
+    file_path = Path(file.storage_path)
+    if not file_path.exists() or not file_path.is_file():
+        raise ServiceError("file not found", 1002)
+    return file_path, file.original_name
 
 
 def update_announcement(db: Session, user: User, announcement_id: int, payload: AnnouncementUpdateRequest) -> dict:
@@ -404,25 +578,6 @@ def _build_public_announcement_workbook(db: Session, announcement: Announcement,
             ]
         )
 
-    application_ws = wb.create_sheet("范围内申报")
-    application_ws.append(["年级", "班级", "学号", "姓名", "申报名称", "分类", "小类", "分数", "状态", "发生日期"])
-    for application, student in _query_public_applications(db, announcement):
-        category_rule = SCORE_CATEGORY_RULES.get(application.category, {})
-        sub_rule = (category_rule.get("sub_types") or {}).get(application.sub_type, {})
-        application_ws.append(
-            [
-                _resolve_user_grade(db, student.class_id),
-                student.class_id,
-                student.account,
-                student.name,
-                application.title,
-                category_rule.get("name") or application.category,
-                sub_rule.get("name") or application.sub_type,
-                application.item_score,
-                application.status,
-                application.occurred_at.isoformat() if application.occurred_at else "",
-            ]
-        )
     autosize_workbook_columns(wb)
     wb.save(file_path)
 
@@ -537,6 +692,68 @@ def _query_public_applications(db: Session, announcement: Announcement) -> list[
         for application, student in rows
         if _application_matches_announcement_scope(db, application, student, bindings, archive_by_id)
     ]
+
+
+def _get_public_application_in_announcement(
+    db: Session,
+    announcement: Announcement,
+    application_id: int,
+) -> tuple[Application, User]:
+    for application, student in _query_public_applications(db, announcement):
+        if application.id == application_id:
+            return application, student
+    raise ServiceError("该申报不在当前公示范围内", 1003)
+
+
+def _serialize_public_application(db: Session, application: Application, student: User) -> dict:
+    award_rule = serialize_award_rule(application.award_uid)
+    category_rule = SCORE_CATEGORY_RULES.get(application.category, {})
+    sub_rule = (category_rule.get("sub_types") or {}).get(application.sub_type, {})
+    status_label = {
+        "approved": "已通过",
+        "archived": "已归档",
+    }.get(application.status, application.status)
+    rule_name = (award_rule or {}).get("rule_name") or "未匹配规则"
+    rule_path = (award_rule or {}).get("rule_path") or rule_name
+    return {
+        "application_id": application.id,
+        "student_id": student.id,
+        "student_name": student.name,
+        "student_account": student.account,
+        "class_id": student.class_id,
+        "grade": _resolve_user_grade(db, student.class_id),
+        "title": application.title,
+        "category": application.category,
+        "category_name": category_rule.get("name") or application.category,
+        "sub_type": application.sub_type,
+        "sub_type_name": sub_rule.get("name") or application.sub_type,
+        "award_uid": application.award_uid,
+        "award_rule": award_rule,
+        "award_rule_name": rule_name,
+        "award_rule_path": rule_path,
+        "score": application.item_score,
+        "item_score": application.item_score,
+        "status": application.status,
+        "status_label": status_label,
+        "occurred_at": application.occurred_at.isoformat() if application.occurred_at else None,
+        "created_at": application.created_at.isoformat() if application.created_at else None,
+    }
+
+
+def _public_application_matches_keyword(item: dict, keyword: str) -> bool:
+    haystacks = [
+        item.get("application_id"),
+        item.get("student_name"),
+        item.get("student_account"),
+        item.get("class_id"),
+        item.get("grade"),
+        item.get("title"),
+        item.get("category_name"),
+        item.get("sub_type_name"),
+        item.get("award_rule_name"),
+        item.get("award_rule_path"),
+    ]
+    return any(keyword in str(value).lower() for value in haystacks if value is not None)
 
 
 def _expand_scope_class_ids(db: Session, bindings: list[AnnouncementScopeBinding]) -> list[int]:

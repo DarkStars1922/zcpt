@@ -3,11 +3,13 @@ from __future__ import annotations
 import json
 import logging
 import re
+import hashlib
 from collections import Counter, defaultdict
 from datetime import datetime
 from typing import Any
 
 import httpx
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
 from app.core.award_catalog import find_award_rule
@@ -15,7 +17,9 @@ from app.core.config import settings
 from app.core.constants import MANAGE_REVIEW_ROLES
 from app.core.score_rules import SCORE_CATEGORY_KEYS, SCORE_CATEGORY_RULES
 from app.core.term_utils import apply_datetime_term_filter
+from app.core.utils import json_dumps, json_loads, utcnow
 from app.models.application import Application
+from app.models.teacher_insight_cache import TeacherInsightCache
 from app.models.user import User
 from app.services.class_service import get_class_grade, get_class_ids_by_grade, is_graduating_class
 from app.services.errors import ServiceError
@@ -54,6 +58,7 @@ def analyze_teacher_insights(
     class_id: int | None = None,
     class_ids: list[int] | None = None,
     max_risk_students: int = 12,
+    force_refresh: bool = False,
 ) -> dict:
     if user.role not in MANAGE_REVIEW_ROLES:
         raise ServiceError("permission denied", 1003)
@@ -61,6 +66,47 @@ def analyze_teacher_insights(
         raise ServiceError("grade is required", 1001)
 
     selected_class_ids = _normalize_class_ids(class_ids=class_ids, legacy_class_id=class_id)
+    cache_key = _teacher_insight_cache_key(
+        term=settings.default_term,
+        grade=grade,
+        class_ids=selected_class_ids,
+        max_risk_students=max_risk_students,
+    )
+    if not force_refresh:
+        cached = _find_teacher_insight_cache(db, cache_key)
+        if cached:
+            payload = json_loads(cached.result_json, {})
+            if isinstance(payload, dict) and payload:
+                return _attach_teacher_cache_meta(payload, cached, hit=True)
+
+    result = _build_teacher_insights(
+        db,
+        grade=grade,
+        selected_class_ids=selected_class_ids,
+        max_risk_students=max_risk_students,
+    )
+    _store_teacher_insight_cache(
+        db,
+        user=user,
+        cache_key=cache_key,
+        grade=grade,
+        class_ids=selected_class_ids,
+        max_risk_students=max_risk_students,
+        result=result,
+    )
+    cached = _find_teacher_insight_cache(db, cache_key)
+    if cached:
+        return _attach_teacher_cache_meta(result, cached, hit=False)
+    return {**result, "cache": {"hit": False, "cache_key": cache_key}}
+
+
+def _build_teacher_insights(
+    db: Session,
+    *,
+    grade: int,
+    selected_class_ids: list[int],
+    max_risk_students: int,
+) -> dict:
     students = _query_students(db, grade=grade, class_ids=selected_class_ids)
     if not students:
         return _empty_result(grade=grade, class_ids=selected_class_ids)
@@ -129,7 +175,7 @@ def analyze_teacher_insights(
     return {
         "term": settings.default_term,
         "scope": aggregate["scope"],
-        "generated_at": datetime.now().isoformat(),
+        "generated_at": utcnow().isoformat(),
         "source": enriched["source"],
         "status": enriched["status"],
         "summary": enriched["summary"],
@@ -143,6 +189,77 @@ def analyze_teacher_insights(
         "action_plan": enriched["action_plan"],
         "model": enriched.get("model"),
     }
+
+
+def _teacher_insight_cache_key(*, term: str, grade: int, class_ids: list[int], max_risk_students: int) -> str:
+    class_key = _teacher_insight_class_ids_key(class_ids)
+    raw = f"{term}|{grade}|{class_key}|{max_risk_students}"
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def _teacher_insight_class_ids_key(class_ids: list[int]) -> str:
+    if not class_ids:
+        return "ALL"
+    return ",".join(str(item) for item in sorted(set(int(value) for value in class_ids)))
+
+
+def _find_teacher_insight_cache(db: Session, cache_key: str) -> TeacherInsightCache | None:
+    return db.exec(select(TeacherInsightCache).where(TeacherInsightCache.cache_key == cache_key)).first()
+
+
+def _store_teacher_insight_cache(
+    db: Session,
+    *,
+    user: User,
+    cache_key: str,
+    grade: int,
+    class_ids: list[int],
+    max_risk_students: int,
+    result: dict,
+) -> None:
+    now = utcnow()
+    existing = _find_teacher_insight_cache(db, cache_key)
+    if existing:
+        existing.result_json = json_dumps(result)
+        existing.source = result.get("source")
+        existing.status = result.get("status") or "completed"
+        existing.generated_by = user.id
+        existing.generated_at = now
+        existing.updated_at = now
+        db.add(existing)
+    else:
+        db.add(
+            TeacherInsightCache(
+                cache_key=cache_key,
+                term=settings.default_term,
+                grade=grade,
+                class_ids_key=_teacher_insight_class_ids_key(class_ids),
+                max_risk_students=max_risk_students,
+                result_json=json_dumps(result),
+                source=result.get("source"),
+                status=result.get("status") or "completed",
+                generated_by=user.id,
+                generated_at=now,
+                updated_at=now,
+            )
+        )
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+
+
+def _attach_teacher_cache_meta(result: dict, cache: TeacherInsightCache, *, hit: bool) -> dict:
+    payload = {**result}
+    payload["cache"] = {
+        "hit": hit,
+        "cache_id": cache.id,
+        "cache_key": cache.cache_key,
+        "generated_at": cache.generated_at.isoformat() if cache.generated_at else payload.get("generated_at"),
+        "term": cache.term,
+        "status": cache.status,
+    }
+    return payload
 
 
 def _normalize_class_ids(*, class_ids: list[int] | None, legacy_class_id: int | None) -> list[int]:

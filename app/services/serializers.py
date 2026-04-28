@@ -260,6 +260,7 @@ def serialize_file_analysis(record: FileAnalysisResult) -> dict:
         "status": record.status,
         "provider": record.provider,
         "document_title": payload.get("document_title"),
+        "ocr_summary": payload.get("ocr_summary"),
         "recognized_levels": payload.get("recognized_levels", []),
         "uploader_name_match": payload.get("uploader_name_match", {}),
         "filename_vs_document_title": payload.get("filename_vs_document_title", {}),

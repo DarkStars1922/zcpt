@@ -5,7 +5,14 @@ from sqlmodel import Session, select
 
 from app.core.award_catalog import find_award_rule
 from app.core.config import settings
-from app.core.constants import MANAGE_REVIEW_ROLES, ROLE_STUDENT
+from app.core.constants import (
+    APPLICATION_STATUS_APPROVED,
+    APPLICATION_STATUS_ARCHIVED,
+    APPLICATION_STATUS_AI_ABNORMAL,
+    APPLICATION_STATUS_PENDING_REVIEW,
+    MANAGE_REVIEW_ROLES,
+    ROLE_STUDENT,
+)
 from app.core.utils import json_dumps, utcnow
 from app.models.ai_audit_report import AIAuditReport
 from app.models.application import Application
@@ -68,6 +75,8 @@ def run_ai_audit(db: Session, application_id: int) -> None:
     if not application or application.is_deleted:
         return
     applicant = db.get(User, application.applicant_id)
+    original_status = application.status
+    preserve_status = original_status in {APPLICATION_STATUS_APPROVED, APPLICATION_STATUS_ARCHIVED}
     report = db.exec(select(AIAuditReport).where(AIAuditReport.application_id == application_id)).first()
     if not report:
         report = AIAuditReport(application_id=application_id, provider=settings.ai_audit_provider, status="queued")
@@ -92,15 +101,15 @@ def run_ai_audit(db: Session, application_id: int) -> None:
         risk_points = []
         warning_points = []
         result = "pass"
-        next_status = "pending_review"
+        next_status = APPLICATION_STATUS_PENDING_REVIEW
         if attachment_count == 0:
             risk_points.append("缺少证明附件")
             result = "abnormal"
-            next_status = "ai_abnormal"
+            next_status = APPLICATION_STATUS_AI_ABNORMAL
         elif "异常" in application.title or "异常" in application.description:
             risk_points.append("标题或描述触发人工复核规则")
             result = "abnormal"
-            next_status = "ai_abnormal"
+            next_status = APPLICATION_STATUS_AI_ABNORMAL
 
         attachment_analysis = []
         for _, file, analysis in attachment_rows:
@@ -115,11 +124,7 @@ def run_ai_audit(db: Session, application_id: int) -> None:
                 }
             )
 
-        combined_ocr_text = "\n".join(
-            item["analysis"].ocr_text.strip()
-            for item in attachment_analysis
-            if item["analysis"] and item["analysis"].status == "completed" and item["analysis"].ocr_text
-        ).strip()
+        combined_ocr_text = _build_report_ocr_summary(attachment_analysis)
 
         identity_check = _build_identity_check(applicant, attachment_analysis)
         consistency_check = _build_consistency_check(application, award, attachment_analysis, applicant=applicant)
@@ -128,13 +133,13 @@ def run_ai_audit(db: Session, application_id: int) -> None:
         if identity_check["status"] == "mismatch":
             warning_points.append("附件未识别到申请人姓名")
             result = "abnormal"
-            next_status = "ai_abnormal"
+            next_status = APPLICATION_STATUS_AI_ABNORMAL
         if consistency_check["payload"]["title_check"]["status"] == "mismatch":
             result = "abnormal"
-            next_status = "ai_abnormal"
+            next_status = APPLICATION_STATUS_AI_ABNORMAL
         if consistency_check["payload"]["level_check"]["status"] == "mismatch":
             result = "abnormal"
-            next_status = "ai_abnormal"
+            next_status = APPLICATION_STATUS_AI_ABNORMAL
 
         report.provider = settings.ai_audit_provider
         report.status = "completed"
@@ -150,7 +155,8 @@ def run_ai_audit(db: Session, application_id: int) -> None:
         report.updated_at = utcnow()
         report.audited_at = utcnow()
 
-        application.status = next_status
+        final_application_status = original_status if preserve_status else next_status
+        application.status = final_application_status
         application.updated_at = utcnow()
         db.add(report)
         db.add(application)
@@ -160,7 +166,7 @@ def run_ai_audit(db: Session, application_id: int) -> None:
             action="ai_audit.complete",
             target_type="application",
             target_id=str(application_id),
-            detail={"result": result, "status": next_status},
+            detail={"result": result, "status": final_application_status},
         )
     except Exception as exc:
         report.status = "failed"
@@ -168,8 +174,8 @@ def run_ai_audit(db: Session, application_id: int) -> None:
         report.error_message = str(exc)
         report.updated_at = utcnow()
         db.add(report)
-        if settings.ai_audit_fallback_to_manual:
-            application.status = "pending_review"
+        if settings.ai_audit_fallback_to_manual and not preserve_status:
+            application.status = APPLICATION_STATUS_PENDING_REVIEW
             application.updated_at = utcnow()
             db.add(application)
         db.commit()
@@ -420,6 +426,40 @@ def _all_payload_pages(payload: dict) -> list[dict]:
     return selected
 
 
+def _build_report_ocr_summary(attachment_analysis: list[dict]) -> str:
+    summaries = []
+    for item in attachment_analysis:
+        analysis = item.get("analysis")
+        payload = item.get("payload") or {}
+        if not analysis or analysis.status != "completed":
+            continue
+        summary = payload.get("ocr_summary")
+        if isinstance(summary, str) and summary.strip():
+            summaries.append(summary.strip())
+            continue
+        if analysis.ocr_text:
+            summaries.append(_compact_ocr_text(analysis.ocr_text))
+    return "\n".join(summary for summary in summaries if summary).strip()
+
+
+def _compact_ocr_text(text: str, *, max_length: int = 650) -> str:
+    lines = []
+    seen = set()
+    for line in text.splitlines():
+        value = line.strip()
+        normalized = _normalize_text(value)
+        if not normalized or normalized in seen:
+            continue
+        seen.add(normalized)
+        lines.append(value)
+        if len("；".join(lines)) >= max_length:
+            break
+    summary = "；".join(lines)
+    if len(summary) <= max_length:
+        return summary
+    return summary[: max_length - 1].rstrip("；;，,。 ") + "…"
+
+
 def _identity_candidates(applicant: User | None) -> list[str]:
     if not applicant:
         return []
@@ -492,20 +532,31 @@ def _text_window_around_candidate(text: str, normalized_candidate: str) -> str:
 
 def _extract_document_title_from_text(text: str, fallback_filename: str) -> str:
     candidates: list[tuple[int, int, str]] = []
-    for index, line in enumerate([item.strip() for item in text.splitlines() if item.strip()][:10]):
+    for index, line in enumerate([item.strip() for item in text.splitlines() if item.strip()][:20]):
         if len(line) < 4:
+            continue
+        if _looks_like_document_title_noise(line):
             continue
         score = min(len(line), 30)
         if any(hint in line for hint in TITLE_HINTS):
             score += 40
         if any(char.isdigit() for char in line):
             score -= 18
-        score -= index * 5
+        score -= index * 2
         candidates.append((score, index, line))
     if candidates:
         candidates.sort(key=lambda item: (-item[0], item[1]))
         return candidates[0][2]
     return Path(fallback_filename).stem
+
+
+def _looks_like_document_title_noise(line: str) -> bool:
+    stripped = line.strip()
+    if len(stripped) > 42:
+        return True
+    return any(hint in stripped for hint in ("研究会", "协会", "委员会", "组委会", "教育研究会", "教育研")) and not any(
+        hint in stripped for hint in ("荣获", "参赛", "获奖", "证书", "证明")
+    )
 
 
 def _page_item_detected(payload: dict, page_indexes: set[int]) -> bool:

@@ -145,6 +145,7 @@ def analyze_teacher_insights_api(
             class_id=payload.class_id,
             class_ids=payload.class_ids,
             max_risk_students=payload.max_risk_students,
+            force_refresh=payload.force_refresh,
         )
     except ServiceError as exc:
         return error_response(request=request, code=exc.code, message=exc.message)
